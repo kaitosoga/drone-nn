@@ -22,7 +22,7 @@ Mit dem Ziel zu zufällig generierten Checkpoints zu fliegen sollen Users versuc
 ### 2. KI Drone als Gegner:
 Zusätzlich sollen Users gegen eine KI spielen, d.h., Users müssen versuchen schneller von Checkpoint zu Checkpoint zu fliegen als die von KI kontrollierte Drone. Die KI wird in Python (PyTorch + .ipynb) trainiert werden, die architectur für Inference aber in JS für die Client-Side implementiert. Die Architektur wir self-supervised sein, nämlich eine Policy Optimisation (ein Feedforward Neural Network (FFN) wird lokale Sequenzen von Frames in der sich Bewegenden Drone lernen, wobei die Outputs dieses FFNs die Thruster Intensitäten (x, y) bestimmt, und der Input der State-Vekctor ist.).
 
-### 3. Back-End loggin von Scores:
+### 3. Back-End logging von Scores:
 Im back-end werde ich Daten von Scores speichern, mit dem Ziel diese auf einem Leaderboard anzuzeigen.
 
 ### 4. Bearbeitbares "Bauset" für 
