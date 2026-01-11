@@ -18,7 +18,7 @@ Die Steuerung für den User besteht aus zwei Inputs, welche die zwei Antriebe de
 
 Zusätzlich kann ein User einen manuellen algorithmus erstellen, durch das Bauen einer Funktion die den Zustandsvektor als input nimmt, und als output die Antriebswerte der Drone gibt. Diese kann ebenfalls gegen die KI oder den User selbst antreten.  
 
-Die Drone selbst unterliegt realistischen Physikalischen Eigenschaften (Schwerkraft, Momentum, Momentum, Beschleunigung, Rotation (-sgeschindigkeit)), und die Umgebung wird zufällig mit vorbestimmten Bildern generiert, wobei die Drone im Mittelpunkt des Canvas bleibt, sodass sich der Hintergrund bewegt.  
+Die Drone selbst unterliegt realistischen Physikalischen Eigenschaften (Schwerkraft, Momentum, Beschleunigung, Rotation (-sgeschindigkeit)), und die Umgebung wird zufällig mit vorbestimmten Bildern generiert, wobei die Drone im Mittelpunkt des Canvas bleibt, sodass sich der Hintergrund bewegt.  
 
 *Sollte die Zeit noch reichen, werde ich im Backend auf einem Raspberry-Pi ein simples Login erstellen, um Usern einen Top-Score, Index auf einem öffentlichen Leaderboard, und Top-Score-abhängige Outfits/Styles für die Drone zuzuweisen. Andernfalls ist es mein Ziel, Teil 0 zu implementieren.  
 <br><br>
@@ -34,9 +34,8 @@ Aufgrund der KI, die ich aus praktischen Gründen in Python trainiere (mir bekan
 
 - Schwerkraft
 - Momentum
-- Momentum
 - Beschleunigung
-- Rotation
+- Rotation (Winkel)
 - Rotationsgeschindigkeit  
 
 Diese werde ich ebenfalls in JS implementieren, und auf einem Canvas Element visualisieren.  
@@ -57,7 +56,7 @@ Wie angedeutet, wird die Inferenz in JS implementiert (in Python würde sie eben
 ### 0.4 Visualisierung in Canvas:
 Das Verhalten der Dronen soll auf einem Canvas Element visualisiert werden, mit verschiedenen Farben / Designs für die Dronen. Die Antriebe und desser nummerischen Werte sollen ebenfalls visualisiert werden.  
 
-Der Hintergrund wird in Sektion 0.6 genauer beschrieben.  
+Der Hintergrund des Canvas wird in Sektion 0.6 genauer beschrieben.  
 <br>
 
 ### 0.5 User Inputs für Steuerung (Handy + Laptop):
