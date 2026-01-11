@@ -7,6 +7,10 @@
 #### }
 <br>
 
+
+
+
+
 ## Übersicht
 In dem geplanten Game tritt ein User in einem Rennen gegen eine KI gesteuerte 2D-Drone an. Das Ziel ist es, so schnell wie möglich von einem Checkpoint zum nächsten zu fliegen, mit einer endlichen Anzahl and Checkpoints.  
 
@@ -19,10 +23,15 @@ Die Drone selbst unterliegt realistischen Physikalischen Eigenschaften (Schwerkr
 *Sollte die Zeit noch reichen, werde ich im Backend auf einem Raspberry-Pi ein simples Login erstellen, um Usern einen Top-Score, Index auf einem öffentlichen Leaderboard, und Top-Score-abhängige Outfits/Styles für die Drone zuzuweisen. Andernfalls ist es mein Ziel, Teil 0 zu implementieren.  
 <br><br>
 
+
+
+
+
 ## Details + Schritte der Implementierung
 ## Teil 0.0:
 ### 0.1 Realistische Physik für die Drone:
 Aufgrund der KI, die ich aus praktischen Gründen in Python trainiere (mir bekannte, optimierte Bibliothek PyTorch, die es in JS nicht gibt), werde ich auch die Physik-Logik vorerst in Python implementieren. Diese soll beeinhalten:
+
 - Schwerkraft
 - Momentum
 - Momentum
@@ -41,7 +50,7 @@ Das Resultat wird ein Set von Parametern sein, das ich für die Inferenz der KI 
 Da die KI auf Zufällig generierten Beispielsequenzen trainiert wird, sollte die Anzahl solcher Beispiele die Performance der KI beeinflusse. Dadurch kann ich verschieden gute KIs speichern, indem ich die Qualität und Quantität der Trainingsdaten variiere. Diese weredn im Game die verschiedenen Schwierigkeitslevels bilden.  
 <br>
 
-### 0.3 Inferenz in JS: 
+### 0.3 Inferenz in JS:
 Wie angedeutet, wird die Inferenz in JS implementiert (in Python würde sie ebenfalls für Debugging implementiert). Das bedeutet, dass die Architektur (als Funktion mit noch unbestimmten Parametern zu verstehen) zuerst definiert, und dann die von Python gespeicherten Parameter laden wird. Diese Parameter müssen nicht privat sein, und können auf der Client-Side geladen werden (async). Somit wird eine Instanz eines trainierten KI Models in JS geladen. Diese kann dann angewendet werde, um Zustand->Antriebwerte transformationen durchzuführen, um die Drone zu steuern.  
 <br>
 
@@ -86,16 +95,21 @@ Die Navigation für die Tabs soll dabei immer sichtbar sein.
 
 ## Teil 1.0: 
 ### 1.1 Backend / Login:
+Sollte die Zeit noch reichen, werde ich auf einem Raspberry Pi Server als Backend ein simples Login für User erstellen, mit Email, Passwort, und Username. Mit einem Userobjekt können dann folgende Werte assoziiert werden:
 
+- Erreichte Scores (User, PID, Schwierigkeitslevel)
+- Index auf dem Leaderboard
+- Skins/Outfits der Drone
+
+Ebenfalls werden die Algorithmen eines Users als Option gelistet, bei der Wahl vom Gegner (KIs, PIDs)
 <br>
 
 ### 1.2 Skins/Outfits für Drone (automatisch angewendet, abhängig von Scores, Siegen, Schwierigkeitslevels)
-
+Das Bild, das das Aussehen der Drone bestimmt soll Stufenweise abhängig vom erreichten Top Score eins Users sein, wobei dieses Aussehen ("Skin" oder "Outfit") mit höheren Top Scores auch "besser aussehen" soll, obwohl das eine subjektive Sache bleibt. 
 <br>
 
 ### 1.3 Leaderboard:
-Ebenfalls soll das Leaderboard anzeigen Kategorisieren, ob die Scores von Usern oder eigenen Algorithmen erreicht wurden.
-
+Das Leaderboard soll die Usernamen und deren Top Scores anzeigen. Diese sollen geordnet augelistet werden, sodass der die besten Spieler und Algorithmen sichtbar sind. Es wird also kategorisiert, ob die Scores von Usern oder eigenen Algorithmen erreicht wurden.
 <br>
 
 ### 1.4 Benchmarks für Algorithmen
