@@ -1,8 +1,10 @@
 
 canvas {
-    border: 1px solid #000;
-    width: 800px;
-    height: 400%;
+    background-color: black;
+    border: 1px solid #af2c2c;
+    width: 75%;
+    height: 75%;
+    image-rendering: pixelated;
 }
 
 #header { margin: 10px 20px 20px 20px; }
