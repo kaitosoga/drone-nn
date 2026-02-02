@@ -22,7 +22,5 @@ frontend/angular-app/node_modules
 frontend/angular-app/public
 
 frontend/angular-app/.editorconfig
-frontend/angular-app/angular.json
 frontend/angular-app/tsconfig.app.json
-frontend/angular-app/tsconfig.json
 frontend/angular-app/tsconfig.spec.json
