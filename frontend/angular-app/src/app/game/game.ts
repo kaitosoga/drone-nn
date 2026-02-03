@@ -1,5 +1,8 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, inject, ViewChild } from '@angular/core'
 import { Env } from '../logic/Env';
+import { Inject } from '@angular/core';
+import { Home } from '../home/home';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-game',
@@ -13,14 +16,22 @@ export class Game {
 
   @ViewChild('canvas') canvas: any; // saved the canvas here
 
+  //homeData = inject(Home); // then use, i.e., homeData.
+  // can also edit instance config here!
+
+  text: string = "a";
+  width = 1400;
+  height = 1000;
+
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
   }
 
-  skin = new Image();
+  // skin = new Image();
+  env: any;
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
-    const env = new Env();
+    this.env = new Env(this.width, this.height, 10);
 
     const canvas = this.canvas.nativeElement as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1
@@ -30,52 +41,67 @@ export class Game {
     canvas.height = rect.height * dpr;
     this.context.scale(dpr, dpr);
 
-    this.skin.src = 'media/camera-drone.png';
-    this.skin.onload = () => this.draw();
+    //this.skin.src = 'media/camera-drone.png';
+    //this.skin.onload = () => this.draw();
     
     this.draw();
   }
 
-  idk() {
+  /*idk() {
     this.context.beginPath();
     this.context.moveTo(50, 50);
     this.context.lineTo(100, 120);
     this.context.strokeStyle = "white"; // to assign check presence
     this.context?.stroke();
-  }
+  }*/
 
-  x = 50;
-  vx = 300;
   lastTime = 0;
 
   draw(time = 0) {
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
 
-    this.step(dt);
+    let state = this.step();
+    //let outputAI = Net(state);
+
+    this.render(this.env);
+    
     requestAnimationFrame(t => this.draw(t));
   }
 
-  step(dt: number) {
-    this.x += this.vx * dt;
+  step() {
     // this.env.update(this.x, ...)
+    // const rightend = idk * 0.75 - 50
 
-    const rightend = window.outerWidth * 0.75 - 50
-    if (this.x > rightend || this.x < 50) this.vx *= -1;
+    let state = this.env.step([0, 1])
 
-    this.context.clearRect(0, 0, 800, 500);
+    return state;
+  }
+
+  render(drone: any) {
+    let x = drone.x;
+    let y = drone.y;
+    let angle = drone.a;
+  
+    this.context.clearRect(0, 0, 3000, 2000);
     this.context.fillStyle = 'white';
-    this.context.fillRect(this.x, 200, 40, 40);
-    if (!this.skin.complete) return;
-    this.context.drawImage(this.skin, this.x, 200, 40, 40);
-
-
+    this.context.fillRect(x, y, 100, 30);
+    //if (!this.skin.complete) return;
+    //this.context.drawImage(this.skin, this.x, 200, 40, 40);
   }
 
 
-
-
-
+  protected onClicked() {
+    this.text = "changed";
+  }
 
 }
 
+
+
+
+
+// note: static private prop of construcotr, then getter function for
+// getting the class instance of itself in the constructor, to prevent multiple instance,
+// only config for example
+// -> done by service, in angular not writing manually
