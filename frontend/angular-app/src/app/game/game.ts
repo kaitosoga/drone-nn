@@ -1,5 +1,7 @@
 import { Component, inject, ViewChild } from '@angular/core'
 import { Env } from '../logic/Env';
+import { Net } from '../logic/Net';
+import { PID } from '../logic/PID';
 import { Inject } from '@angular/core';
 import { Home } from '../home/home';
 import { stringify } from 'querystring';
@@ -20,18 +22,24 @@ export class Game {
   // can also edit instance config here!
 
   text: string = "a";
-  width = 1400;
-  height = 1000;
+  width = 2000;
+  height = 1500;
 
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
   }
-
-  // skin = new Image();
-  env: any;
+  skin: any;
+  Pid: any;
+  Net: any;
+  Env: any;
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
-    this.env = new Env(this.width, this.height, 10);
+    this.Env = new Env(this.width, this.height, 10);
+    this.Pid = new PID();
+    this.Net = new Net();
+    this.skin = new Image();
+    this.skin.src = 'media/camera-drone.png';
+    this.skin.onload = () => this.draw();
 
     const canvas = this.canvas.nativeElement as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1
@@ -41,8 +49,7 @@ export class Game {
     canvas.height = rect.height * dpr;
     this.context.scale(dpr, dpr);
 
-    //this.skin.src = 'media/camera-drone.png';
-    //this.skin.onload = () => this.draw();
+
     
     this.draw();
   }
@@ -60,34 +67,58 @@ export class Game {
   draw(time = 0) {
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
+    
+    let state = null;
+    if (state == null) {state = this.step([0, 0])}
 
-    let state = this.step();
+    let outputPID = this.Pid.compute(state)
     //let outputAI = Net(state);
+    state = this.step(outputPID);
 
-    this.render(this.env);
+    this.render(this.Env);
     
     requestAnimationFrame(t => this.draw(t));
   }
 
-  step() {
-    // this.env.update(this.x, ...)
+  step(thrust: any) {
+    // this.Env.update(this.x, ...)
     // const rightend = idk * 0.75 - 50
 
-    let state = this.env.step([0, 1])
+    this.Env.spawnCheckpoints(this.width / 2, this.height / 3);
+    let state = this.Env.step(thrust)
 
     return state;
   }
 
-  render(drone: any) {
-    let x = drone.x;
-    let y = drone.y;
-    let angle = drone.a;
+  render(droneEnv: any) {
+    let visualOffset = 100;
+    let x = droneEnv.x + visualOffset;
+    let y = droneEnv.y + visualOffset;
+    let angle = droneEnv.a * Math.PI / 180;
+    let chpX = droneEnv.chpX;
+    let chpY = droneEnv.chpY;
   
-    this.context.clearRect(0, 0, 3000, 2000);
-    this.context.fillStyle = 'white';
-    this.context.fillRect(x, y, 100, 30);
-    //if (!this.skin.complete) return;
-    //this.context.drawImage(this.skin, this.x, 200, 40, 40);
+    this.context.clearRect(0, 0, 10000, 10000); // -> make large enough for bigger screens, i.e., canvasas
+
+
+    let cx = this.canvas.width / 2;
+    let cy = this.canvas.height / 2;
+
+    if (!this.skin.complete) return
+
+    this.context.save();
+    this.context.translate(x, y);
+    this.context.rotate(angle);
+    this.context.drawImage(this.skin, -100, 50, 100, 50);
+    this.context.translate(0, 0);
+    this.context.rotate(-angle);
+    this.context.resetTransform()
+
+    this.context.beginPath();
+    this.context.arc(chpX, chpY, 50, 0, Math.PI * 2)
+    this.context.strokeStyle = "green";
+    this.context.stroke();
+    
   }
 
 

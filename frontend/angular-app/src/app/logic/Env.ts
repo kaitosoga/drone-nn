@@ -30,7 +30,7 @@ export class Env {
         this.height = h;
         this.chp_radius = r;
 
-        this.x = 0;
+        this.x = 500;
         this.y = 0;
         this.vx = 0;
         this.vy = 0;
@@ -39,11 +39,11 @@ export class Env {
         this.a = 0;
         this.va = 0;
 
-        this.GRAVITY = 2
+        this.GRAVITY = 1
         this.THRUST_POWER = 3.5
-        this.X_AXIS_SENS = 50
+        this.X_AXIS_SENS = 40
         this.Y_AXIS_SENS = 1
-        this.ROTATION_SPEED = 1
+        this.ROTATION_SPEED = 0.5
         this.ROTATION_DRAG = 0.7
         this.MOVEMENT_DRAG = 0.5
         this.ACC_THROTLE = 0.4
@@ -66,9 +66,11 @@ export class Env {
         this.va = va;
     }
 
-    spawnCheckpoints() {
-        this.chpX = Math.random() * (0.8*this.width - 0.2*this.width) + 0.2*this.width;
-        this.chpY = Math.random() * (0.8*this.height - 0.2*this.height) + 0.2*this.height;
+    spawnCheckpoints(w: number, h: number) {
+        if (Math.hypot(this.chpX - this.x, this.chpY - this.y) < 100 || this.chpX == 0) {
+            this.chpX = Math.random() * (0.8*w - 0.2*w) + 0.2*w;
+            this.chpY = Math.random() * (0.8*h - 0.2*h) + 0.2*h;
+        }
     }
 
     step(action: any) {
