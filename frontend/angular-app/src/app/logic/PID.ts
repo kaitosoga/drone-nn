@@ -5,7 +5,7 @@ export class PID{
     }
 
     sigmoid(el: number) {
-        return 1/ (1 + Math.exp(-el))
+        return 1 / (1 + Math.exp(-el))
     }
     
     compute(state: any) {

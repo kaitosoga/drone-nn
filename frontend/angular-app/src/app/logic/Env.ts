@@ -1,7 +1,6 @@
 export class Env {
     width: number;
     height: number;
-    chp_radius: number;
 
     chpX: number;
     chpY: number;
@@ -25,10 +24,9 @@ export class Env {
     ACC_THROTLE: number;
 
 
-    constructor(w: number, h: number, r: number) {
+    constructor(w: number, h: number) {
         this.width = w;
         this.height = h;
-        this.chp_radius = r;
 
         this.x = 500;
         this.y = 0;
@@ -39,11 +37,11 @@ export class Env {
         this.a = 0;
         this.va = 0;
 
-        this.GRAVITY = 1
+        this.GRAVITY = 2
         this.THRUST_POWER = 3.5
-        this.X_AXIS_SENS = 40
+        this.X_AXIS_SENS = 50
         this.Y_AXIS_SENS = 1
-        this.ROTATION_SPEED = 0.5
+        this.ROTATION_SPEED = 1
         this.ROTATION_DRAG = 0.7
         this.MOVEMENT_DRAG = 0.5
         this.ACC_THROTLE = 0.4
@@ -66,10 +64,11 @@ export class Env {
         this.va = va;
     }
 
-    spawnCheckpoints(w: number, h: number) {
-        if (Math.hypot(this.chpX - this.x, this.chpY - this.y) < 100 || this.chpX == 0) {
-            this.chpX = Math.random() * (0.8*w - 0.2*w) + 0.2*w;
-            this.chpY = Math.random() * (0.8*h - 0.2*h) + 0.2*h;
+    spawnCheckpoints() {
+        if (Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) {
+            let direction = Math.random() * Math.PI;
+            this.chpX = Math.cos(direction) * 500;
+            this.chpY = Math.sin(direction) * 500;
         }
     }
 
@@ -103,15 +102,14 @@ export class Env {
         let accVector = [this.ax, this.ay];
 
         let d = null;
-        if (this.a < 360) {d = this.a - 360} else {d = this.a};
+        if (this.a > 180) {d = this.a - 360} else {d = this.a};
         let ang = Math.tanh(d);
         let angVel = this.va;
 
         let dist = Math.hypot(dx, dy)
-        let reached = false;
-        let out = false;
+        // let reached = false;
 
-        if (this.x < 0 || this.x > this.width || this.y < 0 || this.y > this.height) {out = true} else {out = false}
+        // if (this.x < 0 || this.x > this.width || this.y < 0 || this.y > this.height) {out = true} else {out = false}
 
         let state = {
             "opt": optimalVector,
@@ -119,8 +117,7 @@ export class Env {
             "acc": accVector,
             "ang": ang,
             "ang_vel": angVel,
-            "reached": reached,
-            "out": out
+            // "reached": reached
         }
 
         return state;

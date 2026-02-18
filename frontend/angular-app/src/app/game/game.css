@@ -1,14 +1,25 @@
 
 /*@import "bootstrap/scss/bootstrap";*/
 
+body {
+    background-color: black;
+    color: rgb(85, 221, 255);
+    height: 100%;
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
 canvas {
     background-color: black;
     border: 1px solid #af2c2c;
-    width: 75%;
-    height: 75%;
+    width: 50%;
+    height: 100%;
     image-rendering: pixelated;
 }
 
-#header { margin: 10px 20px 20px 20px; }
+#live { margin: 10px 20px 20px 20px; }
 
 /*for better quality, make larger than necessary in css*/
