@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@angular/cli": "^21.1.0"
+    "@angular/cli": "^21.1.0",
+    "@tensorflow/tfjs": "^4.22.0"
   }
 }

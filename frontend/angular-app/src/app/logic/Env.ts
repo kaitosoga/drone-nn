@@ -1,3 +1,5 @@
+import * as tf from '@tensorflow/tfjs';
+
 export class Env {
     width: number;
     height: number;

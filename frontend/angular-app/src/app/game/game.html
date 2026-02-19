@@ -9,11 +9,14 @@
     <div id="wrapper">
         <canvas #canvas></canvas>
         <div id="live"><p>canvas here:</p></div>
+        <div class="controls">
+            <button (click)="leftThrust()">L</button>
+            <button (click)="rightThrust()">R</button>
+            <button>Pause</button>
+        </div>
     </div>
 </body>
 </html>
-
-
 
 <!--for better quality, make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->

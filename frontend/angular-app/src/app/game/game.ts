@@ -1,4 +1,5 @@
 import { Component, inject, ViewChild } from '@angular/core'
+
 import { Env } from '../logic/Env';
 import { Net } from '../logic/Net';
 import { PID } from '../logic/PID';
@@ -14,8 +15,6 @@ import { stringify } from 'querystring';
 })
 
 export class Game {
-  //gameEnv: Env;
-
   @ViewChild('canvas') canvas: any; // saved the canvas here
 
   //homeData = inject(Home); // then use, i.e., homeData.
@@ -23,12 +22,32 @@ export class Game {
 
   text: string = "a";
 
+  private isCtrlHeld = false;
+  private lastHeld = false;
+  private lClick = false;
+  private rClick = false;
+
+  constructor() {
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
+      if (e.key === 'ArrowLeft') this.lClick = true;
+      if (e.key === 'ArrowRight') this.rClick = true;
+    });
+
+    document.addEventListener('keyup', (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Meta') this.isCtrlHeld = false;
+      if (e.key === 'ArrowLeft') this.lClick = false;
+      if (e.key === 'ArrowRight') this.rClick = false;
+    });
+  }
+
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
   }
+
   skin: any;
   Pid: any;
-  Net: any;
+  Net0: any;
   Env: any;
   state: any;
   sRat: any; // screen size ratio to fixed number
@@ -38,14 +57,19 @@ export class Game {
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
     this.state = null;
 
-    this.sRat = 1 //Math.max(screen.width, screen.height) / 900;
-    this.ratio = window.innerWidth / window.innerHeight;
-
     this.Pid = new PID();
-    this.Net = new Net();
+
+    this.Net0 = new Net();
+    this.Net0.load('media/drone_AI_weights.json')
+
     this.skin = new Image();
     this.skin.src = 'media/camera-drone.png';
     this.skin.onload = () => this.draw();
+    
+    let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
+    let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
+    this.sRat = Math.min(vw, vh) / 900;
+    this.ratio = this.sideRatio();
 
     const canvas = this.canvas.nativeElement as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1
@@ -57,51 +81,40 @@ export class Game {
     this.context.scale(dpr, dpr);
 
     this.Env = new Env(canvas.width * 4, canvas.height * 4);
-    // canvas.style.width = canvas.width + "px";
-    // canvas.style.height = canvas.height + "px";
-    console.log(canvas.width, canvas.clientWidth)
     this.Env.reset(this.Env.width / 2, this.Env.height / 2)
 
     this.draw();
   }
 
-  /*idk() {
-    this.context.beginPath();
-    this.context.moveTo(50, 50);
-    this.context.lineTo(100, 120);
-    this.context.strokeStyle = "white"; // to assign check presence
-    this.context?.stroke();
-  }*/
+  sideRatio() {
+    return Math.max((window.innerWidth / window.innerHeight), 
+                    (window.innerHeight / window.innerWidth))
+  }
 
   lastTime = 0;
-
   draw(time = 0) {
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
     
-    
     if (this.state == null) {this.state = this.step([0, 0])}
 
     let outputPID = this.Pid.compute(this.state)
-    //let outputAI = Net(state);
-    let nextState = this.step(outputPID);
-
+    
+    let outputNet0 = this.Net0.compute(this.state);
+    
+    let nextState = this.step(outputNet0);
     this.render(this.Env, time);
-
     this.state = nextState;
     
     requestAnimationFrame(t => this.draw(t));
   }
 
   step(thrust: any) {
-    // this.Env.update(this.x, ...)
-    // const rightend = idk * 0.75 - 50
-
     this.Env.spawnCheckpoints(); // spawns if found hit, otherwise not
     let state = this.Env.step(thrust)
 
     return state;
-  }
+  } 
 
   render(droneEnv: any, t: number) {
     let visualOffsetX = 0;
@@ -112,9 +125,35 @@ export class Game {
     let chpX = droneEnv.chpX;
     let chpY = droneEnv.chpY;
   
-    this.context.clearRect(0, 0, 10000, 10000); // -> make large enough for bigger screens, i.e., canvases
+    this.context.clearRect(0, 0, 10000, 10000); // -> make large enough for bigger screens, i.e., bigger canvases
 
     if (!this.skin.complete) return
+
+    //console.log(this.sRat, window.devicePixelRatio)
+    //let dSize = Math.abs((this.lastDpr - window.devicePixelRatio))
+    let currentRatio = this.sideRatio();
+    let dSize = Math.abs(currentRatio-this.ratio)
+
+    if (!this.isCtrlHeld && dSize > 0.1 && !this.lastHeld) { // improvised approximation, if zooming, ctrl may be held
+      let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
+      let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
+      this.sRat = Math.min(vw, vh) / (900);
+      //console.log("resized")
+    } else {
+      //console.log("zoomed")
+    }
+
+    this.lastHeld = this.isCtrlHeld;
+
+    let resize = false;
+    if (t - this.reTiInt > 16*5) {
+      this.reTiInt = t;
+      resize = true;
+    }
+
+    let ratio = this.sideRatio();
+    if (resize) {this.ratio = ratio}
+    
 
     const canvas = this.canvas.nativeElement as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1
@@ -124,34 +163,6 @@ export class Game {
     canvas.width  = sL * dpr;
     canvas.height = sL * dpr;
 
-    //console.log(this.sRat, window.devicePixelRatio, "fuck")
-    
-
-    //let dSize = Math.abs((this.lastDpr - window.devicePixelRatio))
-
-    let currentRatio = window.innerWidth / window.innerHeight
-    let dSize = Math.abs(currentRatio-this.ratio)
-
-    if (dSize > 0.1) { // improvised approximation
-      let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
-      let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
-      this.sRat = Math.min(vw, vh) / 900;
-      console.log("resized")
-    } else {
-      console.log("zoomed")
-      //this.sRat = 1;
-    }
-
-    let resize = false;
-    if (t - this.reTiInt > 16*5) {
-      this.reTiInt = t;
-      resize = true;
-    }
-
-    console.log(this.sRat)
-
-    if (resize) {this.ratio = window.innerWidth / window.innerHeight}
-    
     this.context.save();
     this.context.translate(canvas.width / 2, canvas.height / 2);
     this.context.rotate(angle);
@@ -167,7 +178,14 @@ export class Game {
     this.context.arc(relX, relY, 40*this.sRat, 0, Math.PI * 2);
     this.context.strokeStyle = "green";
     this.context.stroke();
-    
+  }
+
+  protected leftThrust() {
+
+  }
+
+  protected rightThrust() {
+
   }
 
 
