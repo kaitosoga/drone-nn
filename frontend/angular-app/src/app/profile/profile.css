@@ -2,3 +2,59 @@ body {
     background-color: black;
     color: rgb(85, 221, 255);
 }
+
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: white;
+}
+
+.auth-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 300px;
+    background: #1a1a2e;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.tabs { 
+    display: flex; 
+    gap: 0.5rem; 
+    margin-bottom: 0.5rem; 
+}
+
+.tabs button {
+    flex: 1;
+    padding: 0.5rem;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.tabs button.active {background: #5566ff;}
+
+input {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #111;
+    color: white;
+}
+
+button { 
+    padding: 0.6rem; 
+    border-radius: 6px; 
+    border: none; 
+    background: #5566ff; 
+    color: white; 
+    cursor: pointer; 
+}
+.error { color: #ff6666; font-size: 0.85rem; min-height: 1rem; }
+
+

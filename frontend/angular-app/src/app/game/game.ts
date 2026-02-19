@@ -46,6 +46,20 @@ export class Game {
   }
 
   skin: any;
+
+  astronaut: any
+  cometthin: any
+  cometthick: any
+  debris: any
+  earth: any
+  moon: any
+  moon1: any
+  ppstardust: any
+  redgalaxy: any
+  robot: any
+  saturn: any
+  telescope: any
+
   Pid: any;
   Net0: any;
   Env: any;
@@ -60,11 +74,60 @@ export class Game {
     this.Pid = new PID();
 
     this.Net0 = new Net();
-    this.Net0.load('media/drone_AI_weights.json')
+    this.Net0.load('models/drone_AI_weights.json')
 
     this.skin = new Image();
     this.skin.src = 'media/camera-drone.png';
     this.skin.onload = () => this.draw();
+
+    this.skin.src = 'media/camera-drone.png';
+    this.skin.onload = () => this.draw();
+
+  this.astronaut = new Image();
+  this.astronaut.src = 'media/';
+  this.astronaut.onload = () => this.draw();
+  this.cometthin = new Image();
+  this.cometthin.src = 'media/';
+  this.cometthin.onload = () => this.draw();
+  this.cometthick = new Image();
+  this.cometthick.src = 'media/';
+  this.cometthick.onload = () => this.draw();
+  this.debris = new Image();
+  this.debris.src = 'media/';
+  this.debris.onload = () => this.draw();
+  this.earth = new Image();
+  this.earth.src = 'media/';
+  this.earth.onload = () => this.draw();
+  this.moon = new Image();
+  this.moon.src = 'media/';
+  this.moon.onload = () => this.draw();
+  this.moon1 = new Image();
+  this.moon1.src = 'media/';
+  this.moon1.onload = () => this.draw();
+  this.ppstardust = new Image();
+  this.ppstardust.src = 'media/';
+  this.ppstardust.onload = () => this.draw();
+  this.redgalaxy = new Image();
+  this.redgalaxy.src = 'media/';
+  this.redgalaxy.onload = () => this.draw();
+  this.robot = new Image();
+  this.robot.src = 'media/';
+  this.robot.onload = () => this.draw();
+  this.saturn = new Image();
+  this.saturn.src = 'media/';
+  this.saturn.onload = () => this.draw();
+  this.telescope = new Image();
+  this.telescope.src = 'media/';
+  this.telescope.onload = () => this.draw();
+
+    for (let obj of [this.astronaut, this.cometthin, this.cometthick, this.debris, 
+                 this.earth, this.moon, this.moon1, this.ppstardust, 
+                 this.redgalaxy, this.robot, this.saturn, this.telescope]) {
+      
+      obj = new Image();
+      obj.src = 'media/`media/${toString(obj)}`'
+      obj.onload = () => this.draw();
+    }
     
     let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
     let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
