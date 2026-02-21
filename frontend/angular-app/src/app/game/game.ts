@@ -47,19 +47,6 @@ export class Game {
 
   skin: any;
 
-  astronaut: any
-  cometthin: any
-  cometthick: any
-  debris: any
-  earth: any
-  moon: any
-  moon1: any
-  ppstardust: any
-  redgalaxy: any
-  robot: any
-  saturn: any
-  telescope: any
-
   Pid: any;
   Net0: any;
   Env: any;
@@ -76,7 +63,7 @@ export class Game {
     this.Pid = new PID();
 
     this.Net0 = new Net();
-    this.Net0.load('models/drone_AI_weights.json')
+    this.Net0.load('models/drone_AI_weights-l17.json')
 
     this.skin = new Image();
     this.skin.src = 'media/camera-drone.png';
@@ -85,8 +72,6 @@ export class Game {
     this.chp = new Image();
     this.chp.src = 'media/chp.png';
     this.chp.onload = () => this.draw();
-
-    // for (let i=0; i<12; i++) 
 
     this.objects = [];
       
@@ -160,8 +145,8 @@ export class Game {
     let x = droneEnv.x + visualOffsetX;
     let y = droneEnv.y - visualOffsetY;
     let angle = droneEnv.a * Math.PI / 180;
-    let chpX = droneEnv.chpX;
-    let chpY = droneEnv.chpY;
+    let chpX = Env.chpX;
+    let chpY = Env.chpY;
   
     this.context.clearRect(0, 0, 10000, 10000); // -> make large enough for bigger screens, i.e., bigger canvases
 

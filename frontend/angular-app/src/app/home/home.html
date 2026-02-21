@@ -22,6 +22,17 @@
     <p>Password: {{ u.passwd }}</p>
 </div>
 
+<ul>
+  <li *ngFor="let entry of leaderboard">
+    {{ entry.name }} — {{ entry.top_score }}
+  </li>
+</ul>
+
+<button (click)="getLedInd()">Test getting index</button>
+<button (click)="testLogin()">Test Login</button>
+<button (click)="send70()">Send Test Data</button>
+
+
 
 <app-info></app-info>
 

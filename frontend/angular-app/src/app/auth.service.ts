@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private base = 'http://knsserver3.gotdns.ch:5001'; // then nginx /api
+  private base = 'http://localhost:9000'; // later api.aipilots.ch //'http://knsserver3.gotdns.ch:5001'; // then nginx /api
 
   constructor(private http: HttpClient) {}
 

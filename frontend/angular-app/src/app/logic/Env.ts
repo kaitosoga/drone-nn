@@ -5,9 +5,6 @@ export class Env {
     width: number;
     height: number;
 
-    chpX: number;
-    chpY: number;
-
     x: number;
     y: number;
     vx: number;
@@ -28,8 +25,10 @@ export class Env {
 
     chPSeries: any;
     chPIndex: number;
-
     score: number;
+
+    static chpX = 0;
+    static chpY = 0;
 
     constructor(w: number, h: number) {
         this.width = w;
@@ -54,10 +53,7 @@ export class Env {
         this.MOVEMENT_DRAG = 0.5
         this.ACC_THROTLE = 0.4
 
-        this.chpX = 0;
-        this.chpY = 0;
-
-        this.chPSeries = [[this.chpX, this.chpY]];
+        this.chPSeries = [[Env.chpX, Env.chpY]];
         this.chPIndex = 0;
 
         this.reset(this.width / 2, this.height / 2, 0, 0, 0, 0, 0, 0); 
@@ -76,18 +72,23 @@ export class Env {
     }
 
     spawnCheckpoints() {
-        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) && this.chPSeries.length >= this.chPIndex) {
-            let direction = Math.random() * Math.PI;
-            this.chpX = Math.cos(direction) * 500;
-            this.chpY = Math.sin(direction) * 1000; // !
-            this.chPSeries.push([this.chpX, this.chpY]);
-        } else { return; }
+        if ((Math.hypot(Env.chpX - this.x, Env.chpY - this.y) < 17.5 || Env.chpX == 0) && this.chPSeries.length >= this.chPIndex) {
+        let prevDirection = Math.atan2(Env.chpY, Env.chpX);
+
+        let u = 1 - Math.random();
+        let v = Math.random();
+        let delta = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v); // found this online
+        let direction = prevDirection + 0.3 * delta;
+
+        direction = (direction + Math.PI) / 2 * Math.PI // Math.atan2(Math.sin(direction), Math.cos(direction));
+        Env.chpX = Math.cos(direction) * 450;
+        Env.chpY = Math.sin(direction) * 500;
+
+        this.chPSeries.push([Env.chpX, Env.chpY]);
+        } else {return;}
 
         this.chPIndex += 1;
         this.score += 1;
-
-        
-
 
     }
 
@@ -113,8 +114,8 @@ export class Env {
         this.y += this.MOVEMENT_DRAG * this.vy;
 
         // state space:
-        let dx = this.chpX - this.x;
-        let dy = this.chpY - this.y;
+        let dx = Env.chpX - this.x;
+        let dy = Env.chpY - this.y;
 
         let optimalVector = [dx, dy];
         let velVector = [this.vx, this.vy];
