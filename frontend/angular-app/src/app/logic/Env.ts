@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
+import { AnyRecord } from 'dns';
 
 export class Env {
     width: number;
@@ -25,10 +26,15 @@ export class Env {
     MOVEMENT_DRAG: number;
     ACC_THROTLE: number;
 
+    chPSeries: any;
+    chPIndex: number;
+
+    score: number;
 
     constructor(w: number, h: number) {
         this.width = w;
         this.height = h;
+        this.score = 0;
 
         this.x = 500;
         this.y = 0;
@@ -51,6 +57,9 @@ export class Env {
         this.chpX = 0;
         this.chpY = 0;
 
+        this.chPSeries = [[this.chpX, this.chpY]];
+        this.chPIndex = 0;
+
         this.reset(this.width / 2, this.height / 2, 0, 0, 0, 0, 0, 0); 
 
     }
@@ -67,11 +76,19 @@ export class Env {
     }
 
     spawnCheckpoints() {
-        if (Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) {
+        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) && this.chPSeries.length >= this.chPIndex) {
             let direction = Math.random() * Math.PI;
             this.chpX = Math.cos(direction) * 500;
-            this.chpY = Math.sin(direction) * 500;
-        }
+            this.chpY = Math.sin(direction) * 1000; // !
+            this.chPSeries.push([this.chpX, this.chpY]);
+        } else { return; }
+
+        this.chPIndex += 1;
+        this.score += 1;
+
+        
+
+
     }
 
     step(action: any) {

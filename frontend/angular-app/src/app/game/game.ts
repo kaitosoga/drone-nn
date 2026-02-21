@@ -67,6 +67,8 @@ export class Game {
   sRat: any; // screen size ratio to fixed number
   ratio: any;
   reTiInt: any // resizing time interval
+  chp: any;
+  objects: any;
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
     this.state = null;
@@ -80,55 +82,28 @@ export class Game {
     this.skin.src = 'media/camera-drone.png';
     this.skin.onload = () => this.draw();
 
-    this.skin.src = 'media/camera-drone.png';
-    this.skin.onload = () => this.draw();
+    this.chp = new Image();
+    this.chp.src = 'media/chp.png';
+    this.chp.onload = () => this.draw();
 
-  this.astronaut = new Image();
-  this.astronaut.src = 'media/';
-  this.astronaut.onload = () => this.draw();
-  this.cometthin = new Image();
-  this.cometthin.src = 'media/';
-  this.cometthin.onload = () => this.draw();
-  this.cometthick = new Image();
-  this.cometthick.src = 'media/';
-  this.cometthick.onload = () => this.draw();
-  this.debris = new Image();
-  this.debris.src = 'media/';
-  this.debris.onload = () => this.draw();
-  this.earth = new Image();
-  this.earth.src = 'media/';
-  this.earth.onload = () => this.draw();
-  this.moon = new Image();
-  this.moon.src = 'media/';
-  this.moon.onload = () => this.draw();
-  this.moon1 = new Image();
-  this.moon1.src = 'media/';
-  this.moon1.onload = () => this.draw();
-  this.ppstardust = new Image();
-  this.ppstardust.src = 'media/';
-  this.ppstardust.onload = () => this.draw();
-  this.redgalaxy = new Image();
-  this.redgalaxy.src = 'media/';
-  this.redgalaxy.onload = () => this.draw();
-  this.robot = new Image();
-  this.robot.src = 'media/';
-  this.robot.onload = () => this.draw();
-  this.saturn = new Image();
-  this.saturn.src = 'media/';
-  this.saturn.onload = () => this.draw();
-  this.telescope = new Image();
-  this.telescope.src = 'media/';
-  this.telescope.onload = () => this.draw();
+    // for (let i=0; i<12; i++) 
 
-    for (let obj of [this.astronaut, this.cometthin, this.cometthick, this.debris, 
-                 this.earth, this.moon, this.moon1, this.ppstardust, 
-                 this.redgalaxy, this.robot, this.saturn, this.telescope]) {
+    this.objects = [];
       
-      obj = new Image();
-      obj.src = 'media/`media/${toString(obj)}`'
-      obj.onload = () => this.draw();
+    for (let name of ['astronaut', 'cometthin', 'cometthick', 'debris', 
+                    'earth', 'moon', 'moon1', 'ppstardust', 
+                    'redgalaxy', 'robot', 'saturn', 'telescope']) {
+      
+      //let obj = new Image();
+      //obj.src = `media/${name}.png`;
+      //obj.onload = () => this.draw();
+//
+      //this.objects.push(obj)
+
+      //inefficient ... ?
+
     }
-    
+
     let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
     let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
     this.sRat = Math.min(vw, vh) / 900;
@@ -226,6 +201,19 @@ export class Game {
     canvas.width  = sL * dpr;
     canvas.height = sL * dpr;
 
+    // Draw checkpoint offset from drone's world position
+    const relX = canvas.width / 2 + (chpX - x) * this.sRat;
+    const relY = canvas.height / 2 + (chpY - y) * this.sRat;
+    let offset = 200*this.sRat / 2
+    this.context.drawImage(this.chp, relX-offset, relY-offset, 200*this.sRat, 200*this.sRat)
+    /*this.context.beginPath();
+    this.context.arc(relX, relY, 40*this.sRat, 0, Math.PI * 2);
+    this.context.strokeStyle = "green";
+    this.context.stroke();*/
+
+    // Backdound:
+    //this.context.drawImage(this.objects[Math.round(Math.random()*11)], relX+Math.round(Math.random()*11), relY+Math.round(Math.random()*11))
+
     this.context.save();
     this.context.translate(canvas.width / 2, canvas.height / 2);
     this.context.rotate(angle);
@@ -233,15 +221,8 @@ export class Game {
     this.context.translate(0, 0);
     this.context.rotate(-angle);  
     this.context.resetTransform();
-
-    // Draw checkpoint offset from drone's world position
-    const relX = canvas.width / 2 + (chpX - x) * this.sRat;
-    const relY = canvas.height / 2 + (chpY - y) * this.sRat;
-    this.context.beginPath();
-    this.context.arc(relX, relY, 40*this.sRat, 0, Math.PI * 2);
-    this.context.strokeStyle = "green";
-    this.context.stroke();
   }
+  
 
   protected leftThrust() {
 
