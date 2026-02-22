@@ -38,7 +38,12 @@
             <button class="available" (click)="add(char, 'L')">{{char}} (L)</button>
             <button class="available" (click)="add(char, 'R')">{{char}} (R)</button>
         }
+        <p class="error">{{this.error}}</p>
         <p>To delete, double click the char</p>
+        <p>{{this.stringCharsL}}</p>
+        <p>{{this.stringCharsR}}</p>
+
+        <button (click)="compileController(sampleState);">compile</button>
     </div>
 
 </body>

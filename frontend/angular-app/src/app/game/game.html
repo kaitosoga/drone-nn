@@ -13,7 +13,8 @@
             <div class="controls">
                 <button (click)="leftThrust()">L</button>
                 <button (click)="rightThrust()">R</button>
-                <button>Pause</button>
+                <button (click)="pause();">Pause</button>
+                <button (click)="resume();">Resume</button>
                 <button (click)="startGame();">Start</button>
             </div>
             <div>
@@ -26,7 +27,8 @@
                 <button (click)="selectS('s0')">Skin0</button>
             </div>
             <div id="live">
-                <p>Stats:</p>
+                <p>Scores:</p>
+                <p>{{scores}}</p>
 
             </div>
         </div>

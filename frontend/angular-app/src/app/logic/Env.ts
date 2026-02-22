@@ -30,7 +30,7 @@ export class Env {
     chpX = 0;
     chpY = 0;
 
-    constructor(w: number, h: number) {
+    constructor(w: number, h: number, mDrag=0.5, rDrag=0.7, rSpeed=1, tPower=3.5, gravity=2) {
         this.width = w;
         this.height = h;
         this.score = 0;
@@ -44,14 +44,14 @@ export class Env {
         this.a = 0;
         this.va = 0;
 
-        this.GRAVITY = 2
-        this.THRUST_POWER = 3.5
-        this.X_AXIS_SENS = 50
-        this.Y_AXIS_SENS = 1
-        this.ROTATION_SPEED = 1
-        this.ROTATION_DRAG = 0.7
-        this.MOVEMENT_DRAG = 0.5
-        this.ACC_THROTLE = 0.4
+        this.GRAVITY = gravity;
+        this.THRUST_POWER = tPower;
+        this.X_AXIS_SENS = 50;
+        this.Y_AXIS_SENS = 1;
+        this.ROTATION_SPEED = rSpeed;
+        this.ROTATION_DRAG = rDrag;
+        this.MOVEMENT_DRAG = mDrag;
+        this.ACC_THROTLE = 0.4;
 
         Env.chPSeries = [[this.chpX, this.chpY]];
 
@@ -71,7 +71,8 @@ export class Env {
     }
 
     spawnCheckpoints() {
-        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
+        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
+        this.score += 1;
         let prevDirection = Math.atan2(this.chpY, this.chpX);
 
         let u = 1 - Math.random();
@@ -85,7 +86,8 @@ export class Env {
 
         Env.chPSeries.push([this.chpX, this.chpY]);
 
-        } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5)) {
+        } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50)) {
+            this.score += 1;
             let chpXY = Env.chPSeries[this.chPIndex];
             //console.log(Env.chPSeries)
             this.chpX = chpXY[0];
@@ -93,8 +95,6 @@ export class Env {
         }
 
         this.chPIndex += 1;
-        this.score += 1;
-
     }
 
     step(action: any) {
@@ -103,7 +103,7 @@ export class Env {
         
         let torque = thrustL - thrustR;
         let thrust = this.THRUST_POWER * Math.cos(this.a * (Math.PI / 180)) * ((thrustL + thrustR) / 2);
-        this.va -= this.ROTATION_SPEED * torque;
+        this.va -= this.ROTATION_SPEED * torque //+ Math.cos(this.a); // last term for stabilisation
         this.va *= this.ROTATION_DRAG;
 
         this.a += this.va * this.ACC_THROTLE;
