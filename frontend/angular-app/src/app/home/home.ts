@@ -65,7 +65,6 @@ export class Home {
     this.auth.submitScore(80).subscribe({
       next: (res) => {
         console.log('Score updated! New top score:', res.top_score);
-        // Refresh the leaderboard to see your new score
         this.getLedInd(); 
       },
       error: (e) => {

@@ -6,15 +6,30 @@
     <title>AI Pilots - Inspect</title>
 </head>
 <body>
-    <div id="wrapper">
+    <div class="wrapper">
         <canvas #canvas></canvas>
-        <div id="live"><p>canvas here:</p></div>
-        <div class="controls">
-            <button (click)="leftThrust()">L</button>
-            <button (click)="rightThrust()">R</button>
-            <button>Pause</button>
-        </div>
+        <div class="menu-wrapper">
+            <div id="live"><p>Menu:</p></div>
+            <div class="controls">
+                <button (click)="leftThrust()">L</button>
+                <button (click)="rightThrust()">R</button>
+                <button>Pause</button>
+                <button (click)="startGame();">Start</button>
+            </div>
+            <div>
+                <button (click)="selectL('l17')">AI Level 0</button>
+                <button (click)="selectL('l0')">AI Level 1</button>
+                <button (click)="selectL('l18')">AI Level 2</button>
+                <button (click)="selectL('custom')">My Controller</button>
+            </div>
+            <div>
+                <button (click)="selectS('s0')">Skin0</button>
+            </div>
+            <div id="live">
+                <p>Stats:</p>
 
+            </div>
+        </div>
     </div>
 </body>
 </html>

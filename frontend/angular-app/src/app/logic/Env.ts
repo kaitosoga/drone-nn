@@ -23,12 +23,12 @@ export class Env {
     MOVEMENT_DRAG: number;
     ACC_THROTLE: number;
 
-    chPSeries: any;
-    chPIndex: number;
+    static chPSeries: number[][] = [];
+    chPIndex = 0;
     score: number;
 
-    static chpX = 0;
-    static chpY = 0;
+    chpX = 0;
+    chpY = 0;
 
     constructor(w: number, h: number) {
         this.width = w;
@@ -53,8 +53,7 @@ export class Env {
         this.MOVEMENT_DRAG = 0.5
         this.ACC_THROTLE = 0.4
 
-        this.chPSeries = [[Env.chpX, Env.chpY]];
-        this.chPIndex = 0;
+        Env.chPSeries = [[this.chpX, this.chpY]];
 
         this.reset(this.width / 2, this.height / 2, 0, 0, 0, 0, 0, 0); 
 
@@ -72,8 +71,8 @@ export class Env {
     }
 
     spawnCheckpoints() {
-        if ((Math.hypot(Env.chpX - this.x, Env.chpY - this.y) < 17.5 || Env.chpX == 0) && this.chPSeries.length >= this.chPIndex) {
-        let prevDirection = Math.atan2(Env.chpY, Env.chpX);
+        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
+        let prevDirection = Math.atan2(this.chpY, this.chpX);
 
         let u = 1 - Math.random();
         let v = Math.random();
@@ -81,11 +80,17 @@ export class Env {
         let direction = prevDirection + 0.3 * delta;
 
         direction = (direction + Math.PI) / 2 * Math.PI // Math.atan2(Math.sin(direction), Math.cos(direction));
-        Env.chpX = Math.cos(direction) * 450;
-        Env.chpY = Math.sin(direction) * 500;
+        this.chpX = Math.cos(direction) * 450;
+        this.chpY = Math.sin(direction) * 500;
 
-        this.chPSeries.push([Env.chpX, Env.chpY]);
-        } else {return;}
+        Env.chPSeries.push([this.chpX, this.chpY]);
+
+        } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 17.5)) {
+            let chpXY = Env.chPSeries[this.chPIndex];
+            //console.log(Env.chPSeries)
+            this.chpX = chpXY[0];
+            this.chpY = chpXY[1];
+        }
 
         this.chPIndex += 1;
         this.score += 1;
@@ -114,8 +119,8 @@ export class Env {
         this.y += this.MOVEMENT_DRAG * this.vy;
 
         // state space:
-        let dx = Env.chpX - this.x;
-        let dy = Env.chpY - this.y;
+        let dx = this.chpX - this.x;
+        let dy = this.chpY - this.y;
 
         let optimalVector = [dx, dy];
         let velVector = [this.vx, this.vy];

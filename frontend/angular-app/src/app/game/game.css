@@ -7,9 +7,14 @@ body {
     height: 100%;
 }
 
-#wrapper {
+.wrapper {
     display: flex;
     flex-direction: row;
+}
+
+.menu-wrapper {
+    display: flex;
+    flex-direction: column;
 }
 
 canvas {
@@ -21,5 +26,17 @@ canvas {
 }
 
 #live { margin: 10px 20px 20px 20px; }
+
+button {
+    height: 100px;
+    min-width: 200px;
+    padding: 10px;
+    margin-top: 20px;
+    margin-left: 20px;
+    border: 1px solid plum;
+    color: white;
+    background-color: rgb(37, 0, 78);
+    border-radius: 2.5px;
+}
 
 /*for better quality, make larger than necessary in css*/

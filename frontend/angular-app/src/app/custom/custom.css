@@ -1,4 +1,58 @@
 body {
     background-color: black;
-    color: rgb(85, 221, 255);
+    color: rgb(255, 255, 255);
+}
+
+p {
+    color: white;
+}
+
+input {
+    width: 100px;
+}
+
+.example-list {
+    width: fit-content;
+    max-width: 100%;
+    border: solid 1px #000000;
+    min-height: 60px;
+    display: flex;
+    flex-direction: row;
+    background: rgb(0, 0, 0);
+    overflow: hidden;
+    user-select: none;
+}
+
+.example-box {
+    padding: 20px 10px;
+    color: rgb(255, 255, 255);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    cursor: move;
+    background: rgb(0, 0, 0);
+    font-size: 14px;
+    flex-grow: 1;
+    flex-basis: 0;
+    font-family: sans-serif;
+}
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    color: rgb(179, 255, 238);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

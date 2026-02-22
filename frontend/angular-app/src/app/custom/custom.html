@@ -3,11 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pilots - Inspect</title>
+    <title>AI Pilots - Custom</title>
 </head>
 <body>
-    <h1>hello there!</h1>
+    <h1>Custom PID</h1>
+
+    <p>Left thrust = </p>
+    <div class="left"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        class="example-list"
+        (cdkDropListDropped)="drop($event, 'L')"
+        >
+        @for (charl of stringCharsL; track $index; let i = $index) {
+            <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'L')" cdkDrag>{{charl}}</div>
+        }
+    </div>
+
+    <p>Right thrust = </p>
+    <div class="right"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        class="example-list"
+        (cdkDropListDropped)="drop($event, 'R')"
+        >
+        @for (charr of stringCharsR; track $index; let i = $index) {
+            <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'R')" cdkDrag>{{charr}}</div>
+        }
+    </div>
+
+    <div>
+        <input type="text" (keydown.enter)="editN($event)">
+        @for (char of availableChars; track char) {
+            <button class="available" (click)="add(char, 'L')">{{char}} (L)</button>
+            <button class="available" (click)="add(char, 'R')">{{char}} (R)</button>
+        }
+        <p>To delete, double click the char</p>
+    </div>
+
 </body>
 </html>
 
-<p>custom works!</p>
