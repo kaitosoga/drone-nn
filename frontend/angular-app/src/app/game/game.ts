@@ -83,23 +83,23 @@ export class Game {
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
     // media:
-    this.bgImage.src = 'media/bg0.png';
+    this.bgImage.src = 'public/media/bg0.png';
     this.bgImage.onload = () => {
       this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!;
     };
 
-    this.skin0.src = 'skins/camera-drone.png';
+    this.skin0.src = 'public/skins/camera-drone.png';
     this.skin0.onload = () => {} //this.draw();
-    this.skin1.src = 'skins/camera-drone1.png';
+    this.skin1.src = 'public/skins/camera-drone1.png';
     this.skin1.onload = () => {}
-    this.skin2.src = 'skins/camera-drone2.png';
+    this.skin2.src = 'public/skins/camera-drone2.png';
     this.skin2.onload = () => {}
 
-    this.chp0.src = 'media/chp.png';
+    this.chp0.src = 'public/media/chp.png';
     this.chp0.onload = () => {}
-    this.chp1.src = 'media/chp1.png';
+    this.chp1.src = 'public/media/chp1.png';
     this.chp1.onload = () => {}
-    this.chp2.src = 'media/chp2.png';
+    this.chp2.src = 'public/media/chp2.png';
     this.chp2.onload = () => {}
 
     this.objects = [];
@@ -109,7 +109,7 @@ export class Game {
                     'redgalaxy', 'robot', 'saturn', 'telescope']) {
       
       //let obj = new Image();
-      //obj.src = `media/${name}.png`;
+      //obj.src = `public/media/${name}.png`;
       //obj.onload = () => this.draw();
       //this.objects.push(obj)
 
@@ -177,7 +177,7 @@ export class Game {
   }
 
   loadNet0() {
-    this.Net0.load(`models/drone_AI_weights-${this.level}.json`)
+    this.Net0.load(`public/models/drone_AI_weights-${this.level}.json`)
   }
 
   pause() {
