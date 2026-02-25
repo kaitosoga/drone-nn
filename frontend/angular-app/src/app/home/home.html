@@ -7,38 +7,74 @@
     <link rel="stylesheet" href="home.css">
 </head>
 <body>
-    <h1>Welcome back, {{this.userName}}!</h1>
+  <h1 class="title">AI Pilots</h1>
 
-<!--loops:-->
+  <div class="wrapper">
+    <h2>What is AI Pilots?</h2>
+    <p>AI Pilots is an app to allow playful interaction with AI - play 
+      a drone game against it, develop your own PID to beat it, and 
+      inspect the AI to improve your intuition about it. <br><br>
+    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+    </p>
+  </div>
 
-@for (item of this.user; track this.user) {
-    <p>User name: {{item["name"]}}</p>
-}
+  <div class="wrapper">
+    <h2>How does it work?</h2>
+    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam</p>
+    <div class="horizontal">
+      <p class="txt">
+        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going thro
+      </p>
+      <img src="public/media/example.png" alt="image to display game preview">
+    </div>
+    <p>
+      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+    </p>
+  </div>
+
+  <div class="wrapper">
+    <h2>Start Browsing (or use the menu):</h2>
+    <div class="wrapper" style="border-bottom: 0; margin: 10px;">
+      <button routerLink="/game">Play the Game</button>
+      <button routerLink="/custom">Make Your Own Algorithm</button>
+      <button routerLink="/inspect">Inspect the AI</button>
+      <button routerLink="/skins">Browse Skins</button>
+      <button routerLink="/leaderboard">See the Leaderboard</button>
+      <button routerLink="/profile">Go to Profile</button>
+    </div>
+  </div>
 
 
-<div *ngFor="let u of user">
-    <p>ID: {{ u.id }}</p>
-    <p>Level: {{ u.level }}</p>
-    <p>Password: {{ u.passwd }}</p>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-top: 500px; display: flex; flex-direction: column; align-items: center;">
+  <!--tests:-->
+  @for (item of this.user; track this.user) {
+      <p>User name: {{item["name"]}}</p>
+  }
+
+  <div *ngFor="let u of user">
+      <p>ID: {{ u.id }}</p>
+      <p>Level: {{ u.level }}</p>
+      <p>Password: {{ u.passwd }}</p>
+  </div>
+
+  <button (click)="getLedInd()">Test getting index</button>
+  <button (click)="testLogin()">Test Login</button>
+  <button (click)="sendTopscore(100)">Send Test Data</button>
+
 </div>
-
-<ul>
-  <li *ngFor="let entry of leaderboard">
-    {{ entry.name }} — {{ entry.top_score }}
-  </li>
-</ul>
-
-<button (click)="getLedInd()">Test getting index</button>
-<button (click)="testLogin()">Test Login</button>
-<button (click)="send70()">Send Test Data</button>
-
-
-
-<app-info></app-info>
-
+<!--<app-info></app-info>-->
 <!--<app-game></app-game>-->
-    
-
 </body>
 </html>
 

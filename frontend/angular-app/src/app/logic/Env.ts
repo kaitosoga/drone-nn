@@ -5,14 +5,14 @@ export class Env {
     width: number;
     height: number;
 
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    ax: number;
-    ay: number;
-    a: number;
-    va: number;
+    x = 0;
+    y = 0;
+    vx = 0;
+    vy = 0;
+    ax = 0;
+    ay = 0;
+    a = 0;
+    va = 0;
 
     GRAVITY: number;
     THRUST_POWER: number;
@@ -28,21 +28,13 @@ export class Env {
     score: number;
 
     chpX = 0;
-    chpY = 0;
+    chpY = -550;
+    prevDirection = [0, -550];
 
     constructor(w: number, h: number, mDrag=0.5, rDrag=0.7, rSpeed=1, tPower=3.5, gravity=2) {
         this.width = w;
         this.height = h;
         this.score = 0;
-
-        this.x = 500;
-        this.y = 0;
-        this.vx = 0;
-        this.vy = 0;
-        this.ax = 0;
-        this.ay = 0;
-        this.a = 0;
-        this.va = 0;
 
         this.GRAVITY = gravity;
         this.THRUST_POWER = tPower;
@@ -72,19 +64,24 @@ export class Env {
 
     spawnCheckpoints() {
         if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
-        this.score += 1;
-        let prevDirection = Math.atan2(this.chpY, this.chpX);
+            this.chPIndex += 1;
+            this.score += 1;
+            // Math.atan2(this.chpY - this.y, this.chpX - this.x);
 
-        let u = 1 - Math.random();
-        let v = Math.random();
-        let delta = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v); // found this online
-        let direction = prevDirection + 0.3 * delta;
+            let u = Math.random() * 2 * Math.PI;
+            /*let delta = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v); // found this online
+            let direction0 = this.prevDirection[0] + 0.3 * delta;
 
-        direction = (direction + Math.PI) / 2 * Math.PI // Math.atan2(Math.sin(direction), Math.cos(direction));
-        this.chpX = Math.cos(direction) * 450;
-        this.chpY = Math.sin(direction) * 500;
+            direction0 =  Math.atan2(Math.sin(direction0), Math.cos(direction0));
+            this.chpX = Math.cos(direction0) * 550;
+            this.chpY = Math.sin(direction0) * 550;*/
 
-        Env.chPSeries.push([this.chpX, this.chpY]);
+            this.chpX = this.x + this.prevDirection[0] + Math.cos(u) * 200;
+            this.chpY = this.y + this.prevDirection[1] + Math.sin(u) * 200;
+
+            this.prevDirection = [this.chpX - this.x, this.chpY - this.y]
+
+            Env.chPSeries.push([this.chpX, this.chpY]);
 
         } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50)) {
             this.score += 1;
@@ -92,9 +89,8 @@ export class Env {
             //console.log(Env.chPSeries)
             this.chpX = chpXY[0];
             this.chpY = chpXY[1];
+            this.chPIndex += 1;
         }
-
-        this.chPIndex += 1;
     }
 
     step(action: any) {

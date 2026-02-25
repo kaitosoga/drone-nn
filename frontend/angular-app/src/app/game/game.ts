@@ -9,6 +9,15 @@ import { stringify } from 'querystring';
 import { stat } from 'fs';
 import { Custom } from '../custom/custom';
 
+// note to self, todo:
+// game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
+// -> calls to store data (top scores + levels) locally / server (post, get)
+// then: set up cloudflare for pi
+// -> profile (name, id, passwd, score data): basic login page (post, get) -> display data
+// leaderboard, skins, custom (just get)
+// inspect: some explanation texts + neurons visualised live + canvas component for live view
+// end: design everything, finish texts, check 
+
 @Component({
   selector: 'app-game',
   imports: [],

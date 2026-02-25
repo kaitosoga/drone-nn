@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Info } from "../info/info";
 import { Game } from "../game/game";
 import { AuthService } from '../auth.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, Info, Game],
+  imports: [CommonModule, Info, Game, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -18,16 +19,7 @@ export class Home {
   leaderboard: any[] = [];
 
   constructor(private auth: AuthService) {
-    console.log("entered home");
-
-    this.data = [
-      {
-        ind: 5,
-        idk: "somedata"
-      }
-    ]
-
-    this.user = [
+    this.user = [ // this.userName = this.user[0].name
       {
         name: "kaito",
         id: 238423,
@@ -35,13 +27,6 @@ export class Home {
         passwd: "idk"
       }
     ]
-
-    this.userName = this.user[0].name
-
-    setInterval(() => {
-      console.log("still in home")
-    },
-    5000)
   }
 
   getLedInd() {
@@ -61,8 +46,8 @@ export class Home {
     });
   }
 
-  send70() {
-    this.auth.submitScore(80).subscribe({
+  sendTopscore(ts: number) {
+    this.auth.submitScore(ts).subscribe({
       next: (res) => {
         console.log('Score updated! New top score:', res.top_score);
         this.getLedInd(); 
@@ -76,8 +61,6 @@ export class Home {
       }
     });
   }
-    
-
 }
 
 
