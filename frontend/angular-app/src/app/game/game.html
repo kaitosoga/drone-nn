@@ -10,26 +10,38 @@
         <canvas #canvas></canvas>
         <div class="menu-wrapper">
             <div id="live"><p>Menu:</p></div>
+
             <div class="controls">
-                <button (click)="leftThrust()">L</button>
-                <button (click)="rightThrust()">R</button>
+                <button (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
+                <button (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
                 <button (click)="pause();">Pause</button>
                 <button (click)="resume();">Resume</button>
                 <button (click)="startGame();">Start</button>
+                <button (click)="quit();">Quit</button>
             </div>
-            <div>
-                <button (click)="selectL('l17')">AI Level 0</button>
-                <button (click)="selectL('l0')">AI Level 1</button>
-                <button (click)="selectL('l18')">AI Level 2</button>
-                <button (click)="selectL('custom')">My Controller</button>
+
+            <div class="mode-select">
+                <!-- ngClass is to set css because aiSelected and others are booleans-->
+                <button [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
+                <button [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
+                <button [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
             </div>
-            <div>
-                <button (click)="selectS('s0')">Skin0</button>
+
+            <div *ngIf="aiSelected" class="ai-levels">
+                <button [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
+                <button [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
+                <button [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
             </div>
+
+            <div class="skins">
+                <button [ngClass]="{'selected': selectedSkin==='s0'}" (click)="selectS('s0')">Skin0</button>
+            </div>
+
             <div id="live">
                 <p>Scores:</p>
                 <p>{{scores}}</p>
-
+                <p *ngIf="timeLeft>0">Time: {{formatTime(timeLeft)}}</p>
+                <p class="error" *ngIf="errorMsg">{{errorMsg}}</p>
             </div>
         </div>
     </div>

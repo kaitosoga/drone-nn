@@ -63,7 +63,7 @@ export class Env {
     }
 
     spawnCheckpoints() {
-        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
+        if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 70 || this.chpX == 0) && Env.chPSeries.length <= this.chPIndex) {
             this.chPIndex += 1;
             this.score += 1;
             // Math.atan2(this.chpY - this.y, this.chpX - this.x);
@@ -83,7 +83,7 @@ export class Env {
 
             Env.chPSeries.push([this.chpX, this.chpY]);
 
-        } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 50)) {
+        } else if ((Math.hypot(this.chpX - this.x, this.chpY - this.y) < 70)) {
             this.score += 1;
             let chpXY = Env.chPSeries[this.chPIndex];
             //console.log(Env.chPSeries)

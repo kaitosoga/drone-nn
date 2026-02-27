@@ -1,4 +1,5 @@
 import { Component, inject, ViewChild, ChangeDetectorRef } from '@angular/core'
+import { CommonModule } from '@angular/common';
 
 import { Env } from '../logic/Env';
 import { Net } from '../logic/Net';
@@ -20,7 +21,8 @@ import { Custom } from '../custom/custom';
 
 @Component({
   selector: 'app-game',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './game.html',
   styleUrl: './game.css',
 })
@@ -60,12 +62,25 @@ export class Game {
   EnvC: any; // Custom Controller (PID)
   EnvMain: any;
 
+  // states for menu (to only have two players)
+  aiSelected = false;
+  humanSelected = false;
+  customSelected = false;
+  selectedAiLevel = '';
+  selectedSkin = '';
+
   level = "";
   sRat: any; // screen size ratio to fixed number
   ratio: any;
   reTiInt: any // resizing time interval
 
   skin0 = new Image();
+
+  // countdown at beinning+ game time
+  countdown = 0;
+  timeLeft = 0;
+  private lastTimerUpdate = 0;
+  errorMsg = '';
   skin1 = new Image();
   skin2 = new Image();
   chp0 = new Image();
@@ -157,9 +172,31 @@ export class Game {
 
   // general functions
   startGame() {
+    // condition
+    if (!this.canStart()) {
+      this.errorMsg = 'select at least two players, please';
+      return;
+    }
+    this.errorMsg = '';
+
+    // timer init
+    this.countdown = 3;
+    this.timeLeft = 60;
+    this.lastTimerUpdate = performance.now();
+    this.running = false;
     this.draw();
-    console.log("start game function")
-    this.running = true;
+    console.log("start game function");
+    // countdown
+    const tick = () => {
+      if (this.countdown > 0) {
+        this.countdown -= 1;
+        setTimeout(tick, 1000); // ms
+      } else {
+        this.running = true;
+        this.lastTime = performance.now();
+      }
+    };
+    tick();
   }
 
   get scores() {
@@ -172,6 +209,66 @@ export class Game {
 
   }
 
+  // more functions for button controls on phone
+  protected startLeft() {
+    this.lClick = true;
+  }
+
+  protected stopLeft() {
+    this.lClick = false;
+  }
+
+  protected startRight() {
+    this.rClick = true;
+  }
+
+  protected stopRight() {
+    this.rClick = false;
+  }
+
+  // options:
+  toggleAi() {
+    this.aiSelected = !this.aiSelected;
+    if (!this.aiSelected) {
+      this.selectedAiLevel = ''; // has to clear i think
+    }
+  }
+
+  selectAiLevel(level: string) {
+    this.aiSelected = true;
+    this.selectedAiLevel = level;
+    this.level = level; // because loadnet uses this.leve
+    this.loadNet0();
+  }
+
+  toggleHuman() {
+    this.humanSelected = !this.humanSelected;
+  }
+
+  toggleCustom() {
+    this.customSelected = !this.customSelected;
+  }
+
+  selectS(skin: string) { // will probably not do this, but based on score, idk yet
+    this.selectedSkin = skin;
+  }
+
+  // verification for options
+  canStart() {
+    let count = 0;
+    if (this.aiSelected) count += 1;
+    if (this.humanSelected) count += 1;
+    if (this.customSelected) count += 1;
+    if (this.aiSelected && this.selectedAiLevel === '') return false;
+    return count >= 2 && count <= 2;
+  }
+  // string to display
+  formatTime(seconds: number) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
   protected rightThrust() {
     
   }
@@ -179,10 +276,6 @@ export class Game {
   selectL(level: string) { // select level
     this.level = level;
     this.loadNet0();
-  }
-
-  selectS(skin: string) { // select skin
-
   }
 
   loadNet0() {
@@ -202,6 +295,23 @@ export class Game {
       this.draw();
       this.running = true;
     }
+  }
+
+  quit() {
+    // stop animation + reset
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
+
+    this.running = false;
+    this.countdown = 0;
+    this.timeLeft = 0;
+    this.errorMsg = '';
+
+    this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
+    this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
+    this.EnvC?.reset(this.EnvC.width / 2, this.EnvC.height / 2);
   }
 
   setMain(name: string) {
@@ -252,6 +362,7 @@ export class Game {
       const offsetX = -(this.EnvMain.x * this.sRat) % this.bgImage.width;
       const offsetY = -(this.EnvMain.y * this.sRat) % this.bgImage.height;
 
+      // note: found this online for bg patterns:
       this.context!.save();
       this.context!.translate(offsetX, offsetY);
       this.context!.fillStyle = this.bgPattern;
@@ -272,25 +383,57 @@ export class Game {
     if (this.statePID == null) {this.statePID = this.step(dummy)[1]}
     if (this.statePl == null) {this.statePl = this.step(dummy)[2]}
 
-    let outputNet0 = this.Net0.compute(this.stateN0);
-    let outputPID = this.customData.compileController(this.statePID); // this.Pid.compute(this.statePID)
-    let outputPlayer = [this.lClick, this.rClick]
+    // if countdown running
+    if (this.countdown > 0) {
+      this.context.save();
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 120px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.textBaseline = 'middle';
+      this.context.fillText(this.countdown.toString(), this.canvasWidth / 2, this.canvasHeight / 2);
+      this.context.restore();
+      this.frameId = requestAnimationFrame(t => this.draw(t));
+      return;
+    }
 
-    let nextStates = this.step([outputNet0, outputPID, outputPlayer])
-    let nextStateN0 = nextStates[0]
-    let nextStatePID = nextStates[1]
-    let nextStatePl = nextStates[2]
+    // if playing
+    if (this.running) {
+      this.timeLeft -= dt;
+      if (this.timeLeft <= 0) {
+        this.running = false;
+        // smth to end, idk
+      }
+    }
 
-    this.render(this.EnvA, time, this.skin0, this.chp0);
-    this.render(this.EnvC, time, this.skin1, this.chp1);
-    this.render(this.EnvP, time, this.skin2, this.chp2);
+    // conditions for which output computed, otherwise inefficient
+    let outputNet0: any = [false, false];
+    if (this.aiSelected && this.Net0) {
+      outputNet0 = this.Net0.compute(this.stateN0);
+    }
+
+    let outputPID: any = [false, false];
+    if (this.customSelected) {
+      outputPID = this.customData.compileController(this.statePID);
+    }
+
+    let outputPlayer: any = [false, false];
+    if (this.humanSelected) {
+      outputPlayer = [this.lClick, this.rClick];
+    }
+
+    let nextStates = this.step([outputNet0, outputPID, outputPlayer]);
+    let nextStateN0 = nextStates[0];
+    let nextStatePID = nextStates[1];
+    let nextStatePl = nextStates[2];
+    // onbly render computed ones
+    if (this.aiSelected) this.render(this.EnvA, time, this.skin0, this.chp0);
+    if (this.customSelected) this.render(this.EnvC, time, this.skin1, this.chp1);
+    if (this.humanSelected) this.render(this.EnvP, time, this.skin2, this.chp2);
     
     this.stateN0 = nextStateN0;
     this.statePID = nextStatePID;
     this.statePl = nextStatePl;
 
-    console.log(this.EnvP.a);
-    
     this.frameId = requestAnimationFrame(t => this.draw(t));
   }
 

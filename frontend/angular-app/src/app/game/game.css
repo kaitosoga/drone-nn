@@ -39,4 +39,20 @@ button {
     border-radius: 2.5px;
 }
 
+button.selected {
+    background-color: #28a796;
+    border-color: #1e7e79;
+}
+
+.mode-select, .ai-levels, .skins {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.error {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
 /*for better quality, make larger than necessary in css*/
