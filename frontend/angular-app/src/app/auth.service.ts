@@ -15,8 +15,17 @@ export class AuthService {
     return this.http.post<any>(`${this.base}/register`, {username, password, name});
   }
 
-  submitScore(score: number) {
-    return this.http.post<any>(`${this.base}/score`, {score}, {headers: this.authHeaders()});
+  submitScore(score: number | any, extra?: any) { // found extra in documentation for score or options
+    let data: any;
+    if (typeof score === 'number') {
+      data = {score};
+      if (extra) {
+        Object.assign(data, extra);
+      }
+    } else {
+      data = score;
+    }
+    return this.http.post<any>(`${this.base}/score`, data, {headers: this.authHeaders()});
   }
 
   leaderboard() {

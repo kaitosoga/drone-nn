@@ -9,13 +9,17 @@ import { Home } from '../home/home';
 import { stringify } from 'querystring';
 import { stat } from 'fs';
 import { Custom } from '../custom/custom';
+import { AuthService } from '../auth.service';
 
 // note to self, todo:
 // game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
 // -> calls to store data (top scores + levels) locally / server (post, get)
+
 // then: set up cloudflare for pi
+
 // -> profile (name, id, passwd, score data): basic login page (post, get) -> display data
 // leaderboard, skins, custom (just get)
+
 // inspect: some explanation texts + neurons visualised live + canvas component for live view
 // end: design everything, finish texts, check 
 
@@ -30,6 +34,10 @@ import { Custom } from '../custom/custom';
 export class Game {
   @ViewChild('canvas') canvas: any; // saved the canvas here
   customData = inject(Custom); // can also edit instance config here!
+  auth = inject(AuthService);
+  private gameEnded = false;
+  menuHidden = false;
+  phoneMode = false;
 
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
@@ -162,12 +170,17 @@ export class Game {
     // physics envs
     this.EnvA = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvA.reset(this.EnvA.width / 2, this.EnvA.height / 2)
-    this.EnvP = new Env(canvas.width * 4, canvas.height * 4, 0.4, 0.85, 2, 6, 2.5);
+    this.EnvP = new Env(canvas.width * 4, canvas.height * 4, 0.4, 0.85, 2, 7, 4);
     this.EnvP.reset(this.EnvP.width / 2, this.EnvP.height / 2)
     this.EnvC = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvC.reset(this.EnvC.width / 2, this.EnvC.height / 2)
 
     this.EnvMain = this.EnvP; // main frame (like camera), others are reference
+
+    // on narrow screens start with menu hidden
+    if (window.innerWidth <= 650) {
+      this.menuHidden = true;
+    }
   }
 
   // general functions
@@ -178,6 +191,7 @@ export class Game {
       return;
     }
     this.errorMsg = '';
+    this.gameEnded = false;
 
     // timer init
     this.countdown = 3;
@@ -269,6 +283,33 @@ export class Game {
     return `${m}:${s}`;
   }
 
+  // post score when game ends (timer expired)
+  private onGameEnd() {
+    if (this.gameEnded) return;
+    this.gameEnded = true;
+    if (false) { //(!this.auth.isLoggedIn()) {
+      console.log('not logged in, skipping score submission');
+      return;
+    }
+    const score = this.EnvP?.score ?? 0;
+    const options: any = {};
+    if (this.aiSelected) options.ai = this.selectedAiLevel;
+    if (this.humanSelected) options.human = true;
+    if (this.customSelected) options.custom = true;
+
+    this.auth.submitScore(score, {options}).subscribe({
+      next: (res) => {
+        console.log('score submission response', res);
+        if (res.top_score === score) {
+          console.log('new highscore achieved');
+        }
+      },
+      error: (e) => {
+        console.error('score submit error', e);
+      }
+    });
+  }
+
   protected rightThrust() {
     
   }
@@ -308,6 +349,7 @@ export class Game {
     this.countdown = 0;
     this.timeLeft = 0;
     this.errorMsg = '';
+    this.gameEnded = false;
 
     this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
     this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
@@ -401,7 +443,7 @@ export class Game {
       this.timeLeft -= dt;
       if (this.timeLeft <= 0) {
         this.running = false;
-        // smth to end, idk
+        this.onGameEnd();
       }
     }
 

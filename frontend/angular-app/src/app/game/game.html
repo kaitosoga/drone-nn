@@ -8,33 +8,35 @@
 <body>
     <div class="wrapper">
         <canvas #canvas></canvas>
-        <div class="menu-wrapper">
-            <div id="live"><p>Menu:</p></div>
-
-            <div class="controls">
-                <button (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
-                <button (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
-                <button (click)="pause();">Pause</button>
-                <button (click)="resume();">Resume</button>
-                <button (click)="startGame();">Start</button>
-                <button (click)="quit();">Quit</button>
-            </div>
-
+        <div class="menu-wrapper" [class.hidden]="menuHidden">
+            <!--<div id="live"><p>Menu:</p></div>-->
             <div class="mode-select">
-                <!-- ngClass is to set css because aiSelected and others are booleans-->
-                <button [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
-                <button [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
-                <button [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
+                <button class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
+                <button class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
+                <button class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
             </div>
 
             <div *ngIf="aiSelected" class="ai-levels">
-                <button [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
-                <button [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
-                <button [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
+                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
+                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
+                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
             </div>
 
-            <div class="skins">
+            <!--<div class="skins">
                 <button [ngClass]="{'selected': selectedSkin==='s0'}" (click)="selectS('s0')">Skin0</button>
+            </div>-->
+
+            <div class="controls">
+                <div class="basic-buttons">
+                    <button class="menu" (click)="pause();">Pause</button>
+                    <button class="menu" (click)="resume();">Resume</button>
+                    <button class="menu" (click)="startGame();">Start</button>
+                    <button class="menu" (click)="quit();">Quit</button>
+                </div>
+            </div>
+
+            <div class="phoneMode">
+                <button (click)="phoneMode = !phoneMode">Touch</button>
             </div>
 
             <div id="live">
@@ -42,11 +44,19 @@
                 <p>{{scores}}</p>
                 <p *ngIf="timeLeft>0">Time: {{formatTime(timeLeft)}}</p>
                 <p class="error" *ngIf="errorMsg">{{errorMsg}}</p>
+                <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
             </div>
         </div>
+
+
+    <div class="lr-buttons" [class.phone]="phoneMode">
+        <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
+        <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
     </div>
+    </div>
+    <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Menu</button>
 </body>
 </html>
 
-<!--for better quality, make larger than necessary in css-->
+<!--for better quality make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->
