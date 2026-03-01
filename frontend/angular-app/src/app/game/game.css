@@ -6,18 +6,25 @@ body {
     color: rgb(181, 253, 255);
     height: 100%;
     font-family: 'Brush Script MT', cursive;
-
 }
 
 .wrapper {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    font-family: 'Brush Script MT', cursive;
+
 }
 
 .menu-wrapper {
     display: flex;
     flex-direction: column;
+    margin-left: 10px;
+    border-radius: 10px;
+
+    width: 50%;
+    height: 100%;
+    margin-top: 10px;
+    padding: 10px;
 }
 
 .controls {
@@ -33,45 +40,93 @@ body {
 .basic-buttons {
     display: flex;
     flex-wrap: wrap;
+    width: 100%;
+    height: 20%;
 }
+
+.basic-buttons > * {
+    flex: 1;
+}
+
 
 canvas {
     background-color: black;
-    border: .5px solid #2c8aaf;
-    height: 80%;
+    border: .5px solid #7a6480;
+    width: 50%;
+    height: 100%;
 
     image-rendering: pixelated;
+    border-radius: 10px;
+    margin-top: 10px;
 }
 
-#live { margin: 10px 20px 20px 20px; }
+#live { 
+    margin: 10px 10px; 
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.live-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.live-row .label {
+    font-weight: bold;
+}
+
+.live-row .value {
+    align-items: center; /* why don't you work`?*/
+}
+
+.live-row.error {
+    color: #ff4d4d;
+    text-align: center;
+}
 
 button {
-    height: 100px;
-    min-width: 200px;
+    height: 65px;
+    width: auto;
     padding: 10px;
-    margin-top: 20px;
-    margin-left: 20px;
+    margin: 10px 5px;
     border: 1px solid rgba(23, 197, 0, 0);
     color: white;
     background-color: rgb(37, 0, 78);
+    border: 1px solid #444;
     border-radius: 2.5px;
+    font-family: 'Brush Script MT', cursive;
+}
+
+button:active {
+    border: 2px solid white;
 }
 
 button.selected {
-    background-color: #071f1c;
     border-color: #3bfff5;
 }
 
 .ai-levels button {
-    background-color: #003449;
+    background-color: #111;
 }
 
-.mode-select, .ai-levels, .skins, .phoneMode {
+.mode button {
+    background-color: #111;
+}
+
+.mode-select, .cam-select, .ai-levels, .skins, .mode {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 10px;
+    align-items: center;
+    width: 100%;
+    height: 20%;
 }
 
+.mode-select > *, .cam-select > *, .ai-levels > *, .skins, .mode > * {
+    flex: 1;
+}
 
 .skins {
     display: none;
@@ -85,15 +140,15 @@ button.selected {
 /*for better quality, make larger than necessary in css*/
 
 .lr {
-    background-color: #2c8aaf;
+    background-color: #2c8aaf17;
 }
 
 .menu {
-    background-color: rgb(44, 37, 73);
+    background-color: #111;
 }
 
 .options {
-    background-color: #1e7e79dc;
+    background-color: #111;
 }
 
 .menu-wrapper.hidden {
@@ -103,16 +158,19 @@ button.selected {
 @media (max-width: 800px) {
     .wrapper {
         flex-direction: column;
+        width: 100%;
+        height: 100%;
     }
 
     canvas {
         width: 100%;
-        height: auto;
+        height: 100%;
     }
 
     .menu-wrapper {
         width: 100%;
         padding: 10px;
+        margin-left: 0px;
         box-sizing: border-box;
     }
 
@@ -126,6 +184,7 @@ button.selected {
         display: flex;
         justify-content: center;
         position: fixed;
+
         bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
@@ -136,35 +195,77 @@ button.selected {
 
     .lr-buttons button {
         margin: 0;
+        width: 100%;
+        height: 75%;
     }
 
-    .basic-buttons {
+    .basic-buttons, .mode-select, .cam-select .ai-levels, .skins, .mode {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: center;  
+        width: 100%;  
     }
-
-    .mode-select, .ai-levels, .skins, .phoneMode {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;    }
 }
 
 .menu-toggle {
     display: block;
     position: fixed;
-    top: 10px;
-    left: 10px;
+    width: 110px;
+    height: 40px;
+    top: 20px;
+    left: 14px;
     z-index: 1000;
-    padding: 8px 12px;
+    padding: 9px 12px;
     font-size: 18px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0);
     color: white;
-    border: 1px solid #3bfff5;
-    border-radius: 4px;
+    border: 0px solid #3bfff5;
+    border-radius: 5px;
     margin: 0;
+
+    font-family: 'Brush Script MT', cursive;
+
 }
 
-.lr-buttons.phoneMode {
+.menu-toggle:active {
+    border: none;
+    background-color: #79797923;
+}
+
+.lr-buttons.phone {
     display: none
+}
+
+/*from internet:*/
+.bg {
+  margin-top: 10px;
+
+  background-size: 300% 300%;
+  background-image: linear-gradient(-45deg, rgba(98, 100, 100, 0.548) 0%, rgba(49, 48, 87, 0.26) 15%, rgba(67, 58, 78, 0.61) 51%, #252525 100%);
+  -webkit-animation: AnimateBG 20s ease infinite;
+          animation: AnimateBG 20s ease infinite;
+}
+
+@-webkit-keyframes AnimateBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes AnimateBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

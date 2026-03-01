@@ -11,6 +11,9 @@ import { stat } from 'fs';
 import { Custom } from '../custom/custom';
 import { AuthService } from '../auth.service';
 
+//update: game visualisation, crash logic, cloudflare, profile+leaderboard, rest of design
+
+// --------------
 // note to self, todo:
 // game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
 // -> calls to store data (top scores + levels) locally / server (post, get)
@@ -37,7 +40,8 @@ export class Game {
   auth = inject(AuthService);
   private gameEnded = false;
   menuHidden = false;
-  phoneMode = false;
+  phoneMode = true;
+  winner = '';
 
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
@@ -57,6 +61,8 @@ export class Game {
   referenceModes: boolean[] = [];
   running = false;
   static scores: number[] = [];
+
+  showAI = false;
   
   Pid = new PID();
   Net0 = new Net();
@@ -170,12 +176,10 @@ export class Game {
     // physics envs
     this.EnvA = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvA.reset(this.EnvA.width / 2, this.EnvA.height / 2)
-    this.EnvP = new Env(canvas.width * 4, canvas.height * 4, 0.4, 0.85, 2, 7, 4);
+    this.EnvP = new Env(canvas.width * 4, canvas.height * 4, 0.4, 0.85, 2, 7, 3);
     this.EnvP.reset(this.EnvP.width / 2, this.EnvP.height / 2)
     this.EnvC = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvC.reset(this.EnvC.width / 2, this.EnvC.height / 2)
-
-    this.EnvMain = this.EnvP; // main frame (like camera), others are reference
 
     // on narrow screens start with menu hidden
     if (window.innerWidth <= 650) {
@@ -190,6 +194,15 @@ export class Game {
       this.errorMsg = 'select at least two players, please';
       return;
     }
+
+    if (this.humanSelected) {
+          this.EnvMain = this.EnvP; // main frame (like camera), others are reference
+    } else if (this.showAI) {
+          this.EnvMain = this.EnvA;
+    } else {
+          this.EnvMain = this.EnvC;
+    }
+
     this.errorMsg = '';
     this.gameEnded = false;
 
@@ -199,7 +212,7 @@ export class Game {
     this.lastTimerUpdate = performance.now();
     this.running = false;
     this.draw();
-    console.log("start game function");
+    console.log('start game function');
     // countdown
     const tick = () => {
       if (this.countdown > 0) {
@@ -214,9 +227,9 @@ export class Game {
   }
 
   get scores() {
-    return ["You: ", this.EnvP?.score ?? 0,
-            "AI: ", this.EnvA?.score ?? 0, 
-            "Custom: ", this.EnvC?.score ?? 0] //, this.EnvC.score, this.EnvP.score];
+    return ["Human", this.EnvP?.score ?? 0,
+            "AI", this.EnvA?.score ?? 0, 
+            "Custom", this.EnvC?.score ?? 0] //, this.EnvC.score, this.EnvP.score];
   }
 
   protected leftThrust() {
@@ -287,8 +300,12 @@ export class Game {
   private onGameEnd() {
     if (this.gameEnded) return;
     this.gameEnded = true;
-    if (false) { //(!this.auth.isLoggedIn()) {
+
+    this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
+
+    if (!this.auth.isLoggedIn()) {
       console.log('not logged in, skipping score submission');
+      this.quit();
       return;
     }
     const score = this.EnvP?.score ?? 0;
@@ -308,6 +325,8 @@ export class Game {
         console.error('score submit error', e);
       }
     });
+
+    this.quit();
   }
 
   protected rightThrust() {
@@ -325,16 +344,17 @@ export class Game {
 
   pause() {
     if (this.frameId !== null && this.running) {
+      this.running = false;
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
-      this.running = false;
     }
   }
 
   resume() {
-    if (this.frameId === null && this.running) {
-      this.draw();
+    if (this.frameId === null && !this.running) {
       this.running = true;
+      this.lastTime = performance.now(); // to prevent big dt in timer
+      this.draw();
     }
   }
 
@@ -399,6 +419,12 @@ export class Game {
 
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
+
+    if (this.showAI && !this.humanSelected) {
+          this.EnvMain = this.EnvA;
+    } else if (!this.showAI && !this.humanSelected) {
+          this.EnvMain = this.EnvC;
+    }
 
     if (this.bgPattern) {
       const offsetX = -(this.EnvMain.x * this.sRat) % this.bgImage.width;

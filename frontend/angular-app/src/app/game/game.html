@@ -8,7 +8,7 @@
 <body>
     <div class="wrapper">
         <canvas #canvas></canvas>
-        <div class="menu-wrapper" [class.hidden]="menuHidden">
+        <div class="menu-wrapper bg" [class.hidden]="menuHidden">
             <!--<div id="live"><p>Menu:</p></div>-->
             <div class="mode-select">
                 <button class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
@@ -35,26 +35,51 @@
                 </div>
             </div>
 
-            <div class="phoneMode">
-                <button (click)="phoneMode = !phoneMode">Touch</button>
+            <div *ngIf="!humanSelected" class="cam-select">
+                <button class="options" (click)="showAI = !showAI">Toggle Cam</button>
+            </div>
+
+            <div class="mode">
+                <button [ngClass]="{'selected': !phoneMode}" (click)="phoneMode = !phoneMode">Touch</button>
             </div>
 
             <div id="live">
-                <p>Scores:</p>
-                <p>{{scores}}</p>
-                <p *ngIf="timeLeft>0">Time: {{formatTime(timeLeft)}}</p>
-                <p class="error" *ngIf="errorMsg">{{errorMsg}}</p>
+                <div class="live-row">
+                    <span class="label">Scores:</span>
+                        <table class="value">
+                            <tr><td>{{scores[0]}}</td></tr>
+                            <tr><td>{{scores[1]}}</td></tr>
+                        </table>
+                        <table class="value">
+                            <tr><td>{{scores[2]}}</td></tr>
+                            <tr><td>{{scores[3]}}</td></tr>
+                        </table>
+                        <table class="value">
+                            <tr><td>{{scores[4]}}</td></tr>
+                            <tr><td>{{scores[5]}}</td></tr>
+                        </table>
+                </div>
+                <div class="live-row" *ngIf="timeLeft>0">
+                    <span class="label">Time:</span>
+                    <span class="value">{{formatTime(timeLeft)}}</span>
+                </div>
+                <div class="live-row error" *ngIf="errorMsg">
+                    {{errorMsg}}
+                </div>
+                <div class="live-row" *ngIf="timeLeft<=0">
+                    <span class="label">Winner:<br></span>
+                    <span class="value">{{winner}}</span>
+                </div>
                 <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
             </div>
         </div>
 
-
-    <div class="lr-buttons" [class.phone]="phoneMode">
-        <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
-        <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
+        <div class="lr-buttons" [class.phone]="phoneMode">
+            <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
+            <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
+        </div>
     </div>
-    </div>
-    <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Menu</button>
+    <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>
 </body>
 </html>
 

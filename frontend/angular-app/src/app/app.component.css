@@ -1,23 +1,27 @@
 nav {
     position: fixed;
-    right: 1rem;
-    top: 22px;
+    right: 15px;
+    top: 18px;
     z-index: 100;
+    font-family: 'Brush Script MT', cursive;
+
 }
 
 .nav-toggle {
     display: block;
     padding: 0.4rem 0.8rem;
-    background: #636363;
-    color: #c0c0c0;
+    background: #5050506e;
+    color: #ffffff;
     cursor: auto;
     user-select: none;
+    border-radius: 2px;
 }
 
 .nav-links {
     display: none;
     flex-direction: column;
     background: #414141;
+    border-radius: 2px;
 }
 
 nav:hover .nav-links {
