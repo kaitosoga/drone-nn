@@ -1,30 +1,10 @@
-import { Component, inject, ViewChild, ChangeDetectorRef } from '@angular/core'
+import { Component, inject, ViewChild, ChangeDetectorRef, HostListener } from '@angular/core'
 import { CommonModule } from '@angular/common';
-
 import { Env } from '../logic/Env';
 import { Net } from '../logic/Net';
 import { PID } from '../logic/PID';
-import { Inject } from '@angular/core';
-import { Home } from '../home/home';
-import { stringify } from 'querystring';
-import { stat } from 'fs';
 import { Custom } from '../custom/custom';
-import { AuthService } from '../auth.service';
-
-//update: game visualisation, crash logic, cloudflare, profile+leaderboard, rest of design
-
-// --------------
-// note to self, todo:
-// game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
-// -> calls to store data (top scores + levels) locally / server (post, get)
-
-// then: set up cloudflare for pi
-
-// -> profile (name, id, passwd, score data): basic login page (post, get) -> display data
-// leaderboard, skins, custom (just get)
-
-// inspect: some explanation texts + neurons visualised live + canvas component for live view
-// end: design everything, finish texts, check 
+import { ApiService } from '../auth.service';
 
 @Component({
   selector: 'app-game',
@@ -36,12 +16,6 @@ import { AuthService } from '../auth.service';
 
 export class Game {
   @ViewChild('canvas') canvas: any; // saved the canvas here
-  customData = inject(Custom); // can also edit instance config here!
-  auth = inject(AuthService);
-  private gameEnded = false;
-  menuHidden = false;
-  phoneMode = true;
-  winner = '';
 
   get context(): CanvasRenderingContext2D { // virtual property 
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
@@ -52,10 +26,16 @@ export class Game {
   private canvasWidth = 0;
   private canvasHeight = 0;
   private bgPattern: CanvasPattern | null = null;
-
-
   private lClick = false;
   private rClick = false;
+  private gameEnded = false;
+
+  customData = inject(Custom); // can also edit instance config here!
+  api = inject(ApiService);
+
+  menuHidden = false;
+  phoneMode = true;
+  winner = '';
 
   frameId: any;
   referenceModes: boolean[] = [];
@@ -63,6 +43,7 @@ export class Game {
   static scores: number[] = [];
 
   showAI = false;
+  ptime = 0;
   
   Pid = new PID();
   Net0 = new Net();
@@ -88,22 +69,21 @@ export class Game {
   ratio: any;
   reTiInt: any // resizing time interval
 
-  skin0 = new Image();
-
   // countdown at beinning+ game time
   countdown = 0;
   timeLeft = 0;
   private lastTimerUpdate = 0;
   errorMsg = '';
+
+  skin0 = new Image();
   skin1 = new Image();
   skin2 = new Image();
   chp0 = new Image();
   chp1 = new Image();
   chp2 = new Image();
-  objects: any;
   bgImage = new Image();
 
-  constructor(private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running
+  constructor(private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
     this.frameId = null;
 
@@ -121,7 +101,6 @@ export class Game {
   }
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
-    // media:
     this.bgImage.src = 'public/media/bg0.png';
     this.bgImage.onload = () => {
       this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!;
@@ -141,36 +120,17 @@ export class Game {
     this.chp2.src = 'public/media/chp2.png';
     this.chp2.onload = () => {}
 
-    this.objects = [];
-    
-    for (let name of ['astronaut', 'cometthin', 'cometthick', 'debris', 
-                    'earth', 'moon', 'moon1', 'ppstardust', 
-                    'redgalaxy', 'robot', 'saturn', 'telescope']) {
-      
-      //let obj = new Image();
-      //obj.src = `public/media/${name}.png`;
-      //obj.onload = () => this.draw();
-      //this.objects.push(obj)
-
-      //inefficient ... ?
-
-    }
-
-    // canvas sizing:
-    let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
-    let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
-    this.sRat = Math.min(vw, vh) / 1500;
-    this.ratio = this.sideRatio();
+    const absoluteWidth = window.outerWidth * window.devicePixelRatio;
+    const absoluteHeight = window.outerHeight * window.devicePixelRatio;
+    this.sRat = absoluteWidth / 1900 * Math.max(1, absoluteHeight / absoluteWidth);
 
     const canvas = this.canvas.nativeElement as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1
     const rect = canvas.getBoundingClientRect();
-
     const sideLength = Math.max(rect.width, rect.height)
     canvas.width  = sideLength * dpr;
     canvas.height = sideLength * dpr;
     this.context.scale(dpr, dpr);
-
     this.canvasWidth  = canvas.width;
     this.canvasHeight = canvas.height;
 
@@ -181,17 +141,21 @@ export class Game {
     this.EnvP.reset(this.EnvP.width / 2, this.EnvP.height / 2)
     this.EnvC = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvC.reset(this.EnvC.width / 2, this.EnvC.height / 2)
-
-    // on narrow screens start with menu hidden
-    if (window.innerWidth <= 650) {
-      this.menuHidden = true;
-    }
+  }
+  
+  // verification for options
+  canStart() {
+    let count = 0;
+    if (this.aiSelected) count += 1;
+    if (this.humanSelected) count += 1;
+    if (this.customSelected) count += 1;
+    if (this.aiSelected && this.selectedAiLevel === '') return false;
+    return count >= 2 && count <= 2;
   }
 
   // general functions
   startGame() {
-    // condition
-    if (!this.canStart()) {
+    if (!this.canStart()) { // check start conditions
       this.errorMsg = 'select at least two players, please';
       return;
     }
@@ -228,13 +192,15 @@ export class Game {
   }
 
   get scores() {
-    return ["Human", this.EnvP?.score ?? 0,
+    return ["Human", this.EnvP?.score ?? 0, 
             "AI", this.EnvA?.score ?? 0, 
-            "Custom", this.EnvC?.score ?? 0] //, this.EnvC.score, this.EnvP.score];
+            "Custom", this.EnvC?.score ?? 0]
   }
 
   protected leftThrust() {
+  }
 
+  protected rightThrust() {
   }
 
   // more functions for button controls on phone
@@ -281,15 +247,6 @@ export class Game {
     this.selectedSkin = skin;
   }
 
-  // verification for options
-  canStart() {
-    let count = 0;
-    if (this.aiSelected) count += 1;
-    if (this.humanSelected) count += 1;
-    if (this.customSelected) count += 1;
-    if (this.aiSelected && this.selectedAiLevel === '') return false;
-    return count >= 2 && count <= 2;
-  }
   // string to display
   formatTime(seconds: number) {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -297,14 +254,14 @@ export class Game {
     return `${m}:${s}`;
   }
 
-  // post score when game ends (timer expired)
+  // game end
   private onGameEnd() {
     if (this.gameEnded) return;
     this.gameEnded = true;
 
     this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
 
-    if (!this.auth.isLoggedIn()) {
+    if (false) { // (!this.auth.isLoggedIn()) {
       console.log('not logged in, skipping score submission');
       this.quit();
       return;
@@ -315,9 +272,11 @@ export class Game {
     if (this.humanSelected) options.human = true;
     if (this.customSelected) options.custom = true;
 
-    this.auth.submitScore(score, {options}).subscribe({
+    let mode = "";
+
+    this.api.submitScore(score, mode, this.ptime).subscribe({
       next: (res) => {
-        console.log('score submission response', res);
+        //console.log('score submission response', res);
         if (res.top_score === score) {
           console.log('new highscore achieved');
         }
@@ -330,10 +289,7 @@ export class Game {
     this.quit();
   }
 
-  protected rightThrust() {
-    
-  }
-
+  // more options
   selectL(level: string) { // select level
     this.level = level;
     this.loadNet0();
@@ -381,56 +337,26 @@ export class Game {
     if (name === "player") {this.EnvMain = this.EnvP;} else {this.EnvMain = this.EnvC;}
   }
 
-  sideRatio() { // to size canvas
-    return Math.max((window.innerWidth / window.innerHeight), 
-                    (window.innerHeight / window.innerWidth))
-  }
-
-  resizeC() {
-    let currentRatio = this.sideRatio();
-    let dSize = Math.abs(currentRatio-this.ratio)
-
-    if (!this.isCtrlHeld && dSize > 0.1 && !this.lastHeld) { // improvised approximation, if zooming, ctrl may be held
-      let vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) / window.devicePixelRatio;
-      let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) / window.devicePixelRatio;
-      this.sRat = Math.min(vw, vh) / (900);
-      //console.log("resized")
-    } else {
-      //console.log("zoomed")
-    }
-
-    this.lastHeld = this.isCtrlHeld;    
- 
-    let ratio = this.sideRatio();
-    this.ratio = ratio
-    //efficiency prolems here?
-
-    const canvas = this.canvas.nativeElement as HTMLCanvasElement;
-    const dpr = window.devicePixelRatio || 1
-    const rect = canvas.getBoundingClientRect()
-    const sL = Math.max(rect.width, rect.height)
-    canvas.width = sL * dpr;
-    canvas.height = sL * dpr;
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    const absoluteWidth = window.outerWidth * window.devicePixelRatio;
+    const absoluteHeight = window.outerHeight * window.devicePixelRatio;
+    this.sRat = absoluteWidth / 1900 * Math.max(1, absoluteHeight / absoluteWidth);
+    console.log("ONRESIZE", window.outerWidth * window.devicePixelRatio);
   }
 
   // computing controls + rendering canvas
   lastTime = 0;
   draw(time = 0) {
     this.cdr.detectChanges()
-
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
 
-    if (this.showAI && !this.humanSelected) {
-          this.EnvMain = this.EnvA;
-    } else if (!this.showAI && !this.humanSelected) {
-          this.EnvMain = this.EnvC;
-    }
 
+    // bg
     if (this.bgPattern) {
       const offsetX = -(this.EnvMain.x * this.sRat) % this.bgImage.width;
       const offsetY = -(this.EnvMain.y * this.sRat) % this.bgImage.height;
-
       // note: found this online for bg patterns:
       this.context!.save();
       this.context!.translate(offsetX, offsetY);
@@ -442,15 +368,6 @@ export class Game {
     } else {
       this.context!.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     }
-
-    //this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-
-    //if (t - this.reTiInt > 16*5) {resizeC();}
-
-    let dummy = [[0, 0], [0, 0], [0, 0]] // to initialise
-    if (this.stateN0 == null) {this.stateN0 = this.step(dummy)[0]}
-    if (this.statePID == null) {this.statePID = this.step(dummy)[1]}
-    if (this.statePl == null) {this.statePl = this.step(dummy)[2]}
 
     // if countdown running
     if (this.countdown > 0) {
@@ -473,6 +390,19 @@ export class Game {
         this.onGameEnd();
       }
     }
+
+    // envMain for cam frame of reference
+    if (this.showAI && !this.humanSelected) {
+          this.EnvMain = this.EnvA;
+    } else if (!this.showAI && !this.humanSelected) {
+          this.EnvMain = this.EnvC;
+    }
+    
+    // computation
+    let dummy = [[0, 0], [0, 0], [0, 0]] // to initialise
+    if (this.stateN0 == null) {this.stateN0 = this.step(dummy)[0]}
+    if (this.statePID == null) {this.statePID = this.step(dummy)[1]}
+    if (this.statePl == null) {this.statePl = this.step(dummy)[2]}
 
     // conditions for which output computed, otherwise inefficient
     let outputNet0: any = [false, false];
@@ -502,7 +432,8 @@ export class Game {
     this.stateN0 = nextStateN0;
     this.statePID = nextStatePID;
     this.statePl = nextStatePl;
-
+    
+    // animation frame + save frameId
     this.frameId = requestAnimationFrame(t => this.draw(t));
   }
 
@@ -510,14 +441,16 @@ export class Game {
     this.EnvA.spawnCheckpoints(); // spawns if found hit, otherwise not
     this.EnvC.spawnCheckpoints();
     this.EnvP.spawnCheckpoints();
-
+    
+    // step in physics states baased on computed inputs/outputs
     let stateN0 = this.EnvA.step(thrusts[0])
     let statePID = this.EnvC.step(thrusts[1])
     let statePl = this.EnvP.step(thrusts[2])
 
     return [stateN0, statePID, statePl];
   } 
-
+  
+  // render everything from above
   render(droneEnv: any, t: number, skin: HTMLImageElement, chp: HTMLImageElement) {
     let x = droneEnv.x;
     let y = droneEnv.y;
@@ -525,14 +458,14 @@ export class Game {
     let chpX = droneEnv.chpX;
     let chpY = droneEnv.chpY;
 
-    // Draw checkpoint offset from drone's world position
+    // draw checkpoint offset from drone's world position
     const relChPX = this.canvasWidth / 2 + (chpX - this.EnvMain.x) * this.sRat; // relative to mainframe from EnvMain
     const relChPY = this.canvasHeight / 2 + (chpY - this.EnvMain.y) * this.sRat;
     let offset = 200*this.sRat / 2
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
 
-    // Background:
-    //this.context.drawImage(this.objects[Math.round(Math.random()*11)], relX+Math.round(Math.random()*11), relY+Math.round(Math.random()*11))
+    // bg
+    // ...
   
     const relX = this.canvasWidth / 2 + (x - this.EnvMain.x) * this.sRat; // again relative to mainframe (frame of reference)
     const relY = this.canvasHeight / 2 + (y - this.EnvMain.y) * this.sRat;
@@ -542,14 +475,22 @@ export class Game {
     this.context.drawImage(skin, -75*this.sRat, -37.5*this.sRat, 150*this.sRat, 75*this.sRat);
     this.context.resetTransform();
   }
-
-
-  protected onClicked() {
-
-  }
-
 }
 
+//update: game visualisation, crash logic, profile+leaderboard, rest of design
+
+// --------------
+// note to self, todo:
+// game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
+// -> calls to store data (top scores + levels) locally / server (post, get)
+
+// then: set up cloudflare for pi
+
+// -> profile (name, id, passwd, score data): basic login page (post, get) -> display data
+// leaderboard, skins, custom (just get)
+
+// inspect: some explanation texts + neurons visualised live + canvas component for live view
+// end: design everything, finish texts, check 
 
 
 

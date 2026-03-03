@@ -116,7 +116,7 @@ export class Custom {
       const resultL = new Function('sigmoid', `return ${equationL}`)(sigmoid); // to convert strings into actual function
 
       if (!isFinite(resultL)) throw new Error('not finite, would crash') // to prevent crashing
-      console.log(resultL)
+      //console.log(resultL)
       left = resultL; // take out of scope of try catch
 
     } catch {
@@ -138,7 +138,7 @@ export class Custom {
       // save to json file to load later, after reload!
 
       if (!isFinite(resultR)) throw new Error('not finite, would crash')
-      console.log(resultR)
+      //console.log(resultR)
       right = resultR;
 
     } catch {

@@ -1,5 +1,62 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  private apiUrl = 'https://api.aipilots.space';
+
+  constructor(private http: HttpClient) {}
+
+  private getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
+    };
+  }
+
+  // --- Auth ---
+  register(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, data);
+  }
+
+  login(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, data);
+  }
+
+  // --- Game ---
+  startMatch(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/start`, {}, this.getHeaders());
+  }
+
+  submitScore(score: number, mode: string, pausedTime: number, controllerCode: string = ''): Observable<any> {
+    const body = {
+      score,
+      mode,
+      paused_time: pausedTime,
+      controller_code: controllerCode
+    };
+    return this.http.post(`${this.apiUrl}/score`, body, this.getHeaders());
+  }
+
+  // --- Data ---
+  getLeaderboard(mode: 'human' | 'custom'): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/leaderboard/${mode}`);
+  }
+
+  getController(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get-controller/${userId}`);
+  }
+}
+
+
+
+
+/*import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -47,3 +104,4 @@ export class AuthService {
     return new HttpHeaders({Authorization: `Bearer ${this.getToken()}`});
   }
 }
+*/
