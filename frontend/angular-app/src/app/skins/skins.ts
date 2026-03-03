@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './skins.css',
 })
 export class Skins {
-
+  constructor() {
+    document.title = "AI Pilots - Skins";
+  }
 }

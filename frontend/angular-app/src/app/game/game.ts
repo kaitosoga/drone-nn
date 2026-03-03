@@ -104,6 +104,7 @@ export class Game {
   bgImage = new Image();
 
   constructor(private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running
+    document.title = "AI Pilots - Game";
     this.frameId = null;
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {

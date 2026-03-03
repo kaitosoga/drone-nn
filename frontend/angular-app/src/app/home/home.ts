@@ -19,6 +19,7 @@ export class Home {
   leaderboard: any[] = [];
 
   constructor(private auth: AuthService) {
+    document.title = "AI Pilots - Home";
     this.user = [ // this.userName = this.user[0].name
       {
         name: "kaito",

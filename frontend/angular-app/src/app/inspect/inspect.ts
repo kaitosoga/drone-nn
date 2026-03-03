@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './inspect.css',
 })
 export class Inspect {
-
+  constructor() {
+    document.title = "AI Pilots - Inspect";
+  }
 }

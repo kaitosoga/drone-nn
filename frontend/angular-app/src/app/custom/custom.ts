@@ -37,6 +37,7 @@ export class Custom {
 }
 
   constructor() {
+    document.title = "AI Pilots - Custom";
     if (!Custom.initialized) {
       Custom.charsL = ['sigmoid(','4',')','+','3'];
       Custom.charsR = ['tanh(','7',')','+','3'];

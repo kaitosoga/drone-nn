@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './info.css',
 })
 export class Info {
-
+  constructor() {
+    document.title = "AI Pilots - Info";
+  }
 }

@@ -6,7 +6,10 @@ body {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    font-family: 'Brush Script MT', cursive;
+    font-family: "Lora", serif;
+    font-weight: 100;
+    font-style: light;
+    word-spacing: .1ch;
 }
 
 ::selection {

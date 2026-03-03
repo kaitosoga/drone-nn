@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './leaderboard.css',
 })
 export class Leaderboard {
-
+  constructor() {
+    document.title = "AI Pilots - Leaderboard";
+  }
 }

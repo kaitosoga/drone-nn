@@ -55,6 +55,7 @@ button {
     color: white; 
     cursor: pointer; 
 }
+
 .error { color: #ff6666; font-size: 0.85rem; min-height: 1rem; }
 
 

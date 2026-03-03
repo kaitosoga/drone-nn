@@ -3,8 +3,10 @@ nav {
     right: 15px;
     top: 18px;
     z-index: 100;
-    font-family: 'Brush Script MT', cursive;
-
+    font-family: "Lora", serif;
+    font-weight: 100;
+    font-style: light;
+    word-spacing: .1ch;
 }
 
 .nav-toggle {
