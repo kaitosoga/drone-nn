@@ -1,72 +1,103 @@
-import { Component, inject} from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../auth.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile {
-  api = inject(ApiService);
+  api = inject(ApiService); // from service component
+  
+  username = '';
+  password = '';
+  displayName = '';
+  testScore = 0;
+  
+  leaderboard: any[] = [];
+  isPaused = false;
+  pauseStartTime: number = 0;
+  totalPausedTime: number = 0;
 
   constructor() {
     document.title = "AI Pilots - Profile";
   }
 
-
-
-  // temp:
+  // testing all functions of the backend, the api service + subscribe https://angular.dev/guide/http/making-requests
 
   onRegister() {
-    const newUser = { username: 'test', password: '123', name: 'Test Pilot' };
-    this.api.register(newUser).subscribe(res => {
-      localStorage.setItem('token', res.token);
-      alert('Welcome ' + res.name);
+    const newUser = {
+      username: this.username,
+      password: this.password,
+      name: this.displayName
+    };
+    this.api.register(newUser).subscribe({ // either new value next or error
+      next: (res) => { // res is http response from backend
+        localStorage.setItem('token', res.token);
+        alert('Registered and Logged in as ' + res.name);
+      },
+      error: (err) => alert(err.error.error)
     });
   }
 
-
-
-
-
-  pauseStartTime: number = 0;
-totalPausedTime: number = 0; // In seconds
-
-/*togglePause() {
-  this.isPaused = !this.isPaused;
-  if (this.isPaused) {
-    this.pauseStartTime = Date.now();
-  } else {
-    this.totalPausedTime += (Date.now() - this.pauseStartTime) / 1000;
+  onLogin() {
+    const creds = {
+      username: this.username,
+      password: this.password
+    };
+    this.api.login(creds).subscribe({
+      next: (res) => {
+        localStorage.setItem('token', res.token); // should be new token I think
+        alert('Logged in!');
+      },
+      error: (err) => alert(err.error.error)
+    });
   }
-}
 
-onGameStart() {
-  this.totalPausedTime = 0;
-  this.api.startMatch().subscribe(() => { //game loop });
-}
+  onLogout() {
+    localStorage.removeItem('token');
+    alert('Logged out');
+  }
 
-onGameEnd(finalScore: number) {
-  this.api.submitScore(finalScore, 'human', this.totalPausedTime).subscribe({
-    next: (res) => console.log('Saved!', res),
-    error: (err) => console.error('Rejected:', err.error.error)
-  });
-}
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.pauseStartTime = Date.now();
+      console.log("Paused...");
+    } else {
+      this.totalPausedTime += (Date.now() - this.pauseStartTime) / 1000;
+      console.log("Resumed. Total paused time:", this.totalPausedTime);
+    }
+  }
 
+  onGameStart() {
+    this.totalPausedTime = 0;
+    this.api.startMatch().subscribe(() => { 
+      console.log("gamestarted");
+    });
+  }
 
-loadLeaders() {
-  this.api.getLeaderboard('custom').subscribe(list => {
-    this.leaderboard = list;
-  });
-}
+  onGameEnd() {
+    this.api.submitScore(this.testScore, 'custom', this.totalPausedTime, "sigmoid(5)").subscribe({
+      next: (res) => alert('tscore: ' + res.top_score),
+      error: (err) => alert('reject: ' + err.error.error)
+    });
+  }
 
-challengePlayer(userId: string) {
-  this.api.getController(userId).subscribe(res => {
-    // res.code is the string you'll pass into new Function()
-    console.log('Now playing against: ' + res.name);
-    this.setupOpponentAI(res.code);
-  });
-}*/
+  loadLeaders(mode: 'human' | 'custom') {
+    this.api.getLeaderboard(mode).subscribe(list => {
+      this.leaderboard = list;
+    });
+  }
 
+  challengePlayer(userId: string) {
+    this.api.getController(userId).subscribe(res => {
+      console.log('Fetched custom: ' + res.name);
+      console.log('code:', res.code);
+    });
+  }
 }

@@ -51,15 +51,22 @@ export class Env {
 
     }
 
-    reset(w: number, h: number, vx=0, vy=0, ax=0, ay=0, a=0, va=0) {
+    reset(w: number, h: number, chpx=0, chpy=0, x=0, y=0, vx=0, vy=0, ax=0, ay=0, a=0, va=0) {
         this.width = w;
         this.height = h;
+        this.chpX = chpx;
+        this.chpY = chpy;
+        Env.chPSeries = [[this.chpX, this.chpY]];
+        this.prevDirection = [0, -550];
+        this.x = x;
+        this.y = y;
         this.vx = vx
         this.vy = vy;
         this.ax = ax;
         this.ay = ay;
         this.a = a;
         this.va = va;
+        this.score = 0;
     }
 
     spawnCheckpoints() {

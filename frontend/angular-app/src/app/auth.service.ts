@@ -8,7 +8,7 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders() {
+  private getHeaders() { // is for jwt tokens
     const token = localStorage.getItem('token');
     return {
       headers: new HttpHeaders({
@@ -18,8 +18,7 @@ export class ApiService {
     };
   }
 
-  // --- Auth ---
-  register(data: any): Observable<any> {
+  register(data: any): Observable<any> { // better than promise, data at any time
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
@@ -27,7 +26,6 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/login`, data);
   }
 
-  // --- Game ---
   startMatch(): Observable<any> {
     return this.http.post(`${this.apiUrl}/start`, {}, this.getHeaders());
   }
@@ -42,7 +40,6 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/score`, body, this.getHeaders());
   }
 
-  // --- Data ---
   getLeaderboard(mode: 'human' | 'custom'): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leaderboard/${mode}`);
   }
