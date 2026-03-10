@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:angular-app": "node dist/angular-app/server/server.mjs"
+    "serve:ssr:angular-app": "node dist/angular-app/server/server.mjs",
+    "build:prod": "ng build --prod",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
   },
   "prettier": {
     "printWidth": 100,
@@ -41,12 +44,15 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^21.0.3",
     "@angular/build": "^21.1.0",
     "@angular/cdk": "^21.1.5",
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
+    "jscrambler": "^8.10.9",
+    "jscrambler-webpack-plugin": "^8.5.1",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

@@ -10,6 +10,18 @@ import { ApiService } from '../auth.service';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
+
+
+// Where needed: 
+// Home: -
+// game: startmatch indication, submitScore
+// inspect: -
+// custom: submit score 0 
+// skin, leaderboard
+// profile: login / register
+// 
+
+
 export class Profile {
   api = inject(ApiService); // from service component
   
@@ -23,6 +35,8 @@ export class Profile {
   pauseStartTime: number = 0;
   totalPausedTime: number = 0;
 
+  userId = "";
+
   constructor() {
     document.title = "AI Pilots - Profile";
   }
@@ -33,11 +47,13 @@ export class Profile {
     const newUser = {
       username: this.username,
       password: this.password,
-      name: this.displayName
+      name: this.displayName,
+
     };
     this.api.register(newUser).subscribe({ // either new value next or error
       next: (res) => { // res is http response from backend
         localStorage.setItem('token', res.token);
+        this.userId = res.user_id;
         alert('Registered and Logged in as ' + res.name);
       },
       error: (err) => alert(err.error.error)
@@ -52,6 +68,7 @@ export class Profile {
     this.api.login(creds).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token); // should be new token I think
+        this.userId = res.user_id;
         alert('Logged in!');
       },
       error: (err) => alert(err.error.error)
@@ -82,7 +99,7 @@ export class Profile {
   }
 
   onGameEnd() {
-    this.api.submitScore(this.testScore, 'custom', this.totalPausedTime, "sigmoid(5)").subscribe({
+    this.api.submitScore(this.testScore, 'human', this.totalPausedTime, "sigmoid(5)").subscribe({
       next: (res) => alert('tscore: ' + res.top_score),
       error: (err) => alert('reject: ' + err.error.error)
     });
@@ -99,5 +116,17 @@ export class Profile {
       console.log('Fetched custom: ' + res.name);
       console.log('code:', res.code);
     });
+  }
+
+  getMyController(userId: string) {
+    this.api.getSavedController(userId).subscribe(res => {
+      console.log("currently saved: ", res.code, res.name)
+    })
+  }
+
+  submitController(code: string) {
+    this.api.submitController(code).subscribe(res => {
+      console.log(res);
+    })
   }
 }

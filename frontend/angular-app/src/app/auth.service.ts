@@ -40,6 +40,13 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/score`, body, this.getHeaders());
   }
 
+  submitController(controllerCode: string = ''): Observable<any> {
+    const body = {
+      controller_code: controllerCode
+    }
+    return this.http.post(`${this.apiUrl}/submit-controller`, body, this.getHeaders());
+  }
+
   getLeaderboard(mode: 'human' | 'custom'): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leaderboard/${mode}`);
   }
@@ -47,7 +54,25 @@ export class ApiService {
   getController(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/get-controller/${userId}`);
   }
+
+  getSavedController(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get-saved-controller/${userId}`);
+  }
 }
+
+
+
+// Note: using submit score to submit custom controller only when topscore, and submitcontroller to save anytime
+// getController only gets the topscore controller publicly on leaderboard, getSavedController gets the private one.
+// when leaderboard ts, private one also update, when private one update leaderboard ts controller not affected
+
+
+
+
+
+
+
+
 
 
 

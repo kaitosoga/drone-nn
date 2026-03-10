@@ -23,6 +23,8 @@
       <label>simulate score</label>
       <input type="number" [(ngModel)]="testScore" />
       <button (click)="onGameEnd()">SUBMIT SCORE</button>
+      <button (click)="getMyController(this.userId)">getcontroller saved</button>
+      <button (click)="submitController('tanh(0)')">submit random new controller saved</button>
     </div>
     <p><small>constraint</small></p>
   </section>
