@@ -29,6 +29,7 @@ export class Game {
   private lClick = false;
   private rClick = false;
   private gameEnded = false;
+  private ownController = true;
 
   customData = inject(Custom); // can also edit instance config here!
   api = inject(ApiService);
@@ -189,6 +190,8 @@ export class Game {
       }
     };
     tick();
+    this.ptime = 0;
+    this.api.startMatch().subscribe(() => {});
   }
 
   get scores() {
@@ -272,19 +275,17 @@ export class Game {
     if (this.humanSelected) options.human = true;
     if (this.customSelected) options.custom = true;
 
-    let mode = "";
-
-    this.api.submitScore(score, mode, this.ptime).subscribe({
-      next: (res) => {
-        //console.log('score submission response', res);
-        if (res.top_score === score) {
-          console.log('new highscore achieved');
-        }
-      },
-      error: (e) => {
-        console.error('score submit error', e);
-      }
+    this.api.submitScore(this.scores[0], 'human', this.ptime, [["willbeignored"], []]).subscribe({
+      next: (res) => alert('tscore: ' + res.top_score),
+      error: (err) => alert('reject: ' + err.error.error)
     });
+
+    if (this.ownController) {
+      this.api.submitScore(this.scores[2], 'custom', this.ptime, [this.customData.stringCharsL, this.customData.stringCharsR]).subscribe({
+        next: (res) => alert('tscore: ' + res.top_score),
+        error: (err) => alert('reject: ' + err.error.error)
+      });
+    } // if using controller from someone else, score should not be submitted
 
     this.quit();
   }

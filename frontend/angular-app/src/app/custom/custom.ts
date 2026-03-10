@@ -1,7 +1,8 @@
-import { Component, Injectable } from '@angular/core';
+import { Component, inject, Injectable } from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import { throwDeprecation } from 'process';
 import { stat } from 'fs';
+import { ApiService } from '../auth.service';
 
 @Component({
   selector: 'app-custom',
@@ -14,6 +15,9 @@ import { stat } from 'fs';
 export class Custom {
 
   static initialized = false;
+  api = inject(ApiService);
+  id = localStorage.getItem('user_id');
+  userId = this.id ? this.id : "";
 
   static charsL: string[] = [];
   static charsR: string[] = [];
@@ -27,7 +31,7 @@ export class Custom {
 
   error = "";
 
-  sampleState = {
+  sampleState = { // to test function validity / errors
     "opt": [1, 1],
     "vel": [1, 1],
     "acc": [1, 1],
@@ -84,6 +88,8 @@ export class Custom {
 
   drop(event: CdkDragDrop<string[]>, side: 'L' | 'R') {
     moveItemInArray(side === 'L' ? Custom.charsL : Custom.charsR, event.previousIndex, event.currentIndex);
+    this.stringCharsL = Custom.charsL;
+    this.stringCharsR = Custom.charsR;
   }
 
   compileController(stateFull: any) {
@@ -150,6 +156,27 @@ export class Custom {
 
   }
 
+  onSave() {
+      this.api.submitController([this.stringCharsL, this.stringCharsR]).subscribe(res => {
+      console.log(res);
+    })
+  }
+
+  onLoad() {
+    this.api.getSavedController(this.userId).subscribe(res => {
+      console.log("currently saved: ", res.code, res.name)
+      Custom.charsL.length = 0; // found out that i have to clear it instead of replacing it, so that address remains same and ng drag&drop can autoupdate
+      Custom.charsR.length = 0;
+
+      // 2. Push the new items into the existing references
+      Custom.charsL.push(...res.code[0]);
+      Custom.charsR.push(...res.code[1]);
+      console.log(Custom.charsL)
+    
+      this.stringCharsL = [...Custom.charsL];
+      this.stringCharsR = [...Custom.charsR];
+    })
+  }
 
 
 }

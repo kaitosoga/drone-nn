@@ -48,7 +48,7 @@ export class Home {
   }
 
   sendTopscore(ts: number) {
-    this.auth.submitScore(ts, "human", 0).subscribe({
+    this.auth.submitScore(ts, "human", 0, [[], []]).subscribe({
       next: (res) => {
         console.log('Score updated! New top score:', res.top_score);
         this.getLedInd(); 

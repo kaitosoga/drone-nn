@@ -6,8 +6,22 @@
     <title>AI Pilots - Inspect</title>
 </head>
 <body>
-    <h1>hello there!</h1>
+    <h1>Leaderboard - Top 10</h1>
+
+    <section class="leaderboard-box">
+        <h3>Leaderboards</h3>
+        <button (click)="loadLeaders('human')">Load Human</button>
+        <button (click)="loadLeaders('custom')">Load Custom players</button>
+
+        <ol>
+        @for (player of leaderboard; track player.user_id) {
+            <li>
+            <strong>{{ player.name }}</strong>: {{ player.score }} pts 
+            <button (click)="challengePlayer(player.user_id)">fetch custom</button>
+            </li>
+        }
+        </ol>
+    </section>
 </body>
 </html>
 
-<p>leaderboard works!</p>

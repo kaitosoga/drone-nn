@@ -30,7 +30,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/start`, {}, this.getHeaders());
   }
 
-  submitScore(score: number, mode: string, pausedTime: number, controllerCode: string = ''): Observable<any> {
+  submitScore(score: number, mode: string, pausedTime: number, controllerCode: string[][]): Observable<any> {
     const body = {
       score,
       mode,
@@ -40,7 +40,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/score`, body, this.getHeaders());
   }
 
-  submitController(controllerCode: string = ''): Observable<any> {
+  submitController(controllerCode: string[][]): Observable<any> {
     const body = {
       controller_code: controllerCode
     }

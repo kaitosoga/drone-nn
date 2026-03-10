@@ -14,12 +14,12 @@ import { ApiService } from '../auth.service';
 
 // Where needed: 
 // Home: -
-// game: startmatch indication, submitScore
+// done/ game: startmatch indication, submitScore on game end
 // inspect: -
-// custom: submit score 0 
-// skin, leaderboard
+// done/ custom: submit to saved controllers, or load saved ones
+// leaderboard: load top 10, allow loading custom controllers and make them option in game.ts
+// skin: just based on users score, or let user pick any skin? 
 // profile: login / register
-// 
 
 
 export class Profile {
@@ -53,6 +53,7 @@ export class Profile {
     this.api.register(newUser).subscribe({ // either new value next or error
       next: (res) => { // res is http response from backend
         localStorage.setItem('token', res.token);
+        localStorage.setItem('user_id', res.user_id);
         this.userId = res.user_id;
         alert('Registered and Logged in as ' + res.name);
       },
@@ -68,6 +69,7 @@ export class Profile {
     this.api.login(creds).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token); // should be new token I think
+        localStorage.setItem('user_id', res.user_id);
         this.userId = res.user_id;
         alert('Logged in!');
       },
@@ -99,7 +101,7 @@ export class Profile {
   }
 
   onGameEnd() {
-    this.api.submitScore(this.testScore, 'human', this.totalPausedTime, "sigmoid(5)").subscribe({
+    this.api.submitScore(this.testScore, 'human', this.totalPausedTime, [["sigmoid(5)"], []]).subscribe({
       next: (res) => alert('tscore: ' + res.top_score),
       error: (err) => alert('reject: ' + err.error.error)
     });
@@ -124,7 +126,7 @@ export class Profile {
     })
   }
 
-  submitController(code: string) {
+  submitController(code: string[][]) {
     this.api.submitController(code).subscribe(res => {
       console.log(res);
     })
