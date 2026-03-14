@@ -19,7 +19,7 @@ import { ApiService } from '../auth.service';
 // done/ custom: submit to saved controllers, or load saved ones
 // leaderboard: load top 10, allow loading custom controllers and make them option in game.ts
 // skin: just based on users score, or let user pick any skin? 
-// profile: login / register
+// done/ profile: login / register
 
 
 export class Profile {

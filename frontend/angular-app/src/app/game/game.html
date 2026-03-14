@@ -16,6 +16,7 @@
             <div class="mode-select">
                 <button class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
                 <button class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
+                <button *ngIf="!gameService.ownController" (click)="gameService.ownController = true; logCont();">Remove Selected Controller to select own Controller</button>
                 <button class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
             </div>
 

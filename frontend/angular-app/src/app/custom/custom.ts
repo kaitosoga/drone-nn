@@ -92,7 +92,7 @@ export class Custom {
     this.stringCharsR = Custom.charsR;
   }
 
-  compileController(stateFull: any) {
+  compileController(stateFull: any, chars=[Custom.charsL, Custom.charsR]){
 
     const state: Record<string, any> = { // weird js or ts types to make index work later
         'optX': stateFull['opt'][0],
@@ -111,7 +111,7 @@ export class Custom {
 
     // left thrust equation
     try {
-      const equationL = Custom.charsL.map((el: string) => {
+      const equationL = chars[0].map((el: string) => {
         if (variables.includes(el)) return state[el];
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh('; // sigmoid is not a Math function, but tanh works in new Function
@@ -131,7 +131,7 @@ export class Custom {
 
     // right thrust equation
     try {
-      const equationR = Custom.charsR.map((el: string) => {
+      const equationR = chars[1].map((el: string) => {
         if (variables.includes(el)) return state[el];
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh(';

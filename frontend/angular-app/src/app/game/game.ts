@@ -1,10 +1,11 @@
-import { Component, inject, ViewChild, ChangeDetectorRef, HostListener } from '@angular/core'
+import { Component, OnInit, inject, ViewChild, ChangeDetectorRef, HostListener, Injectable } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { Env } from '../logic/Env';
 import { Net } from '../logic/Net';
 import { PID } from '../logic/PID';
 import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
+import { GameService } from '../game/game.service';
 
 @Component({
   selector: 'app-game',
@@ -14,7 +15,10 @@ import { ApiService } from '../auth.service';
   styleUrl: './game.css',
 })
 
-export class Game {
+@Injectable({ providedIn: 'root' })
+export class Game implements OnInit{
+  ngOnInit() {}
+
   @ViewChild('canvas') canvas: any; // saved the canvas here
 
   get context(): CanvasRenderingContext2D { // virtual property 
@@ -28,8 +32,7 @@ export class Game {
   private bgPattern: CanvasPattern | null = null;
   private lClick = false;
   private rClick = false;
-  private gameEnded = false;
-  private ownController = true;
+  private gameEnded = true;
 
   customData = inject(Custom); // can also edit instance config here!
   api = inject(ApiService);
@@ -44,7 +47,6 @@ export class Game {
   static scores: number[] = [];
 
   showAI = false;
-  ptime = 0;
   
   Pid = new PID();
   Net0 = new Net();
@@ -73,6 +75,9 @@ export class Game {
   // countdown at beinning+ game time
   countdown = 0;
   timeLeft = 0;
+  ptime = 0;
+  isPaused = false;
+  pauseStartTime = 0;
   private lastTimerUpdate = 0;
   errorMsg = '';
 
@@ -84,7 +89,7 @@ export class Game {
   chp2 = new Image();
   bgImage = new Image();
 
-  constructor(private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
+  constructor(public gameService: GameService, private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
     this.frameId = null;
 
@@ -169,6 +174,9 @@ export class Game {
           this.EnvMain = this.EnvC;
     }
 
+    this.isPaused = false;
+    this.pauseStartTime = 0;
+    this.ptime = 0;
     this.errorMsg = '';
     this.gameEnded = false;
 
@@ -187,11 +195,11 @@ export class Game {
       } else {
         this.running = true;
         this.lastTime = performance.now();
+        this.api.startMatch().subscribe(() => {});
+
       }
     };
     tick();
-    this.ptime = 0;
-    this.api.startMatch().subscribe(() => {});
   }
 
   get scores() {
@@ -269,25 +277,34 @@ export class Game {
       this.quit();
       return;
     }
+    
     const score = this.EnvP?.score ?? 0;
     const options: any = {};
     if (this.aiSelected) options.ai = this.selectedAiLevel;
     if (this.humanSelected) options.human = true;
     if (this.customSelected) options.custom = true;
 
-    this.api.submitScore(this.scores[0], 'human', this.ptime, [["willbeignored"], []]).subscribe({
-      next: (res) => alert('tscore: ' + res.top_score),
-      error: (err) => alert('reject: ' + err.error.error)
-    });
+    console.log(this.scores[0]);
+    if (this.humanSelected) {
+      this.api.submitScore(this.scores[1], 'human', this.ptime, [["willbeignored"], []]).subscribe({
+        next: (res) => alert('tscore: ' + res.top_score),
+        error: (err) => alert('reject: ' + err.error.error)
+      });
+    }
 
-    if (this.ownController) {
-      this.api.submitScore(this.scores[2], 'custom', this.ptime, [this.customData.stringCharsL, this.customData.stringCharsR]).subscribe({
+    if (this.gameService.ownController && this.customSelected) { // only submit if the players own controller
+      this.api.submitScore(this.scores[5], 'custom', this.ptime, [this.customData.stringCharsL, this.customData.stringCharsR]).subscribe({
         next: (res) => alert('tscore: ' + res.top_score),
         error: (err) => alert('reject: ' + err.error.error)
       });
     } // if using controller from someone else, score should not be submitted
 
     this.quit();
+  }
+
+  logCont() {
+    console.log('own controller:', this.gameService.ownController);
+    console.log('own controller data:', this.gameService.ownControllerData);
   }
 
   // more options
@@ -300,11 +317,23 @@ export class Game {
     this.Net0.load(`public/models/drone_AI_weights-${this.level}.json`)
   }
 
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.pauseStartTime = Date.now();
+      console.log("Paused...");
+    } else {
+      this.ptime += (Date.now() - this.pauseStartTime) / 1000;
+      console.log("Resumed. Total paused time:", this.ptime);
+    }
+  }
+
   pause() {
     if (this.frameId !== null && this.running) {
       this.running = false;
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
+      this.togglePause();
     }
   }
 
@@ -313,6 +342,7 @@ export class Game {
       this.running = true;
       this.lastTime = performance.now(); // to prevent big dt in timer
       this.draw();
+      this.togglePause();
     }
   }
 
@@ -328,6 +358,7 @@ export class Game {
     this.timeLeft = 0;
     this.errorMsg = '';
     this.gameEnded = false;
+
 
     this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
     this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
@@ -412,8 +443,10 @@ export class Game {
     }
 
     let outputPID: any = [false, false];
-    if (this.customSelected) {
+    if (this.customSelected && this.gameService.ownController) {
       outputPID = this.customData.compileController(this.statePID);
+    } else if (this.customSelected) {
+      outputPID = this.customData.compileController(this.statePID, this.gameService.ownControllerData); // specify other controller, not mine (which would be default)
     }
 
     let outputPlayer: any = [false, false];
@@ -483,7 +516,7 @@ export class Game {
 // --------------
 // note to self, todo:
 // game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
-// -> calls to store data (top scores + levels) locally / server (post, get)
+// -> calls to store data (top scores) locally / server (post, get)
 
 // then: set up cloudflare for pi
 
