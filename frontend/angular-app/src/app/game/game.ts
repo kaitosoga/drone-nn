@@ -7,6 +7,10 @@ import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 
+// not done yet: fix custom loading, fix game loading after changing accounts
+// crash logic, visualisations
+// quick guide to make user be able use game controls more esily inspect
+
 @Component({
   selector: 'app-game',
   standalone: true,
@@ -488,6 +492,8 @@ export class Game implements OnInit{
   render(droneEnv: any, t: number, skin: HTMLImageElement, chp: HTMLImageElement) {
     let x = droneEnv.x;
     let y = droneEnv.y;
+    let vx = droneEnv.vx;
+    let vy = droneEnv.vy;
     let angle = droneEnv.a * Math.PI / 180;
     let chpX = droneEnv.chpX;
     let chpY = droneEnv.chpY;
@@ -497,6 +503,8 @@ export class Game implements OnInit{
     const relChPY = this.canvasHeight / 2 + (chpY - this.EnvMain.y) * this.sRat;
     let offset = 200*this.sRat / 2
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
+
+    if (vx > 50 || vy > 50) {this.crashMessage();}
 
     // bg
     // ...
@@ -509,9 +517,21 @@ export class Game implements OnInit{
     this.context.drawImage(skin, -75*this.sRat, -37.5*this.sRat, 150*this.sRat, 75*this.sRat);
     this.context.resetTransform();
   }
+
+  crashMessage() {
+      this.context.save();
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 120px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.textBaseline = 'middle';
+      this.context.fillText("you'r drone lost navigation :/", this.canvasWidth / 2, this.canvasHeight / 2);
+      this.context.restore();
+      this.frameId = requestAnimationFrame(t => this.draw(t));
+      this.quit();
+  }
 }
 
-//update: game visualisation, crash logic, profile+leaderboard, rest of design
+//update: game visualisation, crash logic, rest of design
 
 // --------------
 // note to self, todo:
