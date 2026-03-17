@@ -17,7 +17,7 @@
         @for (player of leaderboard; track player.user_id) {
             <li>
             <strong>{{ player.name }}</strong>: {{ player.score }} pts 
-            <button (click)="challengePlayer(player.user_id)">fetch custom</button>
+            @if (mode=='custom') {<button (click)="challengePlayer(player.user_id)">fetch custom</button>}
             </li>
         }
         </ol>

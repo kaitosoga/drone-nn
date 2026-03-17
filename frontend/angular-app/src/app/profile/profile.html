@@ -3,44 +3,14 @@
 
   <section class="auth-box">
     <h3>Authentication</h3>
-    <input [(ngModel)]="username" placeholder="Username" />
-    <input [(ngModel)]="password" type="password" placeholder="Password" />
+    <input [(ngModel)]="username" placeholder="Username" (keydown.enter)="onLogin()"/> <!--ng key detection inside input field-->
+    <input [(ngModel)]="password" type="password" placeholder="Password" (keydown.enter)="onLogin()"/> 
     <input [(ngModel)]="displayName" placeholder="Display Name (Reg only)" />
     <br><br>
     <button (click)="onLogin()">Login</button>
     <button (click)="onRegister()">Register</button>
     <button (click)="onLogout()">Logout</button>
-  </section>
 
-  <section class="game-sim">
-    <h3>Game anti-cheat</h3>
-    <button (click)="onGameStart()">START MATCH</button>
-    <button (click)="togglePause()">
-      {{ isPaused ? 'RESUME' : 'PAUSE' }}
-    </button>
-    
-    <div>
-      <label>simulate score</label>
-      <input type="number" [(ngModel)]="testScore" />
-      <button (click)="onGameEnd()">SUBMIT SCORE</button>
-      <button (click)="getMyController(this.userId)">getcontroller saved</button>
-      <button (click)="submitController([['tanh(0)'], ['0']])">submit random new controller saved</button>
-    </div>
-    <p><small>constraint</small></p>
-  </section>
-
-  <section class="leaderboard-box">
-    <h3>Leaderboards</h3>
-    <button (click)="loadLeaders('human')">Load Human</button>
-    <button (click)="loadLeaders('custom')">Load Custom players</button>
-
-    <ol>
-      @for (player of leaderboard; track player.user_id) {
-        <li>
-          <strong>{{ player.name }}</strong>: {{ player.score }} pts 
-          <button (click)="challengePlayer(player.user_id)">fetch custom</button>
-        </li>
-      }
-    </ol>
+    @if (loggedIn()) {<p>Logged in as {{displayNameLogged}}</p>} @else {<p>Not logged in</p>}
   </section>
 </div>

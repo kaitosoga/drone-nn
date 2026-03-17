@@ -1,6 +1,12 @@
 import * as tf from '@tensorflow/tfjs';
-await tf.setBackend('cpu');
-await tf.ready();
+
+
+async function load() {
+    await tf.setBackend('cpu');
+    await tf.ready();
+}
+
+load();
 
 export class Net {
     model: tf.Sequential;

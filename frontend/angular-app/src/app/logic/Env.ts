@@ -34,7 +34,7 @@ export class Env {
     constructor(w: number, h: number, mDrag=0.5, rDrag=0.7, rSpeed=1, tPower=3.5, gravity=2) {
         this.width = w;
         this.height = h;
-        this.score = 0;
+        this.score = -2;
 
         this.GRAVITY = gravity;
         this.THRUST_POWER = tPower;
@@ -66,7 +66,7 @@ export class Env {
         this.ay = ay;
         this.a = a;
         this.va = va;
-        this.score = 0;
+        this.score = -2;
     }
 
     spawnCheckpoints() {

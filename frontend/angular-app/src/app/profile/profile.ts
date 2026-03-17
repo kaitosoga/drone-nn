@@ -2,7 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../auth.service';
-
+import { GameService } from '../game/game.service';
+import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -28,6 +29,7 @@ export class Profile {
   username = '';
   password = '';
   displayName = '';
+  displayNameLogged = '';
   testScore = 0;
   
   leaderboard: any[] = [];
@@ -37,18 +39,18 @@ export class Profile {
 
   userId = "";
 
-  constructor() {
+  constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Profile";
   }
 
   // testing all functions of the backend, the api service + subscribe https://angular.dev/guide/http/making-requests
 
   onRegister() {
+    this.gameService.ownController = true; 
     const newUser = {
       username: this.username,
       password: this.password,
       name: this.displayName,
-
     };
     this.api.register(newUser).subscribe({ // either new value next or error
       next: (res) => { // res is http response from backend
@@ -56,12 +58,15 @@ export class Profile {
         localStorage.setItem('user_id', res.user_id);
         this.userId = res.user_id;
         alert('Registered and Logged in as ' + res.name);
+        this.displayNameLogged = res.name;
+        this.cdr.detectChanges();
       },
       error: (err) => alert(err.error.error)
     });
   }
 
   onLogin() {
+    this.gameService.ownController = true;
     const creds = {
       username: this.username,
       password: this.password
@@ -72,6 +77,8 @@ export class Profile {
         localStorage.setItem('user_id', res.user_id);
         this.userId = res.user_id;
         alert('Logged in!');
+        this.displayNameLogged = res.name;
+        this.cdr.detectChanges();
       },
       error: (err) => alert(err.error.error)
     });
@@ -79,8 +86,16 @@ export class Profile {
 
   onLogout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
     alert('Logged out');
   }
+
+  loggedIn() {
+    return !!localStorage.getItem('user_id'); // I learnt that !! converts to boolean
+  }
+
+
+// just testing:  
 
   togglePause() {
     this.isPaused = !this.isPaused;

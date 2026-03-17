@@ -7,9 +7,9 @@ import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 
-// not done yet: fix custom loading, fix game loading after changing accounts
-// crash logic, visualisations
-// quick guide to make user be able use game controls more esily inspect
+// not done yet: profile login/register seperation, game still keeps othercustom after logout, but gameservice variable is updated ...
+// visualisations: huge checkpoints for indication, different pngs for thrusts (one thrust in middle, two arrow thrsts on sides -> 3! different pngs)
+// inspect mode (put component into /game), choosing skins based on top score of user
 
 @Component({
   selector: 'app-game',
@@ -36,6 +36,7 @@ export class Game implements OnInit{
   private bgPattern: CanvasPattern | null = null;
   private lClick = false;
   private rClick = false;
+  private sClick = false;
   private gameEnded = true;
 
   customData = inject(Custom); // can also edit instance config here!
@@ -70,6 +71,7 @@ export class Game implements OnInit{
   customSelected = false;
   selectedAiLevel = '';
   selectedSkin = '';
+  train = false;
 
   level = "";
   sRat: any; // screen size ratio to fixed number
@@ -101,12 +103,14 @@ export class Game implements OnInit{
       if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
       if (e.key === 'ArrowLeft') this.lClick = true;
       if (e.key === 'ArrowRight') this.rClick = true;
+      if (e.key === ' ') {this.sClick = true};
     });
 
     document.addEventListener('keyup', (e: KeyboardEvent) => {
       if (e.key === 'Control' || e.key === 'Meta') this.isCtrlHeld = false;
       if (e.key === 'ArrowLeft') this.lClick = false;
       if (e.key === 'ArrowRight') this.rClick = false;
+      if (e.key === ' ') this.sClick = false;
     });
   }
 
@@ -152,15 +156,19 @@ export class Game implements OnInit{
     this.EnvC = new Env(canvas.width * 4, canvas.height * 4);
     this.EnvC.reset(this.EnvC.width / 2, this.EnvC.height / 2)
   }
+
+  onButtonClick(event: Event) {(event.target as HTMLElement).blur();} // removing browser focus to free space bar
   
   // verification for options
   canStart() {
+    if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING WILL SAVE"); console.log("not logged in")}
+    
     let count = 0;
     if (this.aiSelected) count += 1;
     if (this.humanSelected) count += 1;
     if (this.customSelected) count += 1;
     if (this.aiSelected && this.selectedAiLevel === '') return false;
-    return count >= 2 && count <= 2;
+    return (count >= 2 && count <= 2 || this.train);
   }
 
   // general functions
@@ -169,6 +177,8 @@ export class Game implements OnInit{
       this.errorMsg = 'select at least two players, please';
       return;
     }
+
+    this.quit(); // just in case
 
     if (this.humanSelected) {
           this.EnvMain = this.EnvP; // main frame (like camera), others are reference
@@ -199,7 +209,7 @@ export class Game implements OnInit{
       } else {
         this.running = true;
         this.lastTime = performance.now();
-        this.api.startMatch().subscribe(() => {});
+        if (!this.train) {this.api.startMatch().subscribe(() => {})};
 
       }
     };
@@ -235,6 +245,14 @@ export class Game implements OnInit{
     this.rClick = false;
   }
 
+  protected startSpace() {
+    this.sClick = true;
+  }
+
+  protected stopSpace() {
+    this.sClick = false;
+  }
+
   // options:
   toggleAi() {
     this.aiSelected = !this.aiSelected;
@@ -252,10 +270,17 @@ export class Game implements OnInit{
 
   toggleHuman() {
     this.humanSelected = !this.humanSelected;
+    console.log("toggled:", this.humanSelected)
+  }
+
+  toggleTrain() {
+    this.train = !this.train
+    this.toggleHuman(); // because training for human
   }
 
   toggleCustom() {
     this.customSelected = !this.customSelected;
+    console.log("TOGGLED!")
   }
 
   selectS(skin: string) { // will probably not do this, but based on score, idk yet
@@ -271,7 +296,7 @@ export class Game implements OnInit{
 
   // game end
   private onGameEnd() {
-    if (this.gameEnded) return;
+    if (this.gameEnded || this.train) return;
     this.gameEnded = true;
 
     this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
@@ -442,20 +467,25 @@ export class Game implements OnInit{
 
     // conditions for which output computed, otherwise inefficient
     let outputNet0: any = [false, false];
-    if (this.aiSelected && this.Net0) {
+    if (this.aiSelected && this.Net0 && !this.train) {
       outputNet0 = this.Net0.compute(this.stateN0);
     }
 
     let outputPID: any = [false, false];
-    if (this.customSelected && this.gameService.ownController) {
+    if (this.customSelected && this.gameService.ownController && !this.train) {
       outputPID = this.customData.compileController(this.statePID);
-    } else if (this.customSelected) {
+    } else if (this.customSelected && !this.train) {
       outputPID = this.customData.compileController(this.statePID, this.gameService.ownControllerData); // specify other controller, not mine (which would be default)
     }
 
-    let outputPlayer: any = [false, false];
+    let outputPlayer: number[] = [0, 0];
     if (this.humanSelected) {
-      outputPlayer = [this.lClick, this.rClick];
+      const r = this.rClick ? 1 : .5;
+      const l = this.lClick ? 1 : .5;
+      const min = (this.rClick || this.lClick) ? 1 : 0;
+      const thrust = this.sClick ? 1 : min; // typescript safety thing
+      outputPlayer = [thrust * l, thrust * r];
+      // this is basically an adjustment for the player, to make controls easier, I noticed later that it was too hard without this
     }
 
     let nextStates = this.step([outputNet0, outputPID, outputPlayer]);
@@ -463,8 +493,8 @@ export class Game implements OnInit{
     let nextStatePID = nextStates[1];
     let nextStatePl = nextStates[2];
     // onbly render computed ones
-    if (this.aiSelected) this.render(this.EnvA, time, this.skin0, this.chp0);
-    if (this.customSelected) this.render(this.EnvC, time, this.skin1, this.chp1);
+    if (this.aiSelected && !this.train) this.render(this.EnvA, time, this.skin0, this.chp0);
+    if (this.customSelected && !this.train) this.render(this.EnvC, time, this.skin1, this.chp1);
     if (this.humanSelected) this.render(this.EnvP, time, this.skin2, this.chp2);
     
     this.stateN0 = nextStateN0;
@@ -504,7 +534,7 @@ export class Game implements OnInit{
     let offset = 200*this.sRat / 2
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
 
-    if (vx > 50 || vy > 50) {this.crashMessage();}
+    if (Math.sqrt((chpX - this.EnvMain.x)**2 + (chpY - this.EnvMain.y)**2) > 4000) {this.crashMessage();}
 
     // bg
     // ...

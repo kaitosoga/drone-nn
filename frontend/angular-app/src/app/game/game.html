@@ -14,10 +14,11 @@
         <div class="menu-wrapper bg" [class.hidden]="menuHidden">
             <!--<div id="live"><p>Menu:</p></div>-->
             <div class="mode-select">
-                <button class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
-                <button class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
-                <button *ngIf="!gameService.ownController" (click)="gameService.ownController = true; logCont();">Remove Selected Controller to select own Controller</button>
-                <button class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
+                <button *ngIf="!train" class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
+                <button *ngIf="!train" class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
+                <button *ngIf="!gameService.ownController && !train" (click)="gameService.ownController = true; logCont();">Remove Selected Controller to select own Controller</button>
+                <button *ngIf="!train" class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
+                <button class="options" [ngClass]="{'selected': train}" (click)="toggleTrain()">Training</button>
             </div>
 
             <div *ngIf="aiSelected" class="ai-levels">
@@ -34,7 +35,7 @@
                 <div class="basic-buttons">
                     <button class="menu" (click)="pause();">Pause</button>
                     <button class="menu" (click)="resume();">Resume</button>
-                    <button class="menu" (click)="startGame();">Start</button>
+                    <button class="menu" (click)="startGame(); onButtonClick($event)">Start</button>
                     <button class="menu" (click)="quit();">Quit</button>
                 </div>
             </div>
@@ -51,16 +52,16 @@
                 <div class="live-row">
                     <span class="label">Scores:</span>
                         <table class="value">
-                            <tr><td>{{scores[0]}}</td></tr>
-                            <tr><td>{{scores[1]}}</td></tr>
+                            <tr><td>{{scores[0]>=0?scores[0]:0}}</td></tr>
+                            <tr><td>{{scores[1]>=0?scores[1]:0}}</td></tr>
                         </table>
                         <table class="value">
-                            <tr><td>{{scores[2]}}</td></tr>
-                            <tr><td>{{scores[3]}}</td></tr>
+                            <tr><td>{{scores[2]>=0?scores[2]:0}}</td></tr>
+                            <tr><td>{{scores[3]>=0?scores[3]:0}}</td></tr>
                         </table>
                         <table class="value">
-                            <tr><td>{{scores[4]}}</td></tr>
-                            <tr><td>{{scores[5]}}</td></tr>
+                            <tr><td>{{scores[4]>=0?scores[4]:0}}</td></tr>
+                            <tr><td>{{scores[5]>=0?scores[5]:0}}</td></tr>
                         </table>
                 </div>
                 <div class="live-row" *ngIf="timeLeft>0">
@@ -81,6 +82,7 @@
         <div class="lr-buttons" [class.phone]="phoneMode">
             <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
             <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
+            <button class="lr" [class.phone]="phoneMode" (mousedown)="startSpace()" (mouseup)="stopSpace()" (touchstart)="startSpace()" (touchend)="stopSpace()">Thrust</button>
         </div>
     </div>
     <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>

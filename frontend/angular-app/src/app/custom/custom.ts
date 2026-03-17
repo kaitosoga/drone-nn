@@ -3,6 +3,7 @@ import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/d
 import { throwDeprecation } from 'process';
 import { stat } from 'fs';
 import { ApiService } from '../auth.service';
+import { ChangeDetectorRef } from '@angular/core'; // when subscribing for res, html doesn't update on response
 
 @Component({
   selector: 'app-custom',
@@ -40,7 +41,7 @@ export class Custom {
     // "reached": reached
 }
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Custom";
     if (!Custom.initialized) {
       Custom.charsL = ['sigmoid(','4',')','+','3'];
@@ -157,12 +158,16 @@ export class Custom {
   }
 
   onSave() {
+      if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING WILL SAVE")}
+
       this.api.submitController([this.stringCharsL, this.stringCharsR]).subscribe(res => {
       console.log(res);
     })
   }
 
   onLoad() {
+    if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING TO GET")}
+
     this.api.getSavedController(this.userId).subscribe(res => {
       console.log("currently saved: ", res.code, res.name)
       Custom.charsL.length = 0; // found out that i have to clear it instead of replacing it, so that address remains same and ng drag&drop can autoupdate
@@ -175,6 +180,8 @@ export class Custom {
     
       this.stringCharsL = [...Custom.charsL];
       this.stringCharsR = [...Custom.charsR];
+      
+      this.cdr.detectChanges();
     })
   }
 
