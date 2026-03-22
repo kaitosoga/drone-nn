@@ -1,4 +1,32 @@
-body {
-    background-color: black;
-    color: rgb(85, 221, 255);
+.container {
+    padding: 20px;
+}
+
+.slider-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.layers {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+}
+
+.layer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.neurons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.neuron {
+    width: 20px;
+    height: 20px;
 }

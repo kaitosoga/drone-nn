@@ -83,8 +83,8 @@ export class Env {
             this.chpX = Math.cos(direction0) * 550;
             this.chpY = Math.sin(direction0) * 550;*/
 
-            this.chpX = this.x + this.prevDirection[0] + Math.cos(u) * 200;
-            this.chpY = this.y + this.prevDirection[1] + Math.sin(u) * 200;
+            this.chpX = this.x + this.prevDirection[0] * 0.5 + Math.cos(u) * 400;
+            this.chpY = this.y + this.prevDirection[1] * 0.5 + Math.sin(u) * 400;
 
             this.prevDirection = [this.chpX - this.x, this.chpY - this.y]
 

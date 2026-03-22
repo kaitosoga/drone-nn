@@ -1,13 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pilots - Inspect</title>
-</head>
-<body>
-    <h1>hello there!</h1>
-</body>
-</html>
+<div class="container">
+    <h1>Neural Network Inspector</h1>
 
-<p>inspect works!</p>
+    <div class="controls" *ngIf="!game.aiSelected">
+        <h2>inp state</h2>
+        <div class="slider-group"> <!--same slider everywhere, just different values:-->
+            <label>Opt X: <span>{{(manualState.opt[0]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.opt[0]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Opt Y: <span>{{(manualState.opt[1]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.opt[1]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Vel X: <span>{{(manualState.vel[0]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.vel[0]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Vel Y: <span>{{(manualState.vel[1]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.vel[1]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Acc X: <span>{{(manualState.acc[0]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.acc[0]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Acc Y: <span>{{(manualState.acc[1]*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.acc[1]" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Angle: <span>{{(manualState.ang*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.ang" (change)="onStateChange()">
+        </div>
+        <div class="slider-group">
+            <label>Angle Vel: <span>{{(manualState.ang_vel*100).toFixed(0)}}</span></label>
+            <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.ang_vel" (change)="onStateChange()">
+        </div>
+    </div>
+
+    <div class="network">
+        <h2>net activations</h2>
+        <div class="layers">
+            <div class="layer" *ngFor="let layer of activations; let i = index">
+                <div class="layer-label">layer {{i}} with ({{layer.length}} neurons)</div>
+                <div class="neurons">
+                    <div class="neuron" *ngFor="let val of layer" 
+                        [style.background-color]="'rgb(val*255, val*255, val*255)'"
+                        [title]="val.toFixed(3)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="activations.length > 0"> <!--already in activations, but here expressed in %-->
+        <h2>out (thrusts)</h2>
+        <div>
+            <div>
+                left: {{(activations[activations.length - 1][0] * 100).toFixed(1)}}%
+                right: {{(activations[activations.length - 1][1] * 100).toFixed(1)}}%
+            </div>
+        </div>
+    </div>
+</div>

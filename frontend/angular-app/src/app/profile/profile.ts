@@ -12,7 +12,6 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './profile.css',
 })
 
-
 // Where needed: 
 // Home: -
 // done/ game: startmatch indication, submitScore on game end
@@ -21,7 +20,6 @@ import { ChangeDetectorRef } from '@angular/core';
 // done/ leaderboard: load top 10, allow loading custom controllers and make them option in game.ts
 // skin: just based on users score, or let user pick any skin? 
 // done/ profile: login / register
-
 
 export class Profile {
   api = inject(ApiService); // from service component

@@ -7,9 +7,14 @@ import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 
-// not done yet: profile login/register seperation, game still keeps othercustom after logout, but gameservice variable is updated ...
-// visualisations: huge checkpoints for indication, different pngs for thrusts (one thrust in middle, two arrow thrsts on sides -> 3! different pngs)
-// inspect mode (put component into /game), choosing skins based on top score of user
+// not done yet: 
+// profile login/register seperation
+// game still keeps othercustom after logout but gameservice variable is updated ...
+// thrust pngs? + background pngs + trailing
+// inspect mode (put component into /game)
+// choosing skins based on top score of user
+
+// + cosmetic fixes
 
 @Component({
   selector: 'app-game',
@@ -38,6 +43,7 @@ export class Game implements OnInit{
   private rClick = false;
   private sClick = false;
   private gameEnded = true;
+  private thrusts = [[0, 0], [0, 0], [0, 0, 0]]
 
   customData = inject(Custom); // can also edit instance config here!
   api = inject(ApiService);
@@ -94,6 +100,7 @@ export class Game implements OnInit{
   chp1 = new Image();
   chp2 = new Image();
   bgImage = new Image();
+  audio0 = new Audio();
 
   constructor(public gameService: GameService, private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
@@ -103,14 +110,22 @@ export class Game implements OnInit{
       if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
       if (e.key === 'ArrowLeft') this.lClick = true;
       if (e.key === 'ArrowRight') this.rClick = true;
+      if (e.key === 'ArrowUp') {this.sClick = true}; //; this.audio0.play();};
       if (e.key === ' ') {this.sClick = true};
+      if (e.key === 'a') this.lClick = true;
+      if (e.key === 'd') this.rClick = true;
+      if (e.key === 'w') {this.sClick = true};
     });
-
+    // a, w, d / sounds on thrusts and checkpoints / thrust visualisation!
     document.addEventListener('keyup', (e: KeyboardEvent) => {
       if (e.key === 'Control' || e.key === 'Meta') this.isCtrlHeld = false;
       if (e.key === 'ArrowLeft') this.lClick = false;
       if (e.key === 'ArrowRight') this.rClick = false;
+      if (e.key === 'ArrowUp') this.sClick = false;
       if (e.key === ' ') this.sClick = false;
+      if (e.key === 'a') this.lClick = false;
+      if (e.key === 'd') this.rClick = false;
+      if (e.key === 'w') this.sClick = false;
     });
   }
 
@@ -133,6 +148,8 @@ export class Game implements OnInit{
     this.chp1.onload = () => {}
     this.chp2.src = 'public/media/chp2.png';
     this.chp2.onload = () => {}
+
+    this.audio0.src = 'public/media/spacesound0.mp3'
 
     const absoluteWidth = window.outerWidth * window.devicePixelRatio;
     const absoluteHeight = window.outerHeight * window.devicePixelRatio;
@@ -430,6 +447,37 @@ export class Game implements OnInit{
       this.context!.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     }
 
+    /* maybe replace with the following, snipped is from internet, may be useful for random background objects!
+    const offscreen = document.createElement('canvas');
+    const octx = offscreen.getContext('2d')!;
+    offscreen.width = 200;
+    offscreen.height = 200;
+
+    const images = [img1, img2, img3];
+    const weights = [0.7, 0.2, 0.1];
+
+    function chooseImage() {
+      const rand = Math.random();
+      let sum = 0;
+      for (let i = 0; i < weights.length; i++) {
+        sum += weights[i];
+        if (rand < sum) return images[i];
+      }
+      return images[images.length - 1];
+    }
+
+    const tileSize = 50;
+    for (let x = 0; x < offscreen.width; x += tileSize) {
+      for (let y = 0; y < offscreen.height; y += tileSize) {
+        const img = chooseImage();
+        octx.drawImage(img, x, y, tileSize, tileSize);
+      }
+    }
+
+    this.bgPattern = this.context!.createPattern(offscreen, 'repeat')!;
+    this.context!.fillStyle = this.bgPattern;
+    */
+
     // if countdown running
     if (this.countdown > 0) {
       this.context.save();
@@ -468,7 +516,7 @@ export class Game implements OnInit{
     // conditions for which output computed, otherwise inefficient
     let outputNet0: any = [false, false];
     if (this.aiSelected && this.Net0 && !this.train) {
-      outputNet0 = this.Net0.compute(this.stateN0);
+      outputNet0 = this.Net0.compute(this.stateN0, false);
     }
 
     let outputPID: any = [false, false];
@@ -479,23 +527,33 @@ export class Game implements OnInit{
     }
 
     let outputPlayer: number[] = [0, 0];
+    let thrustVisuals = [0, 0, 0];
     if (this.humanSelected) {
-      const r = this.rClick ? 1 : .5;
-      const l = this.lClick ? 1 : .5;
+      const r = this.rClick ? .5 : 0;
+      const l = this.lClick ? .5 : 0;
       const min = (this.rClick || this.lClick) ? 1 : 0;
-      const thrust = this.sClick ? 1 : min; // typescript safety thing
-      outputPlayer = [thrust * l, thrust * r];
+      let thrustFactor = 1;
+      if (this.EnvP.vy <= 0) {
+        thrustFactor = Math.max((Math.tanh(Math.abs((this.EnvP.vy)))+2)**1.1, 1);
+      } else {
+        thrustFactor = Math.min(1 / (Math.tanh(this.EnvP.vy/5)/2+.5)**(1/2), 1);
+      }
+      const thrust = this.sClick ? (3 / thrustFactor)/1.5 : 0; // typescript safety thing
+      outputPlayer = [thrust + l, thrust + r];
+      thrustVisuals = [l, r, thrust]
       // this is basically an adjustment for the player, to make controls easier, I noticed later that it was too hard without this
     }
+
+    this.thrusts = [outputNet0, outputPID, thrustVisuals]; // to use in visualisation
 
     let nextStates = this.step([outputNet0, outputPID, outputPlayer]);
     let nextStateN0 = nextStates[0];
     let nextStatePID = nextStates[1];
     let nextStatePl = nextStates[2];
     // onbly render computed ones
-    if (this.aiSelected && !this.train) this.render(this.EnvA, time, this.skin0, this.chp0);
-    if (this.customSelected && !this.train) this.render(this.EnvC, time, this.skin1, this.chp1);
-    if (this.humanSelected) this.render(this.EnvP, time, this.skin2, this.chp2);
+    if (this.aiSelected && !this.train) this.render(this.EnvA, time, this.skin0, this.chp0, "A");
+    if (this.customSelected && !this.train) this.render(this.EnvC, time, this.skin1, this.chp1, "C");
+    if (this.humanSelected) this.render(this.EnvP, time, this.skin2, this.chp2, "P");
     
     this.stateN0 = nextStateN0;
     this.statePID = nextStatePID;
@@ -519,7 +577,7 @@ export class Game implements OnInit{
   } 
   
   // render everything from above
-  render(droneEnv: any, t: number, skin: HTMLImageElement, chp: HTMLImageElement) {
+  render(droneEnv: any, t: number, skin: HTMLImageElement, chp: HTMLImageElement, mode: string) {
     let x = droneEnv.x;
     let y = droneEnv.y;
     let vx = droneEnv.vx;
@@ -532,13 +590,79 @@ export class Game implements OnInit{
     const relChPX = this.canvasWidth / 2 + (chpX - this.EnvMain.x) * this.sRat; // relative to mainframe from EnvMain
     const relChPY = this.canvasHeight / 2 + (chpY - this.EnvMain.y) * this.sRat;
     let offset = 200*this.sRat / 2
+
+    let chpPrev: any;
+    if (Env.chPSeries !== undefined && this.humanSelected) {
+      if (droneEnv.chPIndex >= Env.chPSeries?.length) {
+        chpPrev = Env.chPSeries[Env.chPSeries?.length-2];
+      } else {
+        chpPrev = Env.chPSeries[droneEnv.chPIndex-1];
+      }
+
+      console.log("got here")
+
+      const relChpPrevX = this.canvasWidth / 2 + (chpPrev[0] - this.EnvMain.x) * this.sRat;
+      const relChpPrevY = this.canvasHeight / 2 + (chpPrev[1] - this.EnvMain.y) * this.sRat;
+
+      /*this.context.beginPath();
+      this.context.moveTo(relChpPrevX, relChpPrevY);
+      this.context.lineTo(relChPX, relChPY);
+      this.context.strokeStyle = "#005854ff";
+      this.context.lineWidth = 2.5;
+      this.context.stroke();*/
+    }
+
+    if (this.humanSelected) {
+      this.context.beginPath();
+      this.context.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
+      this.context.lineTo(relChPX, relChPY);
+      this.context.strokeStyle = "#005854ff";
+      this.context.lineWidth = 2.5;
+      this.context.stroke();
+    }
+    
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
+
 
     if (Math.sqrt((chpX - this.EnvMain.x)**2 + (chpY - this.EnvMain.y)**2) > 4000) {this.crashMessage();}
 
     // bg
-    // ...
-  
+    // note: make multiple space background, sonme with objects in them already, randomly select in background processing!
+
+    // thrusters:
+    let thrustL: number;
+    let thrustR: number;
+    let thrustM: number;
+
+    if (mode==="P") {
+      thrustL = this.thrusts[2][0] != 0 ? 1 : 0;
+      thrustR = this.thrusts[2][1] != 0 ? 1 : 0;
+      thrustM = this.thrusts[2][2] != 0 ? 1 : 0;
+    } else if (mode==="C") {
+      thrustL = Math.tanh(this.thrusts[1][0])+1;
+      thrustR = Math.tanh(this.thrusts[1][1])+1;
+      thrustM = 0;
+    } else { //A
+      thrustL = Math.tanh(this.thrusts[0][0])+1;
+      thrustR = Math.tanh(this.thrusts[0][1])+1;
+      thrustM = 0;
+    }
+
+    this.context.beginPath();
+    this.context.moveTo(this.canvasWidth / 2 - 60 * Math.cos(angle), this.canvasHeight / 2 - Math.sin(angle)*50);
+    this.context.lineTo(this.canvasWidth / 2 - 60 * Math.cos(angle), this.canvasHeight / 2 - Math.sin(angle)*50 + thrustR * 75);
+    this.setStyle();
+
+    this.context.beginPath();
+    this.context.moveTo(this.canvasWidth / 2 + 60 * Math.cos(angle), this.canvasHeight / 2 + Math.sin(angle)*50);
+    this.context.lineTo(this.canvasWidth / 2 + 60 * Math.cos(angle), this.canvasHeight / 2 + Math.sin(angle)*50 + thrustL * 75);
+    this.setStyle();
+
+    this.context.beginPath();
+    this.context.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
+    this.context.lineTo(this.canvasWidth / 2, this.canvasHeight / 2 + thrustM * 75);
+    this.setStyle("blue");
+
     const relX = this.canvasWidth / 2 + (x - this.EnvMain.x) * this.sRat; // again relative to mainframe (frame of reference)
     const relY = this.canvasHeight / 2 + (y - this.EnvMain.y) * this.sRat;
 
@@ -548,7 +672,20 @@ export class Game implements OnInit{
     this.context.resetTransform();
   }
 
+  setStyle(color: string="white") {
+    this.context.strokeStyle = 'rgba(255, 0, 255, 0.18)';
+    this.context.lineWidth = 10;
+    this.context.stroke();
+    this.context.strokeStyle = 'rgba(212, 0, 255, 0.45)';
+    this.context.lineWidth = 2.5;
+    this.context.stroke();
+    this.context.strokeStyle = color;
+    this.context.lineWidth = 1;
+    this.context.stroke();
+  } // 3 layers for glow effect (best I could find for glowing, shadowblur not so good)
+  
   crashMessage() {
+      if (!this.humanSelected) return;
       this.context.save();
       this.context.fillStyle = 'white';
       this.context.font = 'bold 120px sans-serif';
@@ -560,23 +697,6 @@ export class Game implements OnInit{
       this.quit();
   }
 }
-
-//update: game visualisation, crash logic, rest of design
-
-// --------------
-// note to self, todo:
-// game full logic + controls + full menu options! (timers, controls, scores, countdowns, trail traces, thrust visualisation, sounds!)
-// -> calls to store data (top scores) locally / server (post, get)
-
-// then: set up cloudflare for pi
-
-// -> profile (name, id, passwd, score data): basic login page (post, get) -> display data
-// leaderboard, skins, custom (just get)
-
-// inspect: some explanation texts + neurons visualised live + canvas component for live view
-// end: design everything, finish texts, check 
-
-
 
 
 // note: static private prop of construcotr, then getter function for
