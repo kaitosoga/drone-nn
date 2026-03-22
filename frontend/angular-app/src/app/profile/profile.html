@@ -3,9 +3,11 @@
 
   <section class="auth-box">
     <h3>Authentication</h3>
-    <input [(ngModel)]="username" placeholder="Username" (keydown.enter)="onLogin()"/> <!--ng key detection inside input field-->
-    <input [(ngModel)]="password" type="password" placeholder="Password" (keydown.enter)="onLogin()"/> 
-    <input [(ngModel)]="displayName" placeholder="Display Name (Reg only)" />
+    <label><input type="checkbox" [(ngModel)]="isRegisterMode"> Register Mode</label>
+    <br><br>
+    <input [(ngModel)]="username" placeholder="Username" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()"/>
+    <input [(ngModel)]="password" type="password" placeholder="Password" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()"/>
+    <input *ngIf="isRegisterMode" [(ngModel)]="displayName" placeholder="Display Name" (keydown.enter)="onRegister()"/>
     <br><br>
     <button (click)="onLogin()">Login</button>
     <button (click)="onRegister()">Register</button>

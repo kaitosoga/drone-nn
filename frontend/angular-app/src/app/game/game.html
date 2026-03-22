@@ -48,6 +48,10 @@
                 <button [ngClass]="{'selected': !phoneMode}" (click)="phoneMode = !phoneMode">Touch</button>
             </div>
 
+            <div class="mode">
+                <button class="options" [ngClass]="{'selected': inspect}" (click)="toggleInspect()">Inspect</button>
+            </div>
+
             <div id="live">
                 <div class="live-row">
                     <span class="label">Scores:</span>
@@ -88,6 +92,6 @@
     <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>
 </body>
 </html>
-
+<app-inspect *ngIf="inspect"></app-inspect>
 <!--for better quality make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->

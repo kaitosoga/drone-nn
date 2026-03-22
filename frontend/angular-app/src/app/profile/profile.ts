@@ -30,6 +30,8 @@ export class Profile {
   displayNameLogged = '';
   testScore = 0;
   
+  isRegisterMode = false;
+  
   leaderboard: any[] = [];
   isPaused = false;
   pauseStartTime: number = 0;

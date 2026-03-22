@@ -4,7 +4,7 @@
     <div class="controls" *ngIf="!game.aiSelected">
         <h2>inp state</h2>
         <div class="slider-group"> <!--same slider everywhere, just different values:-->
-            <label>Opt X: <span>{{(manualState.opt[0]*100).toFixed(0)}}</span></label>
+            <label>Opt X: <span>{{(manualState.opt[0]*100).toFixed(0)}}</span></label> <!--tofixed rounds and converts to strin-->
             <input type="range" min="-1" max="1" step="0.01" [(ngModel)]="manualState.opt[0]" (change)="onStateChange()">
         </div>
         <div class="slider-group">
@@ -40,11 +40,20 @@
     <div class="network">
         <h2>net activations</h2>
         <div class="layers">
+            <div class="layer">
+                <div class="layer-label">input features</div>
+                <div class="neurons">
+                    <div class="neuron" *ngFor="let feature of input" 
+                        [style.backgroundColor]="neuronColor(feature)"
+                        [title]="feature.toFixed(3)">
+                    </div>
+                </div>
+            </div>
             <div class="layer" *ngFor="let layer of activations; let i = index">
                 <div class="layer-label">layer {{i}} with ({{layer.length}} neurons)</div>
                 <div class="neurons">
                     <div class="neuron" *ngFor="let val of layer" 
-                        [style.background-color]="'rgb(val*255, val*255, val*255)'"
+                        [style.backgroundColor]="neuronColor(val)"
                         [title]="val.toFixed(3)">
                     </div>
                 </div>

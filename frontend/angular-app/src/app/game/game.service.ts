@@ -4,6 +4,7 @@ import { Component, Injectable } from '@angular/core'
 export class GameService {
   public ownController: boolean = true; 
   public ownControllerData: string[][] = [];
+  public skinPath: string = 'public/skins/camera-drone2.png';
 
   constructor() {}
 }

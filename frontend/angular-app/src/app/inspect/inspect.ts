@@ -3,6 +3,7 @@ import { Net } from '../logic/Net';
 import { Game } from '../game/game';
 import { CommonModule } from '@angular/common'; // ngif stuff in html
 import { FormsModule } from '@angular/forms'; // forms in html
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-inspect',
@@ -24,16 +25,25 @@ export class Inspect {
   };
 
   activations: any;
+  input: any;
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Inspect";
   }
 
   getData() {
-    const state = this.game.aiSelected ? this.game.stateN0 : this.manualState;
+    let state = this.game.aiSelected ? this.game.stateN0 : this.manualState;
     if (!state) return;
-
+    //console.log(state)
     this.activations = this.net.compute(state, true); // true for getting each layer activations
+    this.input = [
+            ...state.opt,
+            ...state.vel,
+            ...state.acc,
+            state.ang,
+            state.ang_vel,
+        ];
+    this.cdr.detectChanges();
   }
 
   ngOnInit() {
@@ -43,5 +53,10 @@ export class Inspect {
 
   onStateChange() { //listener for manual changes
     this.getData();
+  }
+
+  neuronColor(v: number): string {
+    const c = (Math.tanh(v)/2+0.5)*255; //Math.round(Math.max(0, Math.min(1, v)) * 255);
+    return `rgb(${c},${c},${c})`;
   }
 }

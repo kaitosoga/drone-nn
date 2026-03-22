@@ -6,20 +6,21 @@ import { PID } from '../logic/PID';
 import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
+import { Inspect } from "../inspect/inspect";
 
 // not done yet: 
-// profile login/register seperation
-// game still keeps othercustom after logout but gameservice variable is updated ...
-// thrust pngs? + background pngs + trailing
-// inspect mode (put component into /game)
-// choosing skins based on top score of user
+// done/ profile login/register seperation
+// drone/ background pngs + trailing
+// done/ choosing skins based on top score of user
 
-// + cosmetic fixes
+// fix: game still keeps othercustom after logout but gameservice variable is updated ...
+// add: audio, thrust pngs?
+// +: cosmetic fixes
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Inspect], // for inspect component routed
   templateUrl: './game.html',
   styleUrl: './game.css',
 })
@@ -39,6 +40,7 @@ export class Game implements OnInit{
   private canvasWidth = 0;
   private canvasHeight = 0;
   private bgPattern: CanvasPattern | null = null;
+  private bg2Points: {x:number, y:number, img:any}[] = [];
   private lClick = false;
   private rClick = false;
   private sClick = false;
@@ -78,6 +80,7 @@ export class Game implements OnInit{
   selectedAiLevel = '';
   selectedSkin = '';
   train = false;
+  inspect = false;
 
   level = "";
   sRat: any; // screen size ratio to fixed number
@@ -99,8 +102,12 @@ export class Game implements OnInit{
   chp0 = new Image();
   chp1 = new Image();
   chp2 = new Image();
-  bgImage = new Image();
+  bgImage = new Image(); // main bg img
+  bgPaths = ['public/media/randombg.jpg', 'public/media/randombg1.jpg'];
+  private bgImages: HTMLImageElement[] = [];
   audio0 = new Audio();
+
+  private tails: any[] = [];
 
   constructor(public gameService: GameService, private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
@@ -135,11 +142,18 @@ export class Game implements OnInit{
       this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!;
     };
 
+    this.bgPaths.forEach(pth => {
+      const img = new Image();
+      img.src = pth;
+      this.bgImages.push(img);
+    });
+
+
     this.skin0.src = 'public/skins/camera-drone.png';
     this.skin0.onload = () => {} //this.draw();
     this.skin1.src = 'public/skins/camera-drone1.png';
     this.skin1.onload = () => {}
-    this.skin2.src = 'public/skins/camera-drone2.png';
+    this.skin2.src = this.gameService.skinPath; //'public/skins/camera-drone2.png';
     this.skin2.onload = () => {}
 
     this.chp0.src = 'public/media/chp.png';
@@ -292,12 +306,19 @@ export class Game implements OnInit{
 
   toggleTrain() {
     this.train = !this.train
-    this.toggleHuman(); // because training for human
+    this.aiSelected = false;
+    this.customSelected = false;
+    this.humanSelected = true;
+    //this.toggleHuman(); // because training for human
   }
 
   toggleCustom() {
     this.customSelected = !this.customSelected;
     console.log("TOGGLED!")
+  }
+
+  toggleInspect() {
+    this.inspect = !this.inspect;
   }
 
   selectS(skin: string) { // will probably not do this, but based on score, idk yet
@@ -405,6 +426,7 @@ export class Game implements OnInit{
     this.errorMsg = '';
     this.gameEnded = false;
 
+    this.bg2Points = [];
 
     this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
     this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
@@ -432,51 +454,55 @@ export class Game implements OnInit{
 
 
     // bg
-    if (this.bgPattern) {
-      const offsetX = -(this.EnvMain.x * this.sRat) % this.bgImage.width;
+    if (this.bgPattern) { // found this online
+      const offsetX = -(this.EnvMain.x * this.sRat) % this.bgImage.width; // relative to drone coordinates, negativ for parallax effect
       const offsetY = -(this.EnvMain.y * this.sRat) % this.bgImage.height;
-      // note: found this online for bg patterns:
-      this.context!.save();
-      this.context!.translate(offsetX, offsetY);
-      this.context!.fillStyle = this.bgPattern;
-      this.context!.fillRect(-this.bgImage.width, -this.bgImage.height, 
-                          this.canvasWidth + this.bgImage.width * 2, 
-                          this.canvasHeight + this.bgImage.height * 2);
-      this.context!.restore();
+      const tileSize = 200;
+
+      this.context!.save(); // saving to stack 
+      this.context!.translate(offsetX, offsetY); // moving bg
+
+      const xStart = -this.bgImage.width; // area to be filled with tileSize
+      const yStart = -this.bgImage.height;
+      const xEnd = this.canvasWidth + this.bgImage.width;
+      const yEnd = this.canvasHeight + this.bgImage.height;
+
+      for (let x = xStart; x < xEnd; x += tileSize) {
+        for (let y = yStart; y < yEnd; y += tileSize) {
+          this.context!.fillStyle = this.bgPattern; // fillstyle is img // ! in case it is null
+          this.context!.fillRect(x, y, tileSize, tileSize);
+        }
+      }
+
+      this.context!.restore(); // poping most recent, restoring it
+
+      // other bg objects, bgxPoints are random points around drone:
+      if (this.countdown <= 0 && (Math.hypot(this.EnvMain.chpX - this.EnvMain.x, this.EnvMain.chpY - this.EnvMain.y) < 70)) { // spawn once when checkpoint is reached
+        const count = 2;
+        for (let i = 0; i < count; i++) {
+          const radiusX = this.canvasWidth * 2;
+          const radiusY = this.canvasHeight * 2;
+          let img = this.bgImages[Math.floor(Math.random() * this.bgImages.length)];
+          this.bg2Points.push({
+            x: this.EnvMain.x + (Math.random() - 0.5) * radiusX,
+            y: this.EnvMain.y + (Math.random() - 0.5) * radiusY,
+            img: img // random img assigned
+          });
+        }
+      }
+
+      // drawing other bg imgs
+      const size = 48; // new size, different from tiling
+      this.bg2Points.forEach((p) => { // place at each random point
+        const screenX = this.canvasWidth / 2 + (p.x - this.EnvMain.x) * this.sRat;
+        const screenY = this.canvasHeight / 2 + (p.y - this.EnvMain.y) * this.sRat;
+        this.context!.drawImage(p.img, screenX - size / 2, screenY - size / 2, size, size);
+      });
+      
     } else {
       this.context!.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     }
-
-    /* maybe replace with the following, snipped is from internet, may be useful for random background objects!
-    const offscreen = document.createElement('canvas');
-    const octx = offscreen.getContext('2d')!;
-    offscreen.width = 200;
-    offscreen.height = 200;
-
-    const images = [img1, img2, img3];
-    const weights = [0.7, 0.2, 0.1];
-
-    function chooseImage() {
-      const rand = Math.random();
-      let sum = 0;
-      for (let i = 0; i < weights.length; i++) {
-        sum += weights[i];
-        if (rand < sum) return images[i];
-      }
-      return images[images.length - 1];
-    }
-
-    const tileSize = 50;
-    for (let x = 0; x < offscreen.width; x += tileSize) {
-      for (let y = 0; y < offscreen.height; y += tileSize) {
-        const img = chooseImage();
-        octx.drawImage(img, x, y, tileSize, tileSize);
-      }
-    }
-
-    this.bgPattern = this.context!.createPattern(offscreen, 'repeat')!;
-    this.context!.fillStyle = this.bgPattern;
-    */
+    
 
     // if countdown running
     if (this.countdown > 0) {
@@ -545,7 +571,6 @@ export class Game implements OnInit{
     }
 
     this.thrusts = [outputNet0, outputPID, thrustVisuals]; // to use in visualisation
-
     let nextStates = this.step([outputNet0, outputPID, outputPlayer]);
     let nextStateN0 = nextStates[0];
     let nextStatePID = nextStates[1];
@@ -568,7 +593,7 @@ export class Game implements OnInit{
     this.EnvC.spawnCheckpoints();
     this.EnvP.spawnCheckpoints();
     
-    // step in physics states baased on computed inputs/outputs
+    // step in physics states based on computed inputs/outputs
     let stateN0 = this.EnvA.step(thrusts[0])
     let statePID = this.EnvC.step(thrusts[1])
     let statePl = this.EnvP.step(thrusts[2])
@@ -591,28 +616,7 @@ export class Game implements OnInit{
     const relChPY = this.canvasHeight / 2 + (chpY - this.EnvMain.y) * this.sRat;
     let offset = 200*this.sRat / 2
 
-    let chpPrev: any;
-    if (Env.chPSeries !== undefined && this.humanSelected) {
-      if (droneEnv.chPIndex >= Env.chPSeries?.length) {
-        chpPrev = Env.chPSeries[Env.chPSeries?.length-2];
-      } else {
-        chpPrev = Env.chPSeries[droneEnv.chPIndex-1];
-      }
-
-      console.log("got here")
-
-      const relChpPrevX = this.canvasWidth / 2 + (chpPrev[0] - this.EnvMain.x) * this.sRat;
-      const relChpPrevY = this.canvasHeight / 2 + (chpPrev[1] - this.EnvMain.y) * this.sRat;
-
-      /*this.context.beginPath();
-      this.context.moveTo(relChpPrevX, relChpPrevY);
-      this.context.lineTo(relChPX, relChPY);
-      this.context.strokeStyle = "#005854ff";
-      this.context.lineWidth = 2.5;
-      this.context.stroke();*/
-    }
-
-    if (this.humanSelected) {
+    if (this.humanSelected && mode==="P") {
       this.context.beginPath();
       this.context.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
       this.context.lineTo(relChPX, relChPY);
@@ -629,15 +633,22 @@ export class Game implements OnInit{
     // bg
     // note: make multiple space background, sonme with objects in them already, randomly select in background processing!
 
-    // thrusters:
+    const relX = this.canvasWidth / 2 + (x - this.EnvMain.x) * this.sRat; // again relative to mainframe (frame of reference)
+    const relY = this.canvasHeight / 2 + (y - this.EnvMain.y) * this.sRat;
+
+    // visual thrust values, not actual power for physics:
     let thrustL: number;
     let thrustR: number;
     let thrustM: number;
+    let centerX = relX;
+    let centerY = relY;
 
     if (mode==="P") {
-      thrustL = this.thrusts[2][0] != 0 ? 1 : 0;
-      thrustR = this.thrusts[2][1] != 0 ? 1 : 0;
+      thrustL = this.thrusts[2][0] != 0 ? 2 : 0;
+      thrustR = this.thrusts[2][1] != 0 ? 2 : 0;
       thrustM = this.thrusts[2][2] != 0 ? 1 : 0;
+      centerX = this.canvasWidth / 2;
+      centerY = this.canvasHeight / 2;
     } else if (mode==="C") {
       thrustL = Math.tanh(this.thrusts[1][0])+1;
       thrustR = Math.tanh(this.thrusts[1][1])+1;
@@ -648,23 +659,48 @@ export class Game implements OnInit{
       thrustM = 0;
     }
 
+    // update tails
+    this.tails.push({
+      x: relX,
+      y: relY,
+      angle: this.EnvMain.angle,
+      vx: this.EnvMain.vx,
+      vy: this.EnvMain.vy,
+    });
+
+    if (this.tails.length > 20) this.tails.shift(); // remove first element if too long
+    let n = 4;
+
+    // tails:
+    this.tails.forEach((data, i) => {
+      const alpha = 1 / (i + 1) / 2;
+      this.context.save();
+      this.context.globalAlpha = alpha;
+      this.context.fillStyle = 'blue';
+      this.context.translate(data.x-(data.vx/n)*i, data.y-(data.vy/n)*i);
+      //this.context.rotate(data.angle);
+      this.context.beginPath();
+      this.context.arc(0, 0, 20, 0, 2 * Math.PI);
+      this.context.fillStyle = '#ea00ffff';
+      this.context.fill();   
+      //this.context.fillRect(-75, -37.5, 150, 75); // match drone size
+      this.context.restore();
+    });
+
     this.context.beginPath();
-    this.context.moveTo(this.canvasWidth / 2 - 60 * Math.cos(angle), this.canvasHeight / 2 - Math.sin(angle)*50);
-    this.context.lineTo(this.canvasWidth / 2 - 60 * Math.cos(angle), this.canvasHeight / 2 - Math.sin(angle)*50 + thrustR * 75);
+    this.context.moveTo(centerX - 50 * Math.cos(angle), centerY - Math.sin(angle)*50);
+    this.context.lineTo(centerX - 50 * Math.cos(angle), centerY - Math.sin(angle)*50 + thrustR * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
     this.context.beginPath();
-    this.context.moveTo(this.canvasWidth / 2 + 60 * Math.cos(angle), this.canvasHeight / 2 + Math.sin(angle)*50);
-    this.context.lineTo(this.canvasWidth / 2 + 60 * Math.cos(angle), this.canvasHeight / 2 + Math.sin(angle)*50 + thrustL * 75);
+    this.context.moveTo(centerX + 50 * Math.cos(angle), centerY + Math.sin(angle)*50);
+    this.context.lineTo(centerX + 50 * Math.cos(angle), centerY + Math.sin(angle)*50 + thrustL * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
     this.context.beginPath();
-    this.context.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
-    this.context.lineTo(this.canvasWidth / 2, this.canvasHeight / 2 + thrustM * 75);
+    this.context.moveTo(centerX, centerY);
+    this.context.lineTo(centerX, centerY + thrustM * 0);
     this.setStyle("blue");
-
-    const relX = this.canvasWidth / 2 + (x - this.EnvMain.x) * this.sRat; // again relative to mainframe (frame of reference)
-    const relY = this.canvasHeight / 2 + (y - this.EnvMain.y) * this.sRat;
 
     this.context.translate(relX, relY);
     this.context.rotate(angle);

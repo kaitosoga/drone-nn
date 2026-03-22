@@ -92,7 +92,6 @@ export class Net {
             out.dispose();
             inp.dispose();
             inputTensor.dispose();
-    
             return activations;
         }
         
