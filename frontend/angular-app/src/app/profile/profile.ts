@@ -46,6 +46,7 @@ export class Profile {
   // testing all functions of the backend, the api service + subscribe https://angular.dev/guide/http/making-requests
 
   onRegister() {
+    this.onLogout(true);
     this.gameService.ownController = true; 
     const newUser = {
       username: this.username,
@@ -66,6 +67,7 @@ export class Profile {
   }
 
   onLogin() {
+    this.onLogout(true);
     this.gameService.ownController = true;
     const creds = {
       username: this.username,
@@ -84,10 +86,10 @@ export class Profile {
     });
   }
 
-  onLogout() {
+  onLogout(silent: boolean) {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
-    alert('Logged out');
+    if (!silent) alert('Logged out');
   }
 
   loggedIn() {
@@ -117,7 +119,7 @@ export class Profile {
 
   onGameEnd() {
     this.api.submitScore(this.testScore, 'human', this.totalPausedTime, [["sigmoid(5)"], []]).subscribe({
-      next: (res) => alert('tscore: ' + res.top_score),
+      //next: (res) => alert('tscore: ' + res.top_score),
       error: (err) => alert('reject: ' + err.error.error)
     });
   }

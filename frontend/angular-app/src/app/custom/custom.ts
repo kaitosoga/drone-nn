@@ -7,7 +7,7 @@ import { ChangeDetectorRef } from '@angular/core'; // when subscribing for res, 
 
 @Component({
   selector: 'app-custom',
-  imports: [CdkDropList, CdkDrag],
+  imports: [CdkDropList, CdkDrag], // angular imports for drag and drop
   templateUrl: './custom.html',
   styleUrl: './custom.css',
 })
@@ -46,7 +46,7 @@ export class Custom {
     if (!Custom.initialized) {
       Custom.charsL = ['sigmoid(','4',')','+','3'];
       Custom.charsR = ['tanh(','7',')','+','3'];
-      Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
+      Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'max(', ',', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
       Custom.initialized = true;
       this.availableChars = Custom.availableChars
       this.stringCharsL = Custom.charsL;
@@ -116,6 +116,7 @@ export class Custom {
         if (variables.includes(el)) return state[el];
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh('; // sigmoid is not a Math function, but tanh works in new Function
+        if (el === 'max(') return 'Math.max(';
         return el;
       }).join(' '); // without commas like an equation
 
@@ -136,6 +137,7 @@ export class Custom {
         if (variables.includes(el)) return state[el];
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh(';
+        if (el === 'max(') return 'Math.max(';
         return el;
       }).join(' ');
 

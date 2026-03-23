@@ -8,14 +8,7 @@ import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 
-// not done yet: 
-// done/ profile login/register seperation
-// drone/ background pngs + trailing
-// done/ choosing skins based on top score of user
-
-// fix: game still keeps othercustom after logout but gameservice variable is updated ...
-// add: audio, thrust pngs?
-// +: cosmetic fixes
+// add: better AI levels? + service for logged in user name to actually display + audio + thrust pngs? + cosmetic fixes
 
 @Component({
   selector: 'app-game',
@@ -46,6 +39,8 @@ export class Game implements OnInit{
   private sClick = false;
   private gameEnded = true;
   private thrusts = [[0, 0], [0, 0], [0, 0, 0]]
+  
+  gServiceHelperHTML: boolean = false; // to make html update with cdr, wouldn't apply to gameservice directrly 
 
   customData = inject(Custom); // can also edit instance config here!
   api = inject(ApiService);
@@ -107,11 +102,19 @@ export class Game implements OnInit{
   private bgImages: HTMLImageElement[] = [];
   audio0 = new Audio();
 
-  private tails: any[] = [];
+  sideLength = 1;
+  firstSess = true;
+  crashed = false;
+
+  private tailsA: any[] = [];
+  private tailsC: any[] = [];
+  private tailsP: any[] = [];
 
   constructor(public gameService: GameService, private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
     this.frameId = null;
+
+    this.gServiceHelperHTML =  this.gameService.ownController;
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
@@ -134,6 +137,11 @@ export class Game implements OnInit{
       if (e.key === 'd') this.rClick = false;
       if (e.key === 'w') this.sClick = false;
     });
+  }
+
+  detectGameService() {
+    this.gServiceHelperHTML = this.gameService.ownController;
+    this.cdr.detectChanges();
   }
 
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
@@ -176,8 +184,16 @@ export class Game implements OnInit{
     canvas.width  = sideLength * dpr;
     canvas.height = sideLength * dpr;
     this.context.scale(dpr, dpr);
-    this.canvasWidth  = canvas.width;
-    this.canvasHeight = canvas.height;
+    this.sideLength = sideLength;
+        this.canvasWidth = canvas.width;
+        this.canvasHeight = canvas.height;
+    //this.canvasWidth = sideLength;
+    //this.canvasHeight = sideLength;
+    // just found+fixed bug:
+    // canvas.width is physical size based on dpr, sideLength is logical, but that is removed when I use resetTransform
+    // -> should use restore instead to get last saved(), and then scale with dpr (logical, game related size) is kept
+    // -> but only while countdown is running, because of differences rendering logic in countdown / actual game
+    // -> made function that does correct one depending on countdown: reset();
 
     // physics envs
     this.EnvA = new Env(canvas.width * 4, canvas.height * 4);
@@ -202,6 +218,11 @@ export class Game implements OnInit{
     return (count >= 2 && count <= 2 || this.train);
   }
 
+  reset() {
+    if (this.countdown > 0) this.context.restore();
+    else this.context.resetTransform();
+  }
+
   // general functions
   startGame() {
     if (!this.canStart()) { // check start conditions
@@ -209,6 +230,7 @@ export class Game implements OnInit{
       return;
     }
 
+    this.crashed = false;
     this.quit(); // just in case
 
     if (this.humanSelected) {
@@ -238,9 +260,18 @@ export class Game implements OnInit{
         this.countdown -= 1;
         setTimeout(tick, 1000); // ms
       } else {
+        this.firstSess = false;
+        const canvas = this.canvas.nativeElement as HTMLCanvasElement;
+        this.canvasWidth = canvas.width;
+        this.canvasHeight = canvas.height;
+
         this.running = true;
         this.lastTime = performance.now();
-        if (!this.train) {this.api.startMatch().subscribe(() => {})};
+        if (!this.train) {
+          this.api.startMatch().subscribe({
+            error: (err) => alert('reject: ' + err.error.error)
+          })
+        };
 
       }
     };
@@ -338,12 +369,6 @@ export class Game implements OnInit{
     this.gameEnded = true;
 
     this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
-
-    if (false) { // (!this.auth.isLoggedIn()) {
-      console.log('not logged in, skipping score submission');
-      this.quit();
-      return;
-    }
     
     const score = this.EnvP?.score ?? 0;
     const options: any = {};
@@ -371,7 +396,7 @@ export class Game implements OnInit{
 
   logCont() {
     console.log('own controller:', this.gameService.ownController);
-    console.log('own controller data:', this.gameService.ownControllerData);
+    console.log('own controller data:', this.gameService.otherControllerData);
   }
 
   // more options
@@ -418,6 +443,9 @@ export class Game implements OnInit{
     if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
+      this.tailsA = [];
+      this.tailsC = [];
+      this.tailsP = [];
     }
 
     this.running = false;
@@ -448,9 +476,12 @@ export class Game implements OnInit{
   // computing controls + rendering canvas
   lastTime = 0;
   draw(time = 0) {
-    this.cdr.detectChanges()
+    if (this.crashed) return;
+    this.cdr.detectChanges();
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
+
+    console.log(this.canvasWidth, this.canvasHeight)
 
 
     // bg
@@ -511,12 +542,13 @@ export class Game implements OnInit{
       this.context.font = 'bold 120px sans-serif';
       this.context.textAlign = 'center';
       this.context.textBaseline = 'middle';
-      this.context.fillText(this.countdown.toString(), this.canvasWidth / 2, this.canvasHeight / 2);
+      let k = this.firstSess ? this.sideLength : this.canvasWidth;
+      this.context.fillText(this.countdown.toString(), k / 2, k / 2);
       this.context.restore();
       this.frameId = requestAnimationFrame(t => this.draw(t));
       return;
     }
-
+ 
     // if playing
     if (this.running) {
       this.timeLeft -= dt;
@@ -549,7 +581,7 @@ export class Game implements OnInit{
     if (this.customSelected && this.gameService.ownController && !this.train) {
       outputPID = this.customData.compileController(this.statePID);
     } else if (this.customSelected && !this.train) {
-      outputPID = this.customData.compileController(this.statePID, this.gameService.ownControllerData); // specify other controller, not mine (which would be default)
+      outputPID = this.customData.compileController(this.statePID, this.gameService.otherControllerData); // specify other controller, not mine (which would be default)
     }
 
     let outputPlayer: number[] = [0, 0];
@@ -643,36 +675,41 @@ export class Game implements OnInit{
     let centerX = relX;
     let centerY = relY;
 
+    // update tails
+    let toPush = {
+      x: relX,
+      y: relY,
+      angle: this.EnvMain.angle,
+      vx: this.EnvMain.vx,
+      vy: this.EnvMain.vy,
+    };
+    let ta: any[] = [];
     if (mode==="P") {
       thrustL = this.thrusts[2][0] != 0 ? 2 : 0;
       thrustR = this.thrusts[2][1] != 0 ? 2 : 0;
       thrustM = this.thrusts[2][2] != 0 ? 1 : 0;
       centerX = this.canvasWidth / 2;
       centerY = this.canvasHeight / 2;
+
+      if (droneEnv.x == this.EnvMain.x) {this.tailsP.push(toPush); ta = this.tailsP;}
+      
     } else if (mode==="C") {
       thrustL = Math.tanh(this.thrusts[1][0])+1;
       thrustR = Math.tanh(this.thrusts[1][1])+1;
       thrustM = 0;
+      if (droneEnv.x == this.EnvMain.x) {this.tailsC.push(toPush); ta = this.tailsC;}
     } else { //A
       thrustL = Math.tanh(this.thrusts[0][0])+1;
       thrustR = Math.tanh(this.thrusts[0][1])+1;
       thrustM = 0;
+      if (droneEnv.x == this.EnvMain.x) {this.tailsA.push(toPush); ta = this.tailsA;}
     }
 
-    // update tails
-    this.tails.push({
-      x: relX,
-      y: relY,
-      angle: this.EnvMain.angle,
-      vx: this.EnvMain.vx,
-      vy: this.EnvMain.vy,
-    });
-
-    if (this.tails.length > 20) this.tails.shift(); // remove first element if too long
+    if (ta.length > 20) ta.shift(); // remove first element if too long
     let n = 4;
 
     // tails:
-    this.tails.forEach((data, i) => {
+    ta.forEach((data, i) => {
       const alpha = 1 / (i + 1) / 2;
       this.context.save();
       this.context.globalAlpha = alpha;
@@ -681,7 +718,7 @@ export class Game implements OnInit{
       //this.context.rotate(data.angle);
       this.context.beginPath();
       this.context.arc(0, 0, 20, 0, 2 * Math.PI);
-      this.context.fillStyle = '#ea00ffff';
+      this.context.fillStyle = '#00ffffff';
       this.context.fill();   
       //this.context.fillRect(-75, -37.5, 150, 75); // match drone size
       this.context.restore();
@@ -705,7 +742,7 @@ export class Game implements OnInit{
     this.context.translate(relX, relY);
     this.context.rotate(angle);
     this.context.drawImage(skin, -75*this.sRat, -37.5*this.sRat, 150*this.sRat, 75*this.sRat);
-    this.context.resetTransform();
+    this.reset(); //restore when countdown running, else resetTransform //this.context.restore(); //resetTransform();
   }
 
   setStyle(color: string="white") {
@@ -722,14 +759,22 @@ export class Game implements OnInit{
   
   crashMessage() {
       if (!this.humanSelected) return;
+      this.running = false;
+      this.crashed = true;
+      // fiexd because before message would not stop to appear.
+      if (this.frameId !== null) {
+        cancelAnimationFrame(this.frameId);
+        this.frameId = null;
+      }
       this.context.save();
       this.context.fillStyle = 'white';
-      this.context.font = 'bold 120px sans-serif';
+      this.context.font = 'bold 50px sans-serif';
       this.context.textAlign = 'center';
       this.context.textBaseline = 'middle';
-      this.context.fillText("you'r drone lost navigation :/", this.canvasWidth / 2, this.canvasHeight / 2);
+      this.context.fillText("your drone lost navigation :/", this.canvasWidth / 2, this.canvasHeight * .75);
+      this.context.fillText("if this was a technical error - sorry", this.canvasWidth / 2, this.canvasHeight * .825);
       this.context.restore();
-      this.frameId = requestAnimationFrame(t => this.draw(t));
+      // this.frameId = requestAnimationFrame(t => this.draw(t));
       this.quit();
   }
 }

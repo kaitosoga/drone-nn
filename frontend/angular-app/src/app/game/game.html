@@ -16,7 +16,7 @@
             <div class="mode-select">
                 <button *ngIf="!train" class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
                 <button *ngIf="!train" class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
-                <button *ngIf="!gameService.ownController && !train" (click)="gameService.ownController = true; logCont();">Remove Selected Controller to select own Controller</button>
+                <button *ngIf="!gServiceHelperHTML && !train" (click)="gameService.ownController = true; detectGameService(); logCont();">Remove Selected Controller to select own Controller</button>
                 <button *ngIf="!train" class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
                 <button class="options" [ngClass]="{'selected': train}" (click)="toggleTrain()">Training</button>
             </div>
@@ -80,6 +80,16 @@
                     <span class="value">{{winner}}</span>
                 </div>
                 <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
+            </div>
+            <div>
+                <details>
+                    <summary>Steering Guide</summary>
+                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                </details>
             </div>
         </div>
 

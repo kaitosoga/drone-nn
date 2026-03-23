@@ -11,7 +11,7 @@
     <br><br>
     <button (click)="onLogin()">Login</button>
     <button (click)="onRegister()">Register</button>
-    <button (click)="onLogout()">Logout</button>
+    <button (click)="onLogout(false)">Logout</button>
 
     @if (loggedIn()) {<p>Logged in as {{displayNameLogged}}</p>} @else {<p>Not logged in</p>}
   </section>

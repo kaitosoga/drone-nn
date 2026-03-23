@@ -36,7 +36,7 @@ export class Leaderboard {
       console.log('Fetched custom: ' + res.name);
       console.log('code:', res.code);
       this.gameService.ownController = false;
-      this.gameService.ownControllerData = res.code;
+      this.gameService.otherControllerData = res.code;
       this.router.navigate(['/game']);
     });
   }
