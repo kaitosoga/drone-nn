@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Net } from '../logic/Net';
 import { Game } from '../game/game';
-import { CommonModule } from '@angular/common'; // ngif stuff in html
-import { FormsModule } from '@angular/forms'; // forms in html
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -36,6 +36,8 @@ export class Inspect {
     if (!state) return;
     //console.log(state)
     this.activations = this.net.compute(state, true); // true for getting each layer activations
+    this.activations[this.activations.length-1][0] = Math.tanh((this.activations[this.activations.length-1][0]-0.5)*10); // only to strenthen visual effect, not quantitatively correct, but qualitativ, not linear
+    this.activations[this.activations.length-1][1] = Math.tanh((this.activations[this.activations.length-1][1]-0.5)*10);
     this.input = [
             ...state.opt,
             ...state.vel,
@@ -56,7 +58,7 @@ export class Inspect {
   }
 
   neuronColor(v: number): string {
-    const c = (Math.tanh(v)/2+0.5)*255; //Math.round(Math.max(0, Math.min(1, v)) * 255);
-    return `rgb(${c},${c},${c})`;
+    const c = ((v)/2+0.5)*255; //Math.round(Math.max(0, Math.min(1, v)) * 255);
+    return `rgb(${c*.1},${c*.45},${c*.9})`;
   }
 }

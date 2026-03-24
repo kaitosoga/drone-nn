@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pilots - Inspect</title>
-</head>
-<body>
-    <h1>Leaderboard - Top 10</h1>
+<div class="container">
+  <div class="header">
+    <h1>Leaderboard</h1>
+    <p>Top 10 players</p>
+  </div>
 
-    <section class="leaderboard-box">
-        <h3>Leaderboards</h3>
-        <button (click)="loadLeaders('human')">Load Human</button>
-        <button (click)="loadLeaders('custom')">Load Custom players</button>
+  <div class="toggle-section">
+    <span [class.active]="mode === 'human'">Human</span>
+    <button class="toggle" (click)="toggleMode()" [attr.data-mode]="mode">
+      <div class="slider"></div>
+    </button>
+    <span [class.active]="mode === 'custom'">Custom</span>
+  </div>
 
-        <ol>
-        @for (player of leaderboard; track player.user_id) {
-            <li>
-            <strong>{{ player.name }}</strong>: {{ player.score }} pts 
-            @if (mode=='custom') {<button (click)="challengePlayer(player.user_id)">fetch custom</button>}
-            </li>
-        }
-        </ol>
-    </section>
-</body>
-</html>
+  <ol class="leaderboard" *ngIf="leaderboard">
+    <li *ngFor="let player of leaderboard" class="entry">
+      <span class="name">{{ player.name }}</span>
+      <span class="score">{{ player.score }}</span>
+      <button *ngIf="mode === 'custom'" (click)="challengePlayer(player.user_id)" class="challenge">Challenge</button>
+    </li>
+  </ol>
+</div>
 

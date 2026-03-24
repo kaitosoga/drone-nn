@@ -1,5 +1,6 @@
 import { Component, inject, Injectable } from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import { throwDeprecation } from 'process';
 import { stat } from 'fs';
 import { ApiService } from '../auth.service';
@@ -7,7 +8,7 @@ import { ChangeDetectorRef } from '@angular/core'; // when subscribing for res, 
 
 @Component({
   selector: 'app-custom',
-  imports: [CdkDropList, CdkDrag], // angular imports for drag and drop
+  imports: [CdkDropList, CdkDrag, CommonModule], // angular imports for drag and drop
   templateUrl: './custom.html',
   styleUrl: './custom.css',
 })
@@ -44,8 +45,9 @@ export class Custom {
   constructor(private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Custom";
     if (!Custom.initialized) {
-      Custom.charsL = ['sigmoid(','4',')','+','3'];
-      Custom.charsR = ['tanh(','7',')','+','3'];
+      Custom.charsL = localStorage.getItem('charsL')!.split(',') || ['0.5'];
+      Custom.charsR = localStorage.getItem('charsR')!.split(',') || ['0.5'];
+      this.onLocalSave();
       Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'max(', ',', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
       Custom.initialized = true;
       this.availableChars = Custom.availableChars
@@ -64,6 +66,8 @@ export class Custom {
     Custom.charsR = localStorage.getItem('charsR')!.split(',');
     this.add('', 'L'); // to trigger update
     this.add('', 'R');
+    this.remove(Custom.charsL.length-1, "L")
+    this.remove(Custom.charsR.length-1, "R")
     this.onLocalSave();
   }
 
@@ -201,7 +205,7 @@ export class Custom {
       this.stringCharsR = [...Custom.charsR];
       this.onLocalSave();
       
-      //this.cdr.detectChanges();
+      this.cdr.detectChanges();
     })
   }
 

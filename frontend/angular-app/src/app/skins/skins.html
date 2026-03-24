@@ -1,8 +1,27 @@
 <div class="container">
-    <h1>Select Skin</h1>
-    <button (click)="setSkin('public/skins/camera-drone.png')">Skin 1</button>
-    <button (click)="setSkin('public/skins/camera-drone1.png')">Skin 2</button>
-    <button (click)="setSkin('public/skins/camera-drone2.png')">Skin 3</button>
-    <button (click)="setSkin('public/skins/camera-drone2.png')">Skin 4</button>
-    <button (click)="setSkin('public/skins/camera-drone2.png')">Skin 5</button>
+  <div class="header">
+    <h1>Drone Skins</h1>
+    <p>Choose your drone appearance.</p>
+  </div>
+
+  <div class="skins-grid">
+    <div class="skin-card" 
+      (click)="setSkin('public/skins/camera-drone.png')"
+      [class.selected]="gameService.skinPath === 'public/skins/camera-drone.png'">
+      <img src="public/skins/camera-drone.png" alt="Skin 1">
+      <span class="label">Drone Alpha</span>
+    </div>
+    <div class="skin-card" 
+      (click)="setSkin('public/skins/camera-drone1.png')"
+      [class.selected]="gameService.skinPath === 'public/skins/camera-drone1.png'">
+      <img src="public/skins/camera-drone1.png" alt="Skin 2">
+      <span class="label">Drone Beta</span>
+    </div>
+    <div class="skin-card" 
+      (click)="setSkin('public/skins/camera-drone2.png')"
+      [class.selected]="gameService.skinPath === 'public/skins/camera-drone2.png'">
+      <img src="public/skins/camera-drone2.png" alt="Skin 3">
+      <span class="label">Drone Gamma</span>
+    </div>
+  </div>
 </div>

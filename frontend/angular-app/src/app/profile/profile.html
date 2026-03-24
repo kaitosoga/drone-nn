@@ -1,18 +1,30 @@
-<div class="test-container">
-  <h1>AI Pilots Test Lab</h1>
+<div class="container">
+  <div class="header">
+    <h1>Profile</h1>
+  </div>
 
-  <section class="auth-box">
-    <h3>Authentication</h3>
-    <label><input type="checkbox" [(ngModel)]="isRegisterMode"> Register Mode</label>
-    <br><br>
-    <input [(ngModel)]="username" placeholder="Username" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()"/>
-    <input [(ngModel)]="password" type="password" placeholder="Password" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()"/>
-    <input *ngIf="isRegisterMode" [(ngModel)]="displayName" placeholder="Display Name" (keydown.enter)="onRegister()"/>
-    <br><br>
-    <button (click)="onLogin()">Login</button>
-    <button (click)="onRegister()">Register</button>
-    <button (click)="onLogout(false)">Logout</button>
+  <div class="auth-section">
+    <div class="toggle-section">
+      <span [class.active]="!isRegisterMode">Login</span>
+      <button class="toggle" (click)="isRegisterMode = !isRegisterMode" [attr.data-mode]="isRegisterMode ? 'register' : 'login'">
+        <div class="slider"></div>
+      </button>
+      <span [class.active]="isRegisterMode">Register</span>
+    </div>
 
-    @if (loggedIn()) {<p>Logged in as {{displayNameLogged}}</p>} @else {<p>Not logged in</p>}
-  </section>
+    <div class="form">
+      <input [(ngModel)]="username" placeholder="Username" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()">
+      <input [(ngModel)]="password" type="password" placeholder="Password" (keydown.enter)="isRegisterMode ? onRegister() : onLogin()">
+      <input *ngIf="isRegisterMode" [(ngModel)]="displayName" placeholder="Display Name" (keydown.enter)="onRegister()">
+      
+      <button *ngIf="!isRegisterMode" (click)="onLogin()" class="primary">Login</button>
+      <button *ngIf="isRegisterMode" (click)="onRegister()" class="primary">Register</button>
+      <button *ngIf="loggedIn()" (click)="onLogout(false)" class="secondary">Logout</button>
+    </div>
+
+    <div class="status">
+      @if (loggedIn()) {<p class="logged-in">Logged in as <strong>{{displayNameLogged}}</strong></p>} 
+      @else {<p class="logged-out">Not logged in</p>}
+    </div>
+  </div>
 </div>

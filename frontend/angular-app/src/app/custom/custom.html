@@ -1,48 +1,60 @@
 
-    <h1>Custom PID</h1>
+<div class="container">
+  <div class="header">
+    <h1>Custom Controller</h1>
+    <p>Design your custom thrust equations by building expressions with the available operations and variables below.</p>
+  </div>
 
-    <p> hskh dks dhksdhj some epxclsnation herej e ioi sis dlskds dkldsldksl dsdj sdkjs dsjdlsdlkjsd alsdj90d </p>
-    <p> hskh dks dhksdhj some epxclsnation herej e ioi sis dlskds dkldsldksl dsdj sdkjs dsjdlsdlkjsd alsdj90d </p>
-    <p> hskh dks dhksdhj some epxclsnation herej e ioi sis dlskds dkldsldksl dsdj sdkjs dsjdlsdlkjsd alsdj90d </p>
-    <p> hskh dks dhksdhj some epxclsnation herej e ioi sis dlskds dkldsldksl dsdj sdkjs dsjdlsdlkjsd alsdj90d </p>
-
-    <p>Left thrust = </p>
-    <div class="left"
+  <div class="equations-section">
+    <div class="equation">
+      <label>Left thrust =</label>
+      <div class="left"
         cdkDropList
         cdkDropListOrientation="horizontal"
         class="example-list"
-        (cdkDropListDropped)="drop($event, 'L')"
-        >
+        (cdkDropListDropped)="drop($event, 'L')">
         @for (charl of stringCharsL; track $index; let i = $index) {
-            <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'L')" cdkDrag>{{charl}}</div>
+          <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'L')" cdkDrag>{{charl}}</div>
         }
+      </div>
     </div>
 
-    <p>Right thrust = </p>
-    <div class="right"
+    <div class="equation">
+      <label>Right thrust =</label>
+      <div class="right"
         cdkDropList
         cdkDropListOrientation="horizontal"
         class="example-list"
-        (cdkDropListDropped)="drop($event, 'R')"
-        >
+        (cdkDropListDropped)="drop($event, 'R')">
         @for (charr of stringCharsR; track $index; let i = $index) {
-            <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'R')" cdkDrag>{{charr}}</div>
+          <div class="example-box" cdkDragLockAxis="x" (dblclick)="remove(i, 'R')" cdkDrag>{{charr}}</div>
         }
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-section">
+    <div class="input-row">
+      <label>N value:</label>
+      <input type="number" (keydown.enter)="editN($event)" placeholder="Enter N">
     </div>
 
-    <div>
-        <input type="text" (keydown.enter)="editN($event)">
-        @for (char of availableChars; track char) {
-            <button class="available" (click)="add(char, 'L')">{{char}} (L)</button>
-            <button class="available" (click)="add(char, 'R')">{{char}} (R)</button>
-        }
-        <p class="error">{{this.error}}</p>
-        <p>To delete, double click the char</p>
-        <p>{{this.stringCharsL}}</p>
-        <p>{{this.stringCharsR}}</p>
-
-        <button (click)="compileController(sampleState);">compile to check</button>
-        <button (click)="onSave();">save to account</button>
-        <button (click)="onLoad();">load saved controller</button>
-        <button (click)="onLocalGet();">get last local saved</button>
+    <div class="buttons-grid">
+      @for (char of availableChars; track char) {
+        <button class="btn-left" (click)="add(char, 'L')">{{char}} L</button>
+        <button class="btn-right" (click)="add(char, 'R')">{{char}} R</button>
+        <button class="btn-both" (click)="add(char, 'L'); add(char, 'R')">{{char}} Both</button>
+      }
     </div>
+
+    <p class="error" *ngIf="error">{{error}}</p>
+    <p class="hint">Double-click an item in the equation to remove it</p>
+  </div>
+
+  <div class="actions-section">
+    <button class="action-btn" (click)="compileController(sampleState);">Compile & Test</button>
+    <button class="action-btn" (click)="onSave();">Save to Account</button>
+    <button class="action-btn" (click)="onLoad();">Load from Account</button>
+    <button class="action-btn" (click)="onLocalGet();">Load Local</button>
+  </div>
+</div>

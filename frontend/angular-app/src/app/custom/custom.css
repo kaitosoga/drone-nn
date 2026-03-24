@@ -3,16 +3,46 @@ body {
     color: rgb(181, 253, 255);
 }
 
-p {
-    color: white;
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
 }
 
-input {
-    width: 100px;
+.header {
+    border-bottom: 1px solid rgb(50, 50, 50);
+    padding-bottom: 20px;
 }
 
-.error {
-    color: red;
+.header h1 {
+    margin: 0 0 15px 0;
+    font-size: 28px;
+}
+
+.header p {
+    margin: 0;
+    color: rgb(200, 200, 200);
+    line-height: 1.6;
+}
+
+.equations-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.equation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.equation label {
+    font-weight: 500;
+    color: rgb(181, 253, 255);
 }
 
 .example-list {
@@ -23,7 +53,7 @@ input {
     display: flex;
     flex-direction: row;
     background: rgb(0, 0, 0);
-    overflow: hidden;
+    overflow-x: auto;
     user-select: none;
 }
 
@@ -41,6 +71,97 @@ input {
     flex-grow: 1;
     flex-basis: 0;
     font-family: sans-serif;
+}
+
+.controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-row label {
+    color: rgb(181, 253, 255);
+}
+
+.input-row input {
+    width: 80px;
+    padding: 6px 10px;
+    background: rgb(30, 30, 30);
+    border: 1px solid rgb(70, 70, 70);
+    color: white;
+    border-radius: 3px;
+}
+
+.buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.btn-left,
+.btn-right,
+.btn-both {
+    padding: 10px;
+    border: 1px solid rgb(70, 70, 70);
+    background: rgb(30, 30, 30);
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.5s;
+}
+
+.btn-left:hover,
+.btn-right:hover,
+.btn-both:hover {
+    background: rgb(50, 50, 50);
+}
+
+.btn-both {
+    grid-column: 3;
+}
+
+.error {
+    color: #ff6b6b;
+    margin: 0;
+    font-size: 13px;
+}
+
+.hint {
+    color: rgb(150, 150, 150);
+    margin: 0;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.actions-section {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 20px;
+    border-top: 1px solid rgb(50, 50, 50);
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    background: rgb(40, 40, 40);
+    border: 1px solid rgb(100, 100, 100);
+    color: rgb(181, 253, 255);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.action-btn:hover {
+    background: rgb(60, 60, 60);
 }
 
 .cdk-drag-preview {

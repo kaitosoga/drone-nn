@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 
 // add: better AI levels? + audio + thrust pngs? + cosmetic fixes
-// fix: broken img? does custom/human score submission work?
+// does custom/human score submission work?
 
 @Component({
   selector: 'app-game',
@@ -392,6 +392,22 @@ export class Game implements OnInit{
     } // if using controller from someone else, score should not be submitted
 
     this.quit();
+
+    if (!this.crashed) {
+      this.running = false;
+      this.crashed = true;
+      if (this.frameId !== null) {
+        cancelAnimationFrame(this.frameId);
+        this.frameId = null;
+      }
+      this.context.save();
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 50px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.textBaseline = 'middle';
+      this.context.fillText("time's over!", this.canvasWidth / 2, this.canvasHeight * .75);
+      this.context.restore();
+    }
   }
 
   logCont() {

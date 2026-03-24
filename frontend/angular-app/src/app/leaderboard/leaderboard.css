@@ -1,4 +1,107 @@
-body {
-    background-color: black;
-    color: rgb(85, 221, 255);
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: rgb(10, 10, 10);
+  color: rgb(200, 200, 200);
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgb(50, 50, 50);
+  padding-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+  color: rgb(100, 200, 255);
+}
+
+.header p {
+  margin: 8px 0 0 0;
+  color: rgb(140, 140, 140);
+  font-size: 13px;
+}
+
+.toggle-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.toggle-section span {
+  font-size: 12px;
+  color: rgb(100, 100, 100);
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.toggle-section span.active {
+  color: rgb(100, 200, 255);
+}
+
+.toggle {
+  width: 60px;
+  height: 32px;
+  background: rgb(30, 30, 30);
+  border: 1px solid rgb(50, 50, 50);
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toggle .slider {
+  width: 26px;
+  height: 26px;
+  background: rgb(100, 200, 255);
+  border-radius: 50%;
+  position: absolute;
+  left: 3px;
+  transition: left 0.3s;
+}
+
+.toggle[data-mode="custom"] .slider {
+  left: 31px;
+}
+
+.leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid rgb(30, 30, 30);
+}
+
+.entry .name {
+  font-size: 14px;
+  color: rgb(180, 180, 180);
+}
+
+.entry .score {
+  font-weight: 600;
+  color: rgb(100, 200, 255);
+}
+
+.challenge {
+  padding: 6px 12px;
+  background: rgb(30, 30, 30);
+  border: 1px solid rgb(100, 200, 255);
+  color: rgb(100, 200, 255);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
 }
