@@ -54,6 +54,19 @@ export class Custom {
     }
   }
 
+  onLocalSave() {
+    localStorage.setItem('charsL', Custom.charsL.join(',')); // join because cna only be string I think
+    localStorage.setItem('charsR', Custom.charsR.join(','));
+  }
+ 
+  onLocalGet() {
+    Custom.charsL = localStorage.getItem('charsL')!.split(','); // object possibly null -> !
+    Custom.charsR = localStorage.getItem('charsR')!.split(',');
+    this.add('', 'L'); // to trigger update
+    this.add('', 'R');
+    this.onLocalSave();
+  }
+
   editN(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.n = Number(value);
@@ -70,6 +83,7 @@ export class Custom {
       Custom.charsR.push(char);
       this.stringCharsR = Custom.charsR
     };
+    this.onLocalSave();
   }
 
   log() {
@@ -85,12 +99,14 @@ export class Custom {
       Custom.charsR.splice(ind, 1);
       this.stringCharsR = Custom.charsR;
     }
+    this.onLocalSave();
   }
 
   drop(event: CdkDragDrop<string[]>, side: 'L' | 'R') {
-    moveItemInArray(side === 'L' ? Custom.charsL : Custom.charsR, event.previousIndex, event.currentIndex);
+    moveItemInArray(side === 'L' ? Custom.charsL : Custom.charsR, event.previousIndex, event.currentIndex); // note:from doc angular doc
     this.stringCharsL = Custom.charsL;
     this.stringCharsR = Custom.charsR;
+    this.onLocalSave();
   }
 
   compileController(stateFull: any, chars=[Custom.charsL, Custom.charsR]){
@@ -125,7 +141,8 @@ export class Custom {
 
       if (!isFinite(resultL)) throw new Error('not finite, would crash') // to prevent crashing
       //console.log(resultL)
-      left = resultL; // take out of scope of try catch
+      left = resultL; // take out of scope of try 
+      this.error = "";
 
     } catch {
       this.error = 'invalid operation created, please fix';
@@ -175,15 +192,16 @@ export class Custom {
       Custom.charsL.length = 0; // found out that i have to clear it instead of replacing it, so that address remains same and ng drag&drop can autoupdate
       Custom.charsR.length = 0;
 
-      // 2. Push the new items into the existing references
+      // I learnt that I need to spread array because it is pushed to existing one
       Custom.charsL.push(...res.code[0]);
       Custom.charsR.push(...res.code[1]);
       console.log(Custom.charsL)
     
       this.stringCharsL = [...Custom.charsL];
       this.stringCharsR = [...Custom.charsR];
+      this.onLocalSave();
       
-      this.cdr.detectChanges();
+      //this.cdr.detectChanges();
     })
   }
 

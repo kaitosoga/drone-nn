@@ -41,6 +41,8 @@ export class Profile {
 
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Profile";
+    this.displayNameLogged = localStorage.getItem('name') || ''; // could be null
+    console.log("called")
   }
 
   // testing all functions of the backend, the api service + subscribe https://angular.dev/guide/http/making-requests
@@ -57,7 +59,8 @@ export class Profile {
       next: (res) => { // res is http response from backend
         localStorage.setItem('token', res.token);
         localStorage.setItem('user_id', res.user_id);
-        this.userId = res.user_id;
+        localStorage.setItem('name', res.name);
+        this.userId = res.name;
         alert('Registered and Logged in as ' + res.name);
         this.displayNameLogged = res.name;
         this.cdr.detectChanges();
@@ -77,6 +80,7 @@ export class Profile {
       next: (res) => {
         localStorage.setItem('token', res.token); // should be new token I think
         localStorage.setItem('user_id', res.user_id);
+        localStorage.setItem('name', res.name);
         this.userId = res.user_id;
         alert('Logged in!');
         this.displayNameLogged = res.name;
@@ -89,6 +93,7 @@ export class Profile {
   onLogout(silent: boolean) {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('name');
     if (!silent) alert('Logged out');
   }
 

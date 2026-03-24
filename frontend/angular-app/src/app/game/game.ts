@@ -8,7 +8,8 @@ import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 
-// add: better AI levels? + service for logged in user name to actually display + audio + thrust pngs? + cosmetic fixes
+// add: better AI levels? + audio + thrust pngs? + cosmetic fixes
+// fix: broken img? does custom/human score submission work?
 
 @Component({
   selector: 'app-game',
@@ -156,12 +157,11 @@ export class Game implements OnInit{
       this.bgImages.push(img);
     });
 
-
     this.skin0.src = 'public/skins/camera-drone.png';
     this.skin0.onload = () => {} //this.draw();
     this.skin1.src = 'public/skins/camera-drone1.png';
     this.skin1.onload = () => {}
-    this.skin2.src = this.gameService.skinPath; //'public/skins/camera-drone2.png';
+    this.skin2.src = this.gameService.skinPath; // 'public/skins/camera-drone2.png';
     this.skin2.onload = () => {}
 
     this.chp0.src = 'public/media/chp.png';
@@ -610,7 +610,7 @@ export class Game implements OnInit{
     // onbly render computed ones
     if (this.aiSelected && !this.train) this.render(this.EnvA, time, this.skin0, this.chp0, "A");
     if (this.customSelected && !this.train) this.render(this.EnvC, time, this.skin1, this.chp1, "C");
-    if (this.humanSelected) this.render(this.EnvP, time, this.skin2, this.chp2, "P");
+    if (this.humanSelected && this.skin2) this.render(this.EnvP, time, this.skin2, this.chp2, "P");
     
     this.stateN0 = nextStateN0;
     this.statePID = nextStatePID;
@@ -741,6 +741,7 @@ export class Game implements OnInit{
 
     this.context.translate(relX, relY);
     this.context.rotate(angle);
+    
     this.context.drawImage(skin, -75*this.sRat, -37.5*this.sRat, 150*this.sRat, 75*this.sRat);
     this.reset(); //restore when countdown running, else resetTransform //this.context.restore(); //resetTransform();
   }
@@ -758,7 +759,7 @@ export class Game implements OnInit{
   } // 3 layers for glow effect (best I could find for glowing, shadowblur not so good)
   
   crashMessage() {
-      if (!this.humanSelected) return;
+      if (!this.humanSelected || (this.humanSelected && this.customSelected)) return; // there were errors with human + custom, no idea why
       this.running = false;
       this.crashed = true;
       // fiexd because before message would not stop to appear.
@@ -772,7 +773,7 @@ export class Game implements OnInit{
       this.context.textAlign = 'center';
       this.context.textBaseline = 'middle';
       this.context.fillText("your drone lost navigation :/", this.canvasWidth / 2, this.canvasHeight * .75);
-      this.context.fillText("if this was a technical error - sorry", this.canvasWidth / 2, this.canvasHeight * .825);
+      //this.context.fillText("if this was a technical error - sorry", this.canvasWidth / 2, this.canvasHeight * .825);
       this.context.restore();
       // this.frameId = requestAnimationFrame(t => this.draw(t));
       this.quit();
