@@ -1,5 +1,4 @@
-import {Component, inject} from '@angular/core';
-import {Game} from '../game/game';
+import { Component } from '@angular/core';
 import { GameService } from '../game/game.service';
 import { CommonModule } from '@angular/common';
 
@@ -10,8 +9,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './skins.css',
 })
 export class Skins {
-  game = inject(Game);
-
   constructor(public gameService: GameService) {
     document.title = "AI Pilots - Skins";
   }

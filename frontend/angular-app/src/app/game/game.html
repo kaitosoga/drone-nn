@@ -102,6 +102,6 @@
     <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>
 </body>
 </html>
-<app-inspect *ngIf="inspect"></app-inspect>
+<app-inspect *ngIf="inspect" [aiSelected]="aiSelected" [stateN0]="stateN0"></app-inspect>
 <!--for better quality make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->

@@ -18,7 +18,7 @@ export class Custom {
 
   static initialized = false;
   api = inject(ApiService);
-  id = localStorage.getItem('user_id');
+  id = localStorage.getItem('user_id') || null;
   userId = this.id ? this.id : "";
 
   static charsL: string[] = [];
@@ -45,8 +45,11 @@ export class Custom {
   constructor(private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Custom";
     if (!Custom.initialized) {
-      Custom.charsL = localStorage.getItem('charsL')!.split(',') || ['0.5'];
-      Custom.charsR = localStorage.getItem('charsR')!.split(',') || ['0.5'];
+      const savedL = localStorage.getItem('charsL');
+      const savedR = localStorage.getItem('charsR');
+
+      Custom.charsL = (savedL || '0.5').split(',');
+      Custom.charsR = (savedR || '0.5').split(',');
       this.onLocalSave();
       Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'max(', ',', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
       Custom.initialized = true;
@@ -62,8 +65,11 @@ export class Custom {
   }
  
   onLocalGet() {
-    Custom.charsL = localStorage.getItem('charsL')!.split(','); // object possibly null -> !
-    Custom.charsR = localStorage.getItem('charsR')!.split(',');
+
+    const gotL = localStorage.getItem('charsL')
+    const gotR = localStorage.getItem('charsR')
+    Custom.charsL = (gotL || '').split(',');
+    Custom.charsR = (gotR || '').split(',');
     this.add('', 'L'); // to trigger update
     this.add('', 'R');
     this.remove(Custom.charsL.length-1, "L")

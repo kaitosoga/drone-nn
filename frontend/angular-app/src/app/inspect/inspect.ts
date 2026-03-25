@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Net } from '../logic/Net';
-import { Game } from '../game/game';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
@@ -13,9 +12,9 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './inspect.css',
 })
 export class Inspect {
-  net = new Net();
-  game = inject(Game);
-
+  @Input() aiSelected: boolean = false;
+  @Input() stateN0: any = null;
+  
   manualState = {
     opt: [0, 0],
     vel: [0, 0],
@@ -23,6 +22,8 @@ export class Inspect {
     ang: 0,
     ang_vel: 0
   };
+
+  net = new Net();
 
   activations: any;
   input: any;
@@ -32,7 +33,7 @@ export class Inspect {
   }
 
   getData() {
-    let state = this.game.aiSelected ? this.game.stateN0 : this.manualState;
+    let state = this.aiSelected ? this.stateN0 : this.manualState;
     if (!state) return;
     //console.log(state)
     this.activations = this.net.compute(state, true); // true for getting each layer activations
