@@ -1,107 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pilots - Game</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="wrapper">
-        <canvas #canvas></canvas>
-        <div class="menu-wrapper bg" [class.hidden]="menuHidden">
-            <!--<div id="live"><p>Menu:</p></div>-->
-            <div class="mode-select">
-                <button *ngIf="!train" class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
-                <button *ngIf="!train" class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
-                <button *ngIf="!gServiceHelperHTML && !train" (click)="gameService.ownController = true; detectGameService(); logCont();">Remove Selected Controller to select own Controller</button>
-                <button *ngIf="!train" class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
-                <button class="options" [ngClass]="{'selected': train}" (click)="toggleTrain()">Training</button>
-            </div>
+<div class="wrapper">
+    <canvas #canvas></canvas>
+    <div class="menu-wrapper bg" [class.hidden]="menuHidden">
+        <!--<div id="live"><p>Menu:</p></div>-->
+        <div class="mode-select">
+            <button *ngIf="!train" class="options" [ngClass]="{'selected': humanSelected}" (click)="toggleHuman()">Human</button>
+            <button *ngIf="!train" class="options" [ngClass]="{'selected': customSelected}" (click)="toggleCustom()">Custom</button>
+            <button *ngIf="!gServiceHelperHTML && !train" (click)="gameService.ownController = true; detectGameService(); logCont();">Remove Selected Controller to select own Controller</button>
+            <button *ngIf="!train" class="options" [ngClass]="{'selected': aiSelected}" (click)="toggleAi()">AI</button>
+            <button class="options" [ngClass]="{'selected': train}" (click)="toggleTrain()">Training</button>
+        </div>
 
-            <div *ngIf="aiSelected" class="ai-levels">
-                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
-                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
-                <button class="options" [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
-            </div>
+        <div *ngIf="aiSelected" class="ai-levels">
+            <button class="options" [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
+            <button class="options" [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
+            <button class="options" [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
+        </div>
 
-            <!--<div class="skins">
-                <button [ngClass]="{'selected': selectedSkin==='s0'}" (click)="selectS('s0')">Skin0</button>
-            </div>-->
+        <!--<div class="skins">
+            <button [ngClass]="{'selected': selectedSkin==='s0'}" (click)="selectS('s0')">Skin0</button>
+        </div>-->
 
-            <div class="controls">
-                <div class="basic-buttons">
-                    <button class="menu" (click)="pause();">Pause</button>
-                    <button class="menu" (click)="resume();">Resume</button>
-                    <button class="menu" (click)="startGame(); onButtonClick($event)">Start</button>
-                    <button class="menu" (click)="quit();">Quit</button>
-                </div>
-            </div>
-
-            <div *ngIf="!humanSelected" class="cam-select">
-                <button class="options" (click)="showAI = !showAI">Toggle Cam</button>
-            </div>
-
-            <div class="mode">
-                <button [ngClass]="{'selected': !phoneMode}" (click)="phoneMode = !phoneMode">Touch</button>
-            </div>
-
-            <div class="mode">
-                <button class="options" [ngClass]="{'selected': inspect}" (click)="toggleInspect()">Inspect</button>
-            </div>
-
-            <div id="live">
-                <div class="live-row">
-                    <span class="label">Scores:</span>
-                        <table class="value">
-                            <tr><td>{{scores[0]>=0?scores[0]:0}}</td></tr>
-                            <tr><td>{{scores[1]>=0?scores[1]:0}}</td></tr>
-                        </table>
-                        <table class="value">
-                            <tr><td>{{scores[2]>=0?scores[2]:0}}</td></tr>
-                            <tr><td>{{scores[3]>=0?scores[3]:0}}</td></tr>
-                        </table>
-                        <table class="value">
-                            <tr><td>{{scores[4]>=0?scores[4]:0}}</td></tr>
-                            <tr><td>{{scores[5]>=0?scores[5]:0}}</td></tr>
-                        </table>
-                </div>
-                <div class="live-row" *ngIf="timeLeft>0">
-                    <span class="label">Time:</span>
-                    <span class="value">{{formatTime(timeLeft)}}</span>
-                </div>
-                <div class="live-row error" *ngIf="errorMsg">
-                    {{errorMsg}}
-                </div>
-                <div class="live-row" *ngIf="timeLeft<=0">
-                    <span class="label">Winner:<br></span>
-                    <span class="value">{{winner}}</span>
-                </div>
-                <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
-            </div>
-            <div>
-                <details>
-                    <summary>Steering Guide</summary>
-                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
-                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
-                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
-                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
-                        texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
-                </details>
+        <div class="controls">
+            <div class="basic-buttons">
+                <button class="menu" (click)="pause();">Pause</button>
+                <button class="menu" (click)="resume();">Resume</button>
+                <button class="menu" (click)="startGame(); onButtonClick($event)">Start</button>
+                <button class="menu" (click)="quit();">Quit</button>
             </div>
         </div>
 
-        <div class="lr-buttons" [class.phone]="phoneMode">
-            <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
-            <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
-            <button class="lr" [class.phone]="phoneMode" (mousedown)="startSpace()" (mouseup)="stopSpace()" (touchstart)="startSpace()" (touchend)="stopSpace()">Thrust</button>
+        <div *ngIf="!humanSelected" class="cam-select">
+            <button class="options" (click)="showAI = !showAI">Toggle Cam</button>
+        </div>
+
+        <div class="mode">
+            <button [ngClass]="{'selected': !phoneMode}" (click)="phoneMode = !phoneMode; menuHidden = phoneMode ? menuHidden : !menuHidden">Touch</button>
+        </div>
+
+        <div class="mode">
+            <button class="options" [ngClass]="{'selected': inspect}" (click)="toggleInspect()">Inspect</button>
+        </div>
+
+        <div id="live">
+            <div class="live-row">
+                <span class="label">Scores:</span>
+                    <table class="value">
+                        <tr><td>{{scores[0]>=0?scores[0]:'Human'}}</td></tr>
+                        <tr><td>{{scores[1]>=0?scores[1]:0}}</td></tr>
+                    </table>
+                    <table class="value">
+                        <tr><td>{{scores[2]>=0?scores[2]:'AI'}}</td></tr>
+                        <tr><td>{{scores[3]>=0?scores[3]:0}}</td></tr>
+                    </table>
+                    <table class="value">
+                        <tr><td>{{scores[4]>=0?scores[4]:'Custom'}}</td></tr>
+                        <tr><td>{{scores[5]>=0?scores[5]:0}}</td></tr>
+                    </table>
+            </div>
+            <div class="live-row" *ngIf="timeLeft>0">
+                <span class="label">Time:</span>
+                <span class="value">{{formatTime(timeLeft)}}</span>
+            </div>
+            <div class="live-row error"  *ngIf="errorMsg || customData.error">
+                {{errorMsg}} | {{customData.error}}
+            </div>
+            <div class="live-row">
+                <span class="label" *ngIf="timeLeft<=0">Winner: {{winner}}<br></span>
+                <span class="label" *ngIf="timeLeft>0">Winning: {{winner}}<br></span>
+            </div>
+            <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
+        </div>
+        <div>
+            <details>
+                <summary>Steering Guide</summary>
+                    texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                    texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                    texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                    texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+                    texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
+            </details>
         </div>
     </div>
-    <button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>
-</body>
-</html>
+
+    <div class="lr-buttons" [class.phone]="phoneMode">
+        <button class="lr" [class.phone]="phoneMode" (mousedown)="startLeft()" (mouseup)="stopLeft()" (touchstart)="startLeft()" (touchend)="stopLeft()">L</button>
+        <button class="lr" [class.phone]="phoneMode" (mousedown)="startRight()" (mouseup)="stopRight()" (touchstart)="startRight()" (touchend)="stopRight()">R</button>
+        <button class="lr" [class.phone]="phoneMode" (mousedown)="startSpace()" (mouseup)="stopSpace()" (touchstart)="startSpace()" (touchend)="stopSpace()">Thrust</button>
+    </div>
+</div>
+<button class="menu-toggle" (click)="menuHidden = !menuHidden">☰ Options</button>
+
 <app-inspect *ngIf="inspect" [aiSelected]="aiSelected" [stateN0]="stateN0"></app-inspect>
 <!--for better quality make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->
+<a href='https://pngtree.com/freepng/burning-meteor-with-flames-and-glowing-heat-effect-for-space-disaster_20756914.html'>png images from pngtree.com/</a>
+<a href="https://www.vecteezy.com/free-png/space-debris">Space Debris PNGs by Vecteezy</a>
+<a href="https://www.freepik.com/free-photos-vectors/blackhole-png">images from FREEP!K</a>
+<a href="https://www.vecteezy.com/free-png/gold-glitter-wave">Gold Glitter Wave PNGs by Vecteezy</a>
+<a href="https://www.vecteezy.com/free-png/satellite">Satellite PNGs by Vecteezy</a>
+<a href="https://www.vecteezy.com/free-png/astronaut">Astronaut PNGs by Vecteezy</a>
+<a href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>
+<a href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>

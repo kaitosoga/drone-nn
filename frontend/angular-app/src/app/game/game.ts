@@ -8,8 +8,7 @@ import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 
-// add: better AI levels? + audio + thrust pngs? + cosmetic fixes
-// does custom/human score submission work?
+// add: better AI levels? + thrust pngs? + some overall improvement (output and code)
 
 @Component({
   selector: 'app-game',
@@ -37,7 +36,7 @@ export class Game implements OnInit{
   private bg2Points: {x:number, y:number, img:any}[] = [];
   private lClick = false;
   private rClick = false;
-  private sClick = false;
+  private mClick = false;
   private gameEnded = true;
   private thrusts = [[0, 0], [0, 0], [0, 0, 0]]
   
@@ -99,9 +98,26 @@ export class Game implements OnInit{
   chp1 = new Image();
   chp2 = new Image();
   bgImage = new Image(); // main bg img
-  bgPaths = ['public/media/randombg.jpg', 'public/media/randombg1.jpg'];
+  bgPaths = [
+    'public/media/comet.png',
+    'public/media/hole.png', 
+    'public/media/stardust.png',
+    'public/media/stardust.png',
+    'public/media/stardust.png',
+    'public/media/astronaut.png',
+    'public/media/debris.png',
+    'public/media/debris.png',
+    'public/media/debris.png',,
+    'public/media/satelite.png',
+    'public/media/alien0.png',
+    'public/media/alien1.png',
+  ];
   private bgImages: HTMLImageElement[] = [];
-  audio0 = new Audio();
+  audio0L = new Audio();
+  audio0R = new Audio();
+  audio0M = new Audio();
+  audio1 = new Audio();
+  audio2 = new Audio();
 
   sideLength = 1;
   firstSess = true;
@@ -119,24 +135,28 @@ export class Game implements OnInit{
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
-      if (e.key === 'ArrowLeft') this.lClick = true;
-      if (e.key === 'ArrowRight') this.rClick = true;
-      if (e.key === 'ArrowUp') {this.sClick = true}; //; this.audio0.play();};
-      if (e.key === ' ') {this.sClick = true};
-      if (e.key === 'a') this.lClick = true;
-      if (e.key === 'd') this.rClick = true;
-      if (e.key === 'w') {this.sClick = true};
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        this.lClick = true;
+        if (!this.running) return;
+        this.audio0L.play();
+      };
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        this.rClick = true;
+        if (!this.running) return;
+        this.audio0R.play();
+      };
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') {
+        this.mClick = true;
+        if (!this.running) return;
+        this.audio0M.play();
+      };
     });
     // a, w, d / sounds on thrusts and checkpoints / thrust visualisation!
     document.addEventListener('keyup', (e: KeyboardEvent) => {
       if (e.key === 'Control' || e.key === 'Meta') this.isCtrlHeld = false;
-      if (e.key === 'ArrowLeft') this.lClick = false;
-      if (e.key === 'ArrowRight') this.rClick = false;
-      if (e.key === 'ArrowUp') this.sClick = false;
-      if (e.key === ' ') this.sClick = false;
-      if (e.key === 'a') this.lClick = false;
-      if (e.key === 'd') this.rClick = false;
-      if (e.key === 'w') this.sClick = false;
+      if (e.key === 'ArrowLeft' || e.key === 'a') this.lClick = false; this.audio0L.pause();
+      if (e.key === 'ArrowRight' || e.key === 'd') this.rClick = false; this.audio0R.pause();
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') this.mClick = false; this.audio0M.pause();
     });
   }
 
@@ -153,7 +173,7 @@ export class Game implements OnInit{
 
     this.bgPaths.forEach(pth => {
       const img = new Image();
-      img.src = pth;
+      img.src = pth || '';
       this.bgImages.push(img);
     });
 
@@ -171,7 +191,28 @@ export class Game implements OnInit{
     this.chp2.src = 'public/media/chp2.png';
     this.chp2.onload = () => {}
 
-    this.audio0.src = 'public/media/spacesound0.mp3'
+    this.audio0L.src = 'public/media/thrust.mp3'
+    this.audio0R.src = 'public/media/thrust.mp3'
+    this.audio0M.src = 'public/media/thrust.mp3'
+    this.audio1.src = 'public/media/checkP.mp3'
+    this.audio2.src = 'public/media/bg.mp3'
+
+    this.audio1.volume = 0.4;
+    this.audio2.loop = true;
+    this.audio1.preload = 'auto';
+    this.audio2.volume = 0.05;
+    this.audio2.preload = 'auto'
+
+    this.audio0L.volume = 0.2;
+    this.audio0L.loop = true;
+    this.audio0R.volume = 0.2;
+    this.audio0R.loop = true;
+    this.audio0M.volume = 0.3;
+    this.audio0M.loop = true;
+
+    this.audio0L.preload = 'auto';
+    this.audio0R.preload = 'auto';
+    this.audio0M.preload = 'auto';
 
     const absoluteWidth = window.outerWidth * window.devicePixelRatio;
     const absoluteHeight = window.outerHeight * window.devicePixelRatio;
@@ -232,6 +273,12 @@ export class Game implements OnInit{
 
     this.crashed = false;
     this.quit(); // just in case
+
+    this.audio2.play();
+
+    this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
+    this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
+    this.EnvC?.reset(this.EnvC.width / 2, this.EnvC.height / 2);
 
     if (this.humanSelected) {
           this.EnvMain = this.EnvP; // main frame (like camera), others are reference
@@ -308,11 +355,11 @@ export class Game implements OnInit{
   }
 
   protected startSpace() {
-    this.sClick = true;
+    this.mClick = true;
   }
 
   protected stopSpace() {
-    this.sClick = false;
+    this.mClick = false;
   }
 
   // options:
@@ -365,6 +412,7 @@ export class Game implements OnInit{
 
   // game end
   private onGameEnd() {
+    this.audio2.play();
     if (this.gameEnded || this.train) return;
     this.gameEnded = true;
 
@@ -384,7 +432,7 @@ export class Game implements OnInit{
       });
     }
 
-    if (this.gameService.ownController && this.customSelected) { // only submit if the players own controller
+    if (this.gameService.ownController && this.customSelected) { // only submit if the player owns controller
       this.api.submitScore(this.scores[5], 'custom', this.ptime, [this.customData.stringCharsL, this.customData.stringCharsR]).subscribe({
         next: (res) => alert('tscore: ' + res.top_score),
         error: (err) => alert('reject: ' + err.error.error)
@@ -441,6 +489,7 @@ export class Game implements OnInit{
       this.running = false;
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
+      this.audio2.pause();
       this.togglePause();
     }
   }
@@ -451,10 +500,13 @@ export class Game implements OnInit{
       this.lastTime = performance.now(); // to prevent big dt in timer
       this.draw();
       this.togglePause();
+      this.audio2.play();
     }
   }
 
   quit() {
+    this.audio2.pause();
+    this.audio2.currentTime = 0;
     // stop animation + reset
     if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
@@ -471,10 +523,6 @@ export class Game implements OnInit{
     this.gameEnded = false;
 
     this.bg2Points = [];
-
-    this.EnvA?.reset(this.EnvA.width / 2, this.EnvA.height / 2); // ? is in case smth is undefined, could be here
-    this.EnvP?.reset(this.EnvP.width / 2, this.EnvP.height / 2);
-    this.EnvC?.reset(this.EnvC.width / 2, this.EnvC.height / 2);
   }
 
   setMain(name: string) {
@@ -497,7 +545,8 @@ export class Game implements OnInit{
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
 
-    console.log(this.canvasWidth, this.canvasHeight)
+    // console.log(this.canvasWidth, this.canvasHeight)
+    this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
 
 
     // bg
@@ -525,7 +574,8 @@ export class Game implements OnInit{
 
       // other bg objects, bgxPoints are random points around drone:
       if (this.countdown <= 0 && (Math.hypot(this.EnvMain.chpX - this.EnvMain.x, this.EnvMain.chpY - this.EnvMain.y) < 70)) { // spawn once when checkpoint is reached
-        const count = 2;
+        this.audio1.play();
+        const count = 1;
         for (let i = 0; i < count; i++) {
           const radiusX = this.canvasWidth * 2;
           const radiusY = this.canvasHeight * 2;
@@ -539,11 +589,11 @@ export class Game implements OnInit{
       }
 
       // drawing other bg imgs
-      const size = 48; // new size, different from tiling
+      const size = 300; // new size, different from tiling
       this.bg2Points.forEach((p) => { // place at each random point
         const screenX = this.canvasWidth / 2 + (p.x - this.EnvMain.x) * this.sRat;
         const screenY = this.canvasHeight / 2 + (p.y - this.EnvMain.y) * this.sRat;
-        this.context!.drawImage(p.img, screenX - size / 2, screenY - size / 2, size, size);
+        this.context!.drawImage(p.img, screenX - size / 30, screenY - size / 30, size, size);
       });
       
     } else {
@@ -612,7 +662,7 @@ export class Game implements OnInit{
       } else {
         thrustFactor = Math.min(1 / (Math.tanh(this.EnvP.vy/5)/2+.5)**(1/2), 1);
       }
-      const thrust = this.sClick ? (3 / thrustFactor)/1.5 : 0; // typescript safety thing
+      const thrust = this.mClick ? (3 / thrustFactor)/1.5 : 0; // typescript safety thing
       outputPlayer = [thrust + l, thrust + r];
       thrustVisuals = [l, r, thrust]
       // this is basically an adjustment for the player, to make controls easier, I noticed later that it was too hard without this

@@ -49,6 +49,8 @@ export class Inspect {
     this.cdr.detectChanges();
   }
 
+  fl() {}
+
   ngOnInit() {
     this.getData();
     setInterval(() => this.getData(), 50); //update every 50ms for ai changes

@@ -107,6 +107,7 @@ button {
     font-weight: 100;
     font-style: light;
     word-spacing: .1ch;
+    user-select: none;
 }
 
 button:active {

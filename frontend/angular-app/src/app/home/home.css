@@ -21,6 +21,7 @@ header { margin: 10px 20px 20px 20px; }
 
 p {
     text-align: justify;
+    align-items: center;
 }
 
 h2 {
@@ -35,6 +36,7 @@ h2 {
     margin: 50px;
     padding: 5px 30px;
     border-bottom: 1px solid rgb(0, 0, 0);
+    margin-left: 25%;
 }
 
 .wrapper {
@@ -44,7 +46,7 @@ h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    margin-left: 25%;
     margin-bottom: 30px;
 }
 

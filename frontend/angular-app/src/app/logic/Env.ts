@@ -1,6 +1,3 @@
-import * as tf from '@tensorflow/tfjs';
-import { AnyRecord } from 'dns';
-
 export class Env {
     width: number;
     height: number;
