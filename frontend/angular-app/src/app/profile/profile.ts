@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -28,6 +30,8 @@ export class Profile {
   password = '';
   displayName = '';
   displayNameLogged = '';
+  topscoreH = '0';
+  topscoreC = '0';
   testScore = 0;
   
   isRegisterMode = false;
@@ -42,6 +46,16 @@ export class Profile {
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {
     document.title = "AI Pilots - Profile";
     this.displayNameLogged = localStorage.getItem('name') || ''; // could be null
+
+    console.log(this.topscoreH, localStorage.getItem("scoreH"))
+    if (this.topscoreH === '0') {
+      this.topscoreH = localStorage.getItem("scoreH") || '';
+    }
+
+    if (this.topscoreC === '0') {
+      this.topscoreC = localStorage.getItem("scoreC") || '';
+    }
+    
     console.log("called")
   }
 
@@ -63,6 +77,10 @@ export class Profile {
         this.userId = res.name;
         alert('Registered and Logged in as ' + res.name);
         this.displayNameLogged = res.name;
+        this.topscoreH = '0'; // resets in case logged in from other account
+        this.topscoreC = '0';
+        localStorage.setItem("scoreH", this.topscoreH)
+        localStorage.setItem("scoreC", this.topscoreC)
         this.cdr.detectChanges();
       },
       error: (err) => alert(err.error.error)
@@ -84,6 +102,11 @@ export class Profile {
         this.userId = res.user_id;
         alert('Logged in!');
         this.displayNameLogged = res.name;
+        console.log("score: ", res.top_score_custom)
+        this.topscoreH = `${res.top_score_human}`;
+        this.topscoreC = `${res.top_score_custom}`;
+        localStorage.setItem("scoreH", this.topscoreH)
+        localStorage.setItem("scoreC", this.topscoreC)
         this.cdr.detectChanges();
       },
       error: (err) => alert(err.error.error)

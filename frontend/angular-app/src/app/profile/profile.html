@@ -23,8 +23,9 @@
     </div>
 
     <div class="status">
-      @if (loggedIn()) {<p class="logged-in">Logged in as <strong>{{displayNameLogged}}</strong></p>} 
+      @if (loggedIn()) {<p class="logged-in">Logged in as <strong>{{displayNameLogged}}</strong></p><br><p>Topscores:<br>Human: {{topscoreH}}<br>Custom: {{topscoreC}}</p>} 
       @else {<p class="logged-out">Not logged in</p>}
     </div>
+    <button class="router" routerLink="/game">Play the Game</button>
   </div>
 </div>

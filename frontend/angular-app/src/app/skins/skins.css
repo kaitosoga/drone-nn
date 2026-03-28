@@ -59,3 +59,20 @@
   color: rgb(120, 120, 120);
   text-transform: uppercase;
 }
+
+button {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #111;
+    color: white;
+
+    margin-top: 30px;
+
+}
+
+button:hover {
+    background-color: black;
+    color: rgb(181, 253, 255);
+}

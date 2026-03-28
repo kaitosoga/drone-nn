@@ -7,13 +7,14 @@ import { Custom } from '../custom/custom';
 import { ApiService } from '../auth.service';
 import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
+import { RouterLink } from '@angular/router';
 
-// add: better AI levels? + thrust pngs? + some overall improvement (output and code)
+// add: better AI levels? + comments for doc.
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule, Inspect], // for inspect component routed
+  imports: [CommonModule, Inspect, RouterLink], // for inspect component routed
   templateUrl: './game.html',
   styleUrl: './game.css',
 })
@@ -102,15 +103,8 @@ export class Game implements OnInit{
     'public/media/comet.png',
     'public/media/hole.png', 
     'public/media/stardust.png',
-    'public/media/stardust.png',
-    'public/media/stardust.png',
     'public/media/astronaut.png',
     'public/media/debris.png',
-    'public/media/debris.png',
-    'public/media/debris.png',,
-    'public/media/satelite.png',
-    'public/media/alien0.png',
-    'public/media/alien1.png',
   ];
   private bgImages: HTMLImageElement[] = [];
   audio0L = new Audio();
@@ -118,6 +112,8 @@ export class Game implements OnInit{
   audio0M = new Audio();
   audio1 = new Audio();
   audio2 = new Audio();
+
+  bgLoaded = false;
 
   sideLength = 1;
   firstSess = true;
@@ -170,6 +166,8 @@ export class Game implements OnInit{
     this.bgImage.onload = () => {
       this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!;
     };
+
+    let loaded = 0;
 
     this.bgPaths.forEach(pth => {
       const img = new Image();
@@ -422,19 +420,25 @@ export class Game implements OnInit{
     const options: any = {};
     if (this.aiSelected) options.ai = this.selectedAiLevel;
     if (this.humanSelected) options.human = true;
-    if (this.customSelected) options.custom = true;
+    if (this.customSelected) options.custom = true; `${this}`
 
     console.log(this.scores[0]);
     if (this.humanSelected) {
       this.api.submitScore(this.scores[1], 'human', this.ptime, [["willbeignored"], []]).subscribe({
-        next: (res) => alert('tscore: ' + res.top_score),
+        next: (res) => {
+          // alert('tscore: ' + res.top_score)
+          localStorage.setItem('scoreH', `${Math.max(res.top_score, this.scores[1])}`);
+        },
         error: (err) => alert('reject: ' + err.error.error)
       });
     }
 
     if (this.gameService.ownController && this.customSelected) { // only submit if the player owns controller
       this.api.submitScore(this.scores[5], 'custom', this.ptime, [this.customData.stringCharsL, this.customData.stringCharsR]).subscribe({
-        next: (res) => alert('tscore: ' + res.top_score),
+        next: (res) => {
+          // alert('tscore: ' + res.top_score),
+          localStorage.setItem('scoreC', `${Math.max(res.top_score, this.scores[5])}`);
+        },
         error: (err) => alert('reject: ' + err.error.error)
       });
     } // if using controller from someone else, score should not be submitted
@@ -575,11 +579,12 @@ export class Game implements OnInit{
       // other bg objects, bgxPoints are random points around drone:
       if (this.countdown <= 0 && (Math.hypot(this.EnvMain.chpX - this.EnvMain.x, this.EnvMain.chpY - this.EnvMain.y) < 70)) { // spawn once when checkpoint is reached
         this.audio1.play();
-        const count = 1;
+        const count = (this.scores[1] + 2) ? Number(Math.random() > 0.5) : this.bgImages.length - 1;
         for (let i = 0; i < count; i++) {
           const radiusX = this.canvasWidth * 2;
           const radiusY = this.canvasHeight * 2;
-          let img = this.bgImages[Math.floor(Math.random() * this.bgImages.length)];
+          const x = (this.scores[1] + 2) ? Math.floor(Math.random() * this.bgImages.length) : i;
+          let img = this.bgImages[x];
           this.bg2Points.push({
             x: this.EnvMain.x + (Math.random() - 0.5) * radiusX,
             y: this.EnvMain.y + (Math.random() - 0.5) * radiusY,
@@ -591,8 +596,8 @@ export class Game implements OnInit{
       // drawing other bg imgs
       const size = 300; // new size, different from tiling
       this.bg2Points.forEach((p) => { // place at each random point
-        const screenX = this.canvasWidth / 2 + (p.x - this.EnvMain.x) * this.sRat;
-        const screenY = this.canvasHeight / 2 + (p.y - this.EnvMain.y) * this.sRat;
+        const screenX = (this.scores[1] + 2) ? this.canvasWidth / 2 + (p.x - this.EnvMain.x) * this.sRat : 10;
+        const screenY = (this.scores[1] + 2) ? this.canvasHeight / 2 + (p.y - this.EnvMain.y) * this.sRat : 10;
         this.context!.drawImage(p.img, screenX - size / 30, screenY - size / 30, size, size);
       });
       
@@ -726,7 +731,7 @@ export class Game implements OnInit{
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
 
 
-    if (Math.sqrt((chpX - this.EnvMain.x)**2 + (chpY - this.EnvMain.y)**2) > 4000) {this.crashMessage();}
+    // if (Math.sqrt((chpX - this.EnvMain.x)**2 + (chpY - this.EnvMain.y)**2) > 4000) {this.crashMessage();} // not necessary anymore with line for checkpoint indication, and it brought about unexplained bugs
 
     // bg
     // note: make multiple space background, sonme with objects in them already, randomly select in background processing!
@@ -825,7 +830,6 @@ export class Game implements OnInit{
   } // 3 layers for glow effect (best I could find for glowing, shadowblur not so good)
   
   crashMessage() {
-      if (!this.humanSelected || (this.humanSelected && this.customSelected)) return; // there were errors with human + custom, no idea why
       this.running = false;
       this.crashed = true;
       // fiexd because before message would not stop to appear.

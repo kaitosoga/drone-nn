@@ -5,10 +5,11 @@ import { throwDeprecation } from 'process';
 import { stat } from 'fs';
 import { ApiService } from '../auth.service';
 import { ChangeDetectorRef } from '@angular/core'; // when subscribing for res, html doesn't update on response
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-custom',
-  imports: [CdkDropList, CdkDrag, CommonModule], // angular imports for drag and drop
+  imports: [CdkDropList, CdkDrag, CommonModule, RouterLink], // angular imports for drag and drop
   templateUrl: './custom.html',
   styleUrl: './custom.css',
 })

@@ -33,7 +33,7 @@
   gap: 15px;
 }
 
-.toggle-section span {
+.toggle-section {
   font-size: 12px;
   color: rgb(100, 100, 100);
   text-transform: uppercase;
@@ -126,4 +126,18 @@
   margin: 0;
 }
 
+button {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #111;
+    color: white;
 
+    margin: 5px;
+}
+
+button:hover {
+    background-color: black;
+    color: rgb(181, 253, 255);
+}
