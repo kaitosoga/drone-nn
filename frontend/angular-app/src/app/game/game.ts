@@ -798,13 +798,13 @@ export class Game implements OnInit{
     });
 
     this.context.beginPath();
-    this.context.moveTo(centerX - 75 * Math.cos(angle), centerY - Math.sin(angle)*75);
-    this.context.lineTo(centerX - 75 * Math.cos(angle), centerY - Math.sin(angle)*75 + thrustR * (10+15*(1-thrustM)) + thrustM*70);
+    this.context.moveTo(centerX - (75*this.sRat-20) * Math.cos(angle), centerY - Math.sin(angle)*(75*this.sRat-20));
+    this.context.lineTo(centerX - (75*this.sRat-20) * Math.cos(angle), centerY - Math.sin(angle)*(75*this.sRat-20) + thrustR * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
     this.context.beginPath();
-    this.context.moveTo(centerX + 75 * Math.cos(angle), centerY + Math.sin(angle)*75);
-    this.context.lineTo(centerX + 75 * Math.cos(angle), centerY + Math.sin(angle)*75 + thrustL * (10+15*(1-thrustM)) + thrustM*70);
+    this.context.moveTo(centerX + (75*this.sRat-20) * Math.cos(angle), centerY + Math.sin(angle)*(75*this.sRat-20));
+    this.context.lineTo(centerX + (75*this.sRat-20) * Math.cos(angle), centerY + Math.sin(angle)*(75*this.sRat-20) + thrustL * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
     //this.context.beginPath();
@@ -814,8 +814,8 @@ export class Game implements OnInit{
 
     this.context.translate(relX, relY);
     this.context.rotate(angle);
-    
-    this.context.drawImage(skin, -75*this.sRat, -37.5*this.sRat, 150*this.sRat, 75*this.sRat);
+    const factor = Math.max(this.sRat, this.sRat) // because if height >> width, then drone becomes too narrow for 
+    this.context.drawImage(skin, -75*factor, -37.5*this.sRat, 150*factor, 75*this.sRat);
     this.reset(); //restore when countdown running, else resetTransform //this.context.restore(); //resetTransform();
   }
 

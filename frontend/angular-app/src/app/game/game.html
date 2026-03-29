@@ -11,7 +11,7 @@
         </div>
 
         <div *ngIf="aiSelected" class="ai-levels">
-            <button class="options" [ngClass]="{'selected': selectedAiLevel==='l17'}" (click)="selectAiLevel('l17')">AI Level 0</button>
+            <button class="options" [ngClass]="{'selected': selectedAiLevel==='l6'}" (click)="selectAiLevel('l6')">AI Level 0</button>
             <button class="options" [ngClass]="{'selected': selectedAiLevel==='l0'}" (click)="selectAiLevel('l0')">AI Level 1</button>
             <button class="options" [ngClass]="{'selected': selectedAiLevel==='l18'}" (click)="selectAiLevel('l18')">AI Level 2</button>
         </div>
@@ -84,7 +84,7 @@
                     To hide/display the options menu, you can always click "☰ Options" <br><br>
             </details>
             <details>
-                <summary>{{sRat}} Options Guide</summary>
+                <summary>Options Guide</summary>
                     Choose the player options in the first row of buttons <br>
                     You have to choose exactly two players, unless you are in training mode, where scores won't be saved to your account. <br>
                     If one of the players is an AI, you also have to choose a level, determining the skill of the AI. <br>
