@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 import { RouterLink } from '@angular/router';
 
-// add: texts + imgs + comments for doc. + some minor improvements for UX (+ better AI levels?)
+// add: texts + imgs + comments for doc + some minor improvements for UX (+ better AI levels?)
 
 @Component({
   selector: 'app-game',
@@ -596,7 +596,7 @@ export class Game implements OnInit{
       }
 
       // drawing other bg imgs
-      const size = 300; // new size, different from tiling
+      const size = 250; // new size, different from tiling
       this.bg2Points.forEach((p) => { // place at each random point
         const screenX = (this.scores[1] + 2) ? this.canvasWidth / 2 + (p.x - this.EnvMain.x) * this.sRat : 10;
         const screenY = (this.scores[1] + 2) ? this.canvasHeight / 2 + (p.y - this.EnvMain.y) * this.sRat : 10;
@@ -840,7 +840,7 @@ export class Game implements OnInit{
         this.frameId = null;
       }
       this.context.save();
-      this.context.fillStyle = 'white';
+      this.context.fillStyle = 'red';
       this.context.font = 'bold 50px sans-serif';
       this.context.textAlign = 'center';
       this.context.textBaseline = 'middle';
