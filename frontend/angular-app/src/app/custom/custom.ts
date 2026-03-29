@@ -52,17 +52,17 @@ export class Custom {
       Custom.charsL = (savedL || '0.5').split(',');
       Custom.charsR = (savedR || '0.5').split(',');
       this.onLocalSave();
-      Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'max(', ',', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
+      Custom.availableChars = ['0', '+', '-', '*', '/', '^', '(', ')', 'sigmoid(', 'tanh(', 'max(', ';', 'optX', 'optY', 'velX', 'velY', 'accX', 'accY', 'Angle', 'velAngle'];
       Custom.initialized = true;
-      this.availableChars = Custom.availableChars
-      this.stringCharsL = Custom.charsL;
-      this.stringCharsR = Custom.charsR;
+      this.availableChars = Custom.availableChars.map(el =>  {if (el===';') {return ',';} else return el;})
+      this.stringCharsL = Custom.charsL.map(el =>  {if (el===';') {return ',';} else return el;});
+      this.stringCharsR = Custom.charsR.map(el =>  {if (el===';') {return ',';} else return el;});
     }
   }
 
   onLocalSave() {
-    localStorage.setItem('charsL', Custom.charsL.join(',')); // join because cna only be string I think
-    localStorage.setItem('charsR', Custom.charsR.join(','));
+    localStorage.setItem('charsL', Custom.charsL.map(el =>  {if (el===',') {return ';';} else return el;}).join(',')); // join because cna only be string I think
+    localStorage.setItem('charsR', Custom.charsR.map(el =>  {if (el===',') {return ';';} else return el;}).join(','));
   }
  
   onLocalGet() {
@@ -82,17 +82,17 @@ export class Custom {
     const value = (event.target as HTMLInputElement).value;
     this.n = Number(value);
     Custom.availableChars[0] = this.n.toString();
-    this.availableChars = Custom.availableChars;
+    this.availableChars = Custom.availableChars.map(el =>  {if (el===';') {return ',';} else return el;});
   }
 
   add(char: string, side: 'L' | 'R') {
     if (side === 'L') {
       Custom.charsL.push(char);
-      this.stringCharsL = Custom.charsL;
+      this.stringCharsL = Custom.charsL.map(el =>  {if (el===';') {return ',';} else return el;});
     }
     else {
       Custom.charsR.push(char);
-      this.stringCharsR = Custom.charsR
+      this.stringCharsR = Custom.charsR.map(el =>  {if (el===';') {return ',';} else return el;});
     };
     this.onLocalSave();
   }
@@ -105,18 +105,18 @@ export class Custom {
     console.log("remov")
     if (side === 'L') {
       Custom.charsL.splice(ind, 1);
-      this.stringCharsL = Custom.charsL;
+      this.stringCharsL = Custom.charsL.map(el =>  {if (el===';') {return ',';} else return el;});
     } else {
       Custom.charsR.splice(ind, 1);
-      this.stringCharsR = Custom.charsR;
+      this.stringCharsR = Custom.charsR.map(el =>  {if (el===';') {return ',';} else return el;});
     }
     this.onLocalSave();
   }
 
   drop(event: CdkDragDrop<string[]>, side: 'L' | 'R') {
     moveItemInArray(side === 'L' ? Custom.charsL : Custom.charsR, event.previousIndex, event.currentIndex); // note:from doc angular doc
-    this.stringCharsL = Custom.charsL;
-    this.stringCharsR = Custom.charsR;
+    this.stringCharsL = Custom.charsL.map(el =>  {if (el===';') {return ',';} else return el;});
+    this.stringCharsR = Custom.charsR.map(el =>  {if (el===';') {return ',';} else return el;});
     this.onLocalSave();
   }
 
@@ -144,6 +144,7 @@ export class Custom {
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh('; // sigmoid is not a Math function, but tanh works in new Function
         if (el === 'max(') return 'Math.max(';
+        if (el===';') return ',';
         return el;
       }).join(' '); // without commas like an equation
 
@@ -166,6 +167,7 @@ export class Custom {
         if (el === '^') return '**';
         if (el === 'tanh(') return 'Math.tanh(';
         if (el === 'max(') return 'Math.max(';
+        if (el===';') return ',';
         return el;
       }).join(' ');
 
@@ -189,9 +191,10 @@ export class Custom {
 
   onSave() {
       if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING WILL SAVE")}
-
-      this.api.submitController([this.stringCharsL, this.stringCharsR]).subscribe(res => {
-      console.log(res);
+      const l = this.stringCharsL.map(el =>  {if (el===',') {return ';';} else return el;});
+      const r = this.stringCharsR.map(el =>  {if (el===',') {return ';';} else return el;});
+      this.api.submitController([l, r]).subscribe(res => {
+      console.log(l);
     })
   }
 
@@ -208,13 +211,11 @@ export class Custom {
       Custom.charsR.push(...res.code[1]);
       console.log(Custom.charsL)
     
-      this.stringCharsL = [...Custom.charsL];
-      this.stringCharsR = [...Custom.charsR];
+      this.stringCharsL = [...Custom.charsL].map(el =>  {if (el===';') {return ',';} else return el;});
+      this.stringCharsR = [...Custom.charsR].map(el =>  {if (el===';') {return ',';} else return el;});
       this.onLocalSave();
       
       this.cdr.detectChanges();
     })
   }
-
-
 }

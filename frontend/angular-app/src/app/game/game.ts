@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 import { RouterLink } from '@angular/router';
 
-// add: better AI levels? + comments for doc.
+// add: texts + imgs + comments for doc. (+ better AI levels?)
 
 @Component({
   selector: 'app-game',

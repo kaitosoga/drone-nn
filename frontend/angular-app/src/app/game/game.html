@@ -42,7 +42,7 @@
             <button routerLink="/custom">Customise Controller</button>
         </div>
 
-        <div id="live">
+        <div class="live">
             <div class="live-row error"  *ngIf="errorMsg || customData.error">
                 {{errorMsg}} | {{customData.error}}
             </div>
@@ -71,7 +71,7 @@
             </div>
             <!--<p class="error" *ngIf="crashMsg">{{crashMsg}}</p>-->
         </div>
-        <div>
+        <div class="info">
             <details>
                 <summary>Control Guide</summary>
                     texts ldfjsdkjf sdlkfj skldjfgh ksdyxf jksd <br>
@@ -94,11 +94,18 @@
 <app-inspect *ngIf="inspect" [aiSelected]="aiSelected" [stateN0]="stateN0"></app-inspect>
 <!--for better quality make larger than necessary in css-->
 <!--<button (click)="onClicked()">{{this.text}}</button>-->
-<a href='https://pngtree.com/freepng/burning-meteor-with-flames-and-glowing-heat-effect-for-space-disaster_20756914.html'>png images from pngtree.com/</a>
-<a href="https://www.vecteezy.com/free-png/space-debris">Space Debris PNGs by Vecteezy</a>
-<a href="https://www.freepik.com/free-photos-vectors/blackhole-png">images from FREEP!K</a>
-<a href="https://www.vecteezy.com/free-png/gold-glitter-wave">Gold Glitter Wave PNGs by Vecteezy</a>
-<a href="https://www.vecteezy.com/free-png/satellite">Satellite PNGs by Vecteezy</a>
-<a href="https://www.vecteezy.com/free-png/astronaut">Astronaut PNGs by Vecteezy</a>
-<a href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>
-<a href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>
+
+<div class="info">
+    <details style="color: black;">
+        <summary>attributions</summary>
+        <a style="color: black;" href='https://pngtree.com/freepng/burning-meteor-with-flames-and-glowing-heat-effect-for-space-disaster_20756914.html'>png images from pngtree.com/</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/space-debris">Space Debris PNGs by Vecteezy</a>
+        <br><a style="color: black;" href="https://www.freepik.com/free-photos-vectors/blackhole-png">images from FREEP!K</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/gold-glitter-wave">Gold Glitter Wave PNGs by Vecteezy</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/satellite">Satellite PNGs by Vecteezy</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/astronaut">Astronaut PNGs by Vecteezy</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>
+        <br><a style="color: black;" href="https://www.vecteezy.com/free-png/alien">Alien PNGs by Vecteezy</a>
+    </details>
+</div>
+
