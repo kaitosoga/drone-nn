@@ -3,6 +3,22 @@ body {
     color: rgb(181, 253, 255);
 }
 
+::selection {
+  color: blueviolet;
+  background-color: rgba(158, 241, 255, 0.041);
+}
+
+table {
+    border-collapse: collapse;
+    width: 50%;
+    margin: 10px 0;
+}
+td {
+    border: 1.5px solid rgb(61, 61, 61);
+    padding: 8px;
+    text-align: left;
+}
+
 .container {
     max-width: 1000px;
     margin: 0 auto;
@@ -18,14 +34,19 @@ body {
 }
 
 .header h1 {
+    color: rgb(181, 253, 255);
     margin: 0 0 15px 0;
     font-size: 28px;
 }
 
 .header p {
     margin: 0;
-    color: rgb(200, 200, 200);
+    color: rgb(255, 255, 255);
     line-height: 1.6;
+}
+
+p, details {
+    text-align: justify;
 }
 
 .equations-section {

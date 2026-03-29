@@ -1,12 +1,31 @@
 .container {
-  max-width: 1600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 80%;
   margin: 0 auto;
   padding: 30px 20px;
   background: rgb(10, 10, 10);
   color: rgb(200, 200, 200);
 }
 
+::selection {
+  color: blueviolet;
+  background-color: rgba(158, 241, 255, 0.041);
+}
+
+.hint {
+    color: rgb(150, 150, 150);
+    margin: 0;
+    font-size: 12px;
+    font-style: italic;
+}
+
 .header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-bottom: 1px solid rgb(50, 50, 50);
   padding-bottom: 20px;
   margin-bottom: 40px;
@@ -20,21 +39,25 @@
 
 .header p {
   margin: 0;
-  color: rgb(140, 140, 140);
+  color: rgb(255, 255, 255);
   line-height: 1.5;
 }
 
-.network-container {
-  background: rgb(15, 15, 15);
-  border: 1px solid rgb(50, 50, 50);
-  border-radius: 6px;
-  padding: 20px;
-  overflow-x: auto;
-  position: relative;
+.wrapper {
+  width: 70%;
+    color: aliceblue;
 }
 
+.wrapper p {
+    text-align: justify;
+}
+
+.wrapper-top {
+  text-align: center;
+}
 
 .network-layout {
+  width: 100%;
   display: flex;
   gap: 30px;
   align-items: center;
@@ -53,6 +76,7 @@
   flex-direction: column;
   gap: 10px;
   justify-content: center;
+  margin-left: 25%;
 }
 
 .input-row {

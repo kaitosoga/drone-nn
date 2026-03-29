@@ -2,33 +2,107 @@
   <h1 class="title">AI Pilots</h1>
 
   <div class="wrapper">
-    <h2>What is AI Pilots?</h2>
-    <p>AI Pilots is an app to allow playful interaction with AI - play 
-      a drone game against it, develop your own PID to beat it, and 
-      inspect the AI to improve your intuition about it. <br><br>
-    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+    <h2>Welcome to AI Pilots</h2>
+    <p>
+      AI Pilots is a 2D game playing in space where the objective is to steer your drone 
+      carefully from checkpoint to checkpoint in limited amount of time. At the same time, you compete 
+      against an AI - it ahs the same goal as you, and you have one minute to collect more checkpoints 
+      than the AI opponent. <br><br>
+
+      You can control your drone with arrow keys or awd, where each key activate a thrust on 
+      the drone when clicked - because the drone follows standard physics, you will have to maneuver against 
+      gravity, momentum, and not loose control!
+
+      This project is not focused just on games - the purpose of AI Pilots is to demonstrate the differences 
+      between human actors and AI bots in interactive, visual, and hands-on ways, and to display the inner 
+      workings of the AI (an FFN) in real time. <br><br> 
+      
+      You don't know what an FFN is? That's where the inspect section will help you, by explaining the 
+      components and the intuition behind what the AI (FFN) does without the abstract maths.<br><br> 
+
+      In addition, there are many more features like visualising the AI in real time as it plays the 
+      game, an easy interface for building your own, custom controller and let it play against the AI, 
+      yourself, or even others, a selection of skins to give your own drone, the creation of 
+      an account without an email to save all your work, and a public leaderboard both for humans and 
+      their custom controllers.
     </p>
   </div>
 
   <div class="wrapper">
-    <h2>How does it work?</h2>
-    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam</p>
+    <h2>Features:</h2>
+    <p>Before using the app, read through the feature documentation to undertand the purpose and functionality of each part!</p>
+
+    <h3>Game</h3>
+    <p>
+      Upon a countdown of 3 seconds, you have one minute to move your drone from checkpoitn to checkpoint as 
+      fast as possible. You can play against an AI of three different levels, and your own custom controller, 
+      and even against the controllers of other players. <br><br> 
+      Whether you just want to game or compare your skills against bots, here you can do both.
+    </p>
+
     <div class="horizontal">
       <p class="txt">
-        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going thro
+        This example image shows the drones in action. The lasers visualised the activated thrusts, and the stars are your checkpoints. 
+        The drone with a tail track is yous, the other one the opponent.
       </p>
       <img src="public/media/example.png" alt="image to display game preview">
     </div>
+
     <p>
-      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+      more text? more text? more text? more text? more text? more text? more text? more text? more text? more text? more text? 
     </p>
+
+    <h3>The AI & Inspect Mode</h3>
+    <p>
+      The AI is a so-called FFN, which will be explained to you in the Inspect section. It serves the goal of visualising what goes on 
+      inside the AI, and of explaining its inner working with intuitive words and analogies.<br><br>
+      Inside the Inspect section you can change the inputs that the AI takes manually to interact with and see the reaction of the AI. <br><br>
+      When you are inside the Game section, you can click "Inspect" to visualised the AI's neurons in ral time.
+    </p>
+
+    <h3>Custom Controllers</h3>
+    <p>
+      Instead of playing against AI yourself, you can try to build a controller yourself to beat the AI.<br><br>
+      The interace allows you to use various functions and the state variables (e.g., veocity on the Y axis, 
+      acceleration, angle, cooridnates of the next checkpoint, etc...) - you just drag&drop them to build the custom controller.<br><br>
+      This allows you to experiment with control strategies, programming, and physics - things that are usually outside of the app.
+    </p>
+
+    <h3>Accounts</h3>
+    <p>
+      You should create an account, for which you don't need an email, so your top scores and custom controllers will be saved. 
+      Remember your password!
+    </p>
+
+    <h3>Public Leaderboards and Shared Controllers</h3>
+    <p>
+      There are two public leaderboards for humans and their custom controllers.<br>
+      If you have an account, your scores will automatically be considered for the 
+      leaderboard - only the top 10 scores make it, and are displayed with your 
+      profile name. For the top 10 custom controllers, there is also the option 
+      to play against these controllers - just click "challenge" and select the 
+      custom option in the Game section.
+    </p>
+
+    <h3>Skins</h3>
+    <p>
+      Regardless of your top score you can choose any skin for your drone. 
+      This is because your skin won't be visible to others, so the top score doesn't matter or determine your skin.
+    </p>
+
+    <h3></h3>
+    <p>
+      
+    </p>
+
+
   </div>
 
   <div class="wrapper">
     <h2>Start Browsing (or use the menu):</h2>
     <div class="wrapper" style="border-bottom: 0; margin: 10px;">
       <button routerLink="/game">Play the Game</button>
-      <button routerLink="/custom">Make Your Own Algorithm</button>
+      <button routerLink="/custom">Build Your Own Controller</button>
       <button routerLink="/inspect">Inspect the AI</button>
       <button routerLink="/skins">Browse Skins</button>
       <button routerLink="/leaderboard">See the Leaderboard</button>

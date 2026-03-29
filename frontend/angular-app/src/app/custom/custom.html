@@ -1,7 +1,108 @@
 <div class="container">
   <div class="header">
     <h1>Custom Controller</h1>
-    <p>Design your custom thrust equations by building expressions with the available operations and variables below.</p>
+    <p>Design your custom thrust equations by building expressions with the available operations and variables below.</p><br>
+      <details>
+      <summary>Please read the <strong>Explanation</strong> for help:</summary><br>
+        Welcome to your own interface for crafting controllers. If you've played the game, you've seen the two thrusters 
+        moving the drone left, right, up, and down. In the following interface, you can build functions for both 
+        thrusters (left & right). As an input you can use various state variables, i.e., the drone's velocity, acceleration, 
+        angle, and it's coordintes relative to the checkpoints (the vector from your drone to the next checkpoint.) <br><br>
+        Using the operations available, you compose symmetrical (or unsymmetrical) equations for each thrust, based on the 
+        environment's state (you don't need to use them all) by clicking the operation / variable you need, draging them 
+        within your equation, and removing them (double click) if you want to get rid of them. <br><br>
+        To make a good controller, you should look at the gameplay of a drone to observe the physics, and experiment with equations. <br><br>
+        Here is a list of what each component does:
+        <table >
+          <tr>
+            <td>Component</td>
+            <td>Purpose</td>
+          </tr>
+          <tr>
+            <td>N (Number)</td>
+            <td>Add any numerical number to use as factors</td>
+          </tr>
+          <tr>
+            <td>+</td>
+            <td>The plus operation</td>
+          </tr>
+          <tr>
+            <td>-</td>
+            <td>The minus operation</td>
+          </tr>
+          <tr>
+            <td>*</td>
+            <td>The multiplication</td>
+          </tr>
+          <tr>
+            <td>/</td>
+            <td>The division</td>
+          </tr>
+          <tr>
+            <td>^</td>
+            <td>To write Exponents</td>
+          </tr>
+          <tr>
+            <td>(</td>
+            <td>To open parenthesis if your equation requires them</td>
+          </tr>
+          <tr>
+            <td>)</td>
+            <td>To close parenthesis if your equation requires them</td>
+          </tr>
+          <tr>
+            <td>sigmoid(</td>
+            <td>To normalise values into a range from [0, 1] <br> This is not a linear function <br> The opening brackets are already included</td>
+          </tr>
+          <tr>
+            <td>tanh(</td>
+            <td>To normalise values into a range from [-1, 1] <br> This is not a linear function <br> The opening brackets are already included</td>
+          </tr>
+          <tr>
+            <td>max(</td>
+            <td>To get the greater of two values seperated by a comma: max(x,y) <br> Use the comma component <br> The opening brackets are already included</td>
+          </tr>
+          <tr>
+            <td>,</td>
+            <td>The comma, only needed in the max() function</td>
+          </tr>
+          <tr>
+            <td>optX</td>
+            <td>The distance to the checkpoint on the X axis <br> Because the drone itself is the origin, this value be both positive or negative</td>
+          </tr>
+          <tr>
+            <td>optY</td>
+            <td>The distance to the checkpoint on the Y axis <br> Because the drone itself is the origin, this value be both positive or negative</td>
+          </tr>
+          <tr>
+            <td>velX</td>
+            <td>The drone's velocity on the X axis</td>
+          </tr>
+          <tr>
+            <td>velY</td>
+            <td>The drone's velocity on the Y axis</td>
+          </tr>
+          <tr>
+            <td>accX</td>
+            <td>The drone's acceleration on the X axis</td>
+          </tr>
+          <tr>
+            <td>accY</td>
+            <td>The drone's acceleration on the Y axis</td>
+          </tr>
+          <tr>
+            <td>Angle</td>
+            <td>The drone's angle in radians</td>
+          </tr>
+          <tr>
+            <td>velAngle</td>
+            <td>The drone's angular veclocity in radians / second</td>
+          </tr>
+        </table>
+        At the bottom, you can test to see if there are any syntax errors in your equations, save the equation to your 
+        profile, load an existing one from your profile, load the last locally saved version, in case you've lost it, 
+        or jump right into the game.
+      </details>
   </div>
 
   <div class="equations-section">
@@ -47,7 +148,7 @@
     </div>
 
     <p class="error" *ngIf="error">{{error}}</p>
-    <p class="hint">Double-click an item in the equation to remove it</p>
+    <p class="hint">Double-click an item in the equation to remove it. The "L", "R", "Both" indications determine which side the component is added to.</p>
   </div>
 
   <div class="actions-section">

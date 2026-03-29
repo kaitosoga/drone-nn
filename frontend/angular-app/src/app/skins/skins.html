@@ -6,15 +6,15 @@
 
   <div class="skins-grid">
     <div class="skin-card" 
-      (click)="setSkin('public/skins/camera-drone.png')"
-      [class.selected]="gameService.skinPath === 'public/skins/camera-drone.png'">
-      <img src="public/skins/camera-drone.png" alt="Skin 1">
+      (click)="setSkin('public/skins/drone-skin1.png')"
+      [class.selected]="gameService.skinPath === 'public/skins/drone-skin1.png'">
+      <img src="public/skins/drone-skin1.png" alt="Skin 1">
       <span class="label">Drone Alpha</span>
     </div>
     <div class="skin-card" 
-      (click)="setSkin('public/skins/camera-drone1.png')"
-      [class.selected]="gameService.skinPath === 'public/skins/camera-drone1.png'">
-      <img src="public/skins/camera-drone1.png" alt="Skin 2">
+      (click)="setSkin('public/skins/drone-skin2.png')"
+      [class.selected]="gameService.skinPath === 'public/skins/drone-skin2.png'">
+      <img src="public/skins/drone-skin2.png" alt="Skin 2">
       <span class="label">Drone Beta</span>
     </div>
     <div class="skin-card" 
@@ -25,4 +25,12 @@
     </div>
   </div>
   <button routerLink="/game">Play the Game</button>
+</div>
+<div class="info">
+    <details style="color: black;">
+        <summary>attributions</summary>
+        <br><a style="color: black;" href="https://ezremove.ai/image-to-image/">some images generated on https://ezremove.ai</a>
+        <br><a style="color: black;" href="https://imgtoimg.ai/">some images generated on https://imgtoimg.ai/</a>
+        <a style="color: black;" href="https://www.vecteezy.com/free-png/drone">Drone PNGs by Vecteezy</a>
+    </details>
 </div>

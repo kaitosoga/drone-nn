@@ -1,8 +1,18 @@
 <div class="container">
   <div class="header">
     <h1>Neural Network Inspector</h1>
-  
-
+    <div class="wrapper-top">
+        <p class="hint">*if you are on a smaller screen, you may need to scroll horizontally to see the network</p>
+        <details>
+            <summary>Overview</summary>
+            <p>
+                The following visualisation let's you adjust the inputs of the AI and observe how each neuron activation or the outputs adapt to it. 
+                If you are in the Game section, you will see the inputs updating and the AI "thinking" in real time. To learn what neurons are, 
+                please read the explanations at the bottom. <br>
+                Note: The weights are not visualised because they would be too numerous to be rendered live.
+            </p>
+        </details><br>
+    </div>
     <div class="network-layout" *ngIf="input && activations">
         <div class="input-column">
             <div class="input-row">
@@ -51,15 +61,80 @@
                     <div class="neuron" *ngFor="let v of layer" [style.backgroundColor]="neuronColor(v)" [title]="v.toFixed(3)"></div>
                 </div>
             </div>
-                <div class="layer" *ngIf="activations.length > 0">
-
+            <div class="layer">
                 <div class="output-labels">
                     <p>Output:</p>
                     <div class="out-label">Left: {{(((activations[activations.length - 1][0] * 100)+ 100)/2).toFixed(1)}}%</div> <!--again, // only to strenthen visual effect, not quantitatively correct, but qualitativ, not linear-->
                     <div class="out-label">Right: {{(((activations[activations.length - 1][1] * 100)+ 100)/2).toFixed(1)}}%</div>
                 </div>
-                </div>
             </div>
         </div>
+    </div>
+    <div class="wrapper">
+        <h3>What is an AI?</h3>
+        <p>
+        An AI like the one in this game is not a thinking brain. It does not understand the game, the drone, or the goal in the way a human does.<br><br>
+        Instead, it is a system that has learned patterns from many examples. It has seen many situations (for example: positions, velocities, angles) and 
+        learned what actions worked well in those situations.<br><br>
+        When the AI plays, it simply looks at the current situation  (current velocity, checkpoint coordinates, etc...) and produces an output based on what it has learned before. 
+        It does not know <i>why</i> 
+        something works - it only knows that certain patterns are often linked to "good" outcomes.<br><br>
+        </p>
+
+        <h3>What is an FFN?</h3>
+        <p>
+        The AI used here is a so-called feedforward network (FFN). You can think of it as a chain of simple steps that transform inputs into outputs.<br><br>
+        It takes numbers as input (for example: velocity, position, angle, distance to the next checkpoint) and produces numbers as output (the thrusts of the drone).<br><br>
+        Between input and output, the data passes through several layers. Each layer slightly changes and recombines the information before passing it on.<br><br>
+        Specifically, each neuron (the round dots in the visualisation) becomes a combination of all the neuron activations (values of the dots of the layer to the left), but each 
+        previous input is weighed differently, which means different inputs are attribute more or less "importance". <br>
+        This happens at each layer: it takes inputs, recombines each input value into new combinations, each of which become some new input to the next layer (neurons), and the only 
+        thing that changes is the layer size (amount of neurons in the layer). <br>
+        In the end, the AI is just one large function that turns a situation (state variables as inputs) into different represetnations of data until, eventually, the representation 
+        is just two values - the thrust outputs that control the drone.
+        </p>
+
+        <h3>How does the AI make decisions?</h3>
+        <p>
+        Since each layer recombines its inputs with different weight, the function can learn very complex and non-linear patterns or correlations. Below, the weighted recombination 
+        of inputs is visualised (in the live vsualisation above the weights were omitted because the rendering would have been too inefficient for so many weights, since every input 
+        neuron is connected to every output neuron). <br><br>
+        </p>
+        
+        <a href="https://charonhub.deeplearning.ai/content/images/2022/09/dfbcdc70-a9a2-4967-95b8-6866a6a0a6bf.gif">
+            <img style="max-width: 40%;" src="https://charonhub.deeplearning.ai/content/images/2022/09/dfbcdc70-a9a2-4967-95b8-6866a6a0a6bf.gif" alt="Clickable Animated GIF" />
+        </a>   
+
+        <h3>What do the neurons represent?</h3>
+        <p>
+        So, when you look at the visualisation at the top, each dot (neuron) you see is a small unit that reacts to certain patterns in the input.<br><br>
+        You can observe:
+        <br> which neurons are active
+        <br> how information flows through the layers
+        <br> how the final decision is built step by step<br><br>
+        A neuron becomes active when the pattern it is sensitive to is present. For example, one neuron might react to "high upward speed", while another reacts to 
+        "being close to a checkpoint".<br><br>
+        But unlike human thinking, these meanings are not conceptual or easy to interpret. Each neuron usually responds to a mix of different things, but you can play around with the 
+        manual inputs, or observe them in a live game.<br><br>
+        (This is also why the network is hard to interpret: information is spread out across many neurons instead of being stored in clear concepts, yet the AI can learn very useful 
+        patterns and eventually play the game).
+        </p>
+
+        <h3>What does training mean?</h3>
+        <p>
+        Before the AI can play well, it is trained on many examples.<br><br>
+        It repeatedly sees situations and adjusts itself based on what leads to better outcomes. Over time, it becomes better at linking situations to useful actions.<br><br>
+        Important: it does not learn rules like "always move towards the checkpoint". Instead, it learns that certain patterns are often followed by success, which was, in my training, 
+        defined as the negative distance to the next checkpoint.<br><br>
+        This is called learning correlations: the AI recognises what tends to work, without understanding the underlying reason.
+        </p>
+
+        <h3>Why is this interesting?</h3>
+        <p>
+        Humans usually think in clear rules and causes: "I move left because the checkpoint is there".<br><br>
+        The AI does something different. It combines many small signals and correlations into a decision, without forming clear reasoning.<br><br>
+        This difference is what this project is about:<br>
+        Understanding how human intuition and AI behaviour differ - and seeing it directly in action.
+        </p>
     </div>
 </div>

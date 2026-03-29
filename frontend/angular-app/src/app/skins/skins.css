@@ -76,3 +76,7 @@ button:hover {
     background-color: black;
     color: rgb(181, 253, 255);
 }
+
+.info {
+    margin: 5px 24px;
+}

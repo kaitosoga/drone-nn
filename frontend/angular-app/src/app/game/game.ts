@@ -9,7 +9,7 @@ import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 import { RouterLink } from '@angular/router';
 
-// add: texts + imgs + comments for doc. (+ better AI levels?)
+// add: texts + imgs + comments for doc. + some minor improvements for UX (+ better AI levels?)
 
 @Component({
   selector: 'app-game',
@@ -175,9 +175,11 @@ export class Game implements OnInit{
       this.bgImages.push(img);
     });
 
+    
+
     this.skin0.src = 'public/skins/camera-drone.png';
     this.skin0.onload = () => {} //this.draw();
-    this.skin1.src = 'public/skins/camera-drone1.png';
+    this.skin1.src = 'public/skins/drone-skin0.png';
     this.skin1.onload = () => {}
     this.skin2.src = this.gameService.skinPath; // 'public/skins/camera-drone2.png';
     this.skin2.onload = () => {}
@@ -796,19 +798,19 @@ export class Game implements OnInit{
     });
 
     this.context.beginPath();
-    this.context.moveTo(centerX - 50 * Math.cos(angle), centerY - Math.sin(angle)*50);
-    this.context.lineTo(centerX - 50 * Math.cos(angle), centerY - Math.sin(angle)*50 + thrustR * (10+15*(1-thrustM)) + thrustM*70);
+    this.context.moveTo(centerX - 75 * Math.cos(angle), centerY - Math.sin(angle)*75);
+    this.context.lineTo(centerX - 75 * Math.cos(angle), centerY - Math.sin(angle)*75 + thrustR * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
     this.context.beginPath();
-    this.context.moveTo(centerX + 50 * Math.cos(angle), centerY + Math.sin(angle)*50);
-    this.context.lineTo(centerX + 50 * Math.cos(angle), centerY + Math.sin(angle)*50 + thrustL * (10+15*(1-thrustM)) + thrustM*70);
+    this.context.moveTo(centerX + 75 * Math.cos(angle), centerY + Math.sin(angle)*75);
+    this.context.lineTo(centerX + 75 * Math.cos(angle), centerY + Math.sin(angle)*75 + thrustL * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
-    this.context.beginPath();
-    this.context.moveTo(centerX, centerY);
-    this.context.lineTo(centerX, centerY + thrustM * 0);
-    this.setStyle("blue");
+    //this.context.beginPath();
+    //this.context.moveTo(centerX, centerY);
+    //this.context.lineTo(centerX, centerY + thrustM * 0);
+    //this.setStyle("blue");
 
     this.context.translate(relX, relY);
     this.context.rotate(angle);
