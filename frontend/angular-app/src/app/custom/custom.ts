@@ -60,13 +60,12 @@ export class Custom {
     }
   }
 
-  onLocalSave() {
+  onLocalSave() { // the mapping from , to ; or vice versa are only because split(",") creates issues, but , should be displayed ...
     localStorage.setItem('charsL', Custom.charsL.map(el =>  {if (el===',') {return ';';} else return el;}).join(',')); // join because cna only be string I think
     localStorage.setItem('charsR', Custom.charsR.map(el =>  {if (el===',') {return ';';} else return el;}).join(','));
   }
  
   onLocalGet() {
-
     const gotL = localStorage.getItem('charsL')
     const gotR = localStorage.getItem('charsR')
     Custom.charsL = (gotL || '').split(',');
@@ -120,7 +119,7 @@ export class Custom {
     this.onLocalSave();
   }
 
-  compileController(stateFull: any, chars=[Custom.charsL, Custom.charsR]){
+  compileController(stateFull: any, chars=[Custom.charsL, Custom.charsR]){ // strings to function
 
     const state: Record<string, any> = { // weird js or ts types to make index work later
         'optX': stateFull['opt'][0],
@@ -189,7 +188,7 @@ export class Custom {
 
   }
 
-  onSave() {
+  onSave() { // to profile
       if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING WILL SAVE")}
       const l = this.stringCharsL.map(el =>  {if (el===',') {return ';';} else return el;});
       const r = this.stringCharsR.map(el =>  {if (el===',') {return ';';} else return el;});
@@ -198,7 +197,7 @@ export class Custom {
     })
   }
 
-  onLoad() {
+  onLoad() { // to profile
     if (localStorage.getItem('user_id') === null) {alert("NOT LOGGED IN, NOTHING TO GET")}
 
     this.api.getSavedController(this.userId).subscribe(res => {

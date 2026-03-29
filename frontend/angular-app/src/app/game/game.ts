@@ -9,12 +9,12 @@ import { GameService } from '../game/game.service';
 import { Inspect } from "../inspect/inspect";
 import { RouterLink } from '@angular/router';
 
-// add: texts + imgs + comments for doc + some minor improvements for UX (+ better AI levels?)
+// add: all done
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule, Inspect, RouterLink], // for inspect component routed
+  imports: [CommonModule, Inspect, RouterLink], // for inspect component routed, routerlink for redirect to custom
   templateUrl: './game.html',
   styleUrl: './game.css',
 })
@@ -29,8 +29,7 @@ export class Game implements OnInit{
     return this.canvas.nativeElement.getContext('2d') || new CanvasRenderingContext2D(); // to avoid '?'
   }
   
-  private isCtrlHeld = false; // for canvas resizing on scroll/zoom
-  private lastHeld = false;
+  // for scaling:
   private canvasWidth = 0;
   private canvasHeight = 0;
   private bgPattern: CanvasPattern | null = null;
@@ -46,6 +45,7 @@ export class Game implements OnInit{
   customData = inject(Custom); // can also edit instance config here!
   api = inject(ApiService);
 
+  // game:
   menuHidden = false;
   phoneMode = true;
   winner = '';
@@ -57,8 +57,8 @@ export class Game implements OnInit{
 
   showAI = false;
   
-  Pid = new PID();
-  Net0 = new Net();
+  Pid = new PID(); // not needed
+  Net0 = new Net(); // creating AI model instance
 
   stateN0 = null;
   statePID = null;
@@ -83,7 +83,7 @@ export class Game implements OnInit{
   ratio: any;
   reTiInt: any // resizing time interval
 
-  // countdown at beinning+ game time
+  // countdown at beinning + game time
   countdown = 0;
   timeLeft = 0;
   ptime = 0;
@@ -92,33 +92,37 @@ export class Game implements OnInit{
   private lastTimerUpdate = 0;
   errorMsg = '';
 
+  // img data
   skin0 = new Image();
   skin1 = new Image();
   skin2 = new Image();
   chp0 = new Image();
   chp1 = new Image();
   chp2 = new Image();
+
   bgImage = new Image(); // main bg img
-  bgPaths = [
+  bgPaths = [ // used to create array of bg imgs
     'public/media/comet.png',
     'public/media/hole.png', 
     'public/media/stardust.png',
     'public/media/astronaut.png',
     'public/media/debris.png',
   ];
-  private bgImages: HTMLImageElement[] = [];
+
+  private bgImages: HTMLImageElement[] = []; // array of random background images
+  // audio objects:
   audio0L = new Audio();
   audio0R = new Audio();
   audio0M = new Audio();
   audio1 = new Audio();
   audio2 = new Audio();
 
-  bgLoaded = false;
-
-  sideLength = 1;
+  bgLoaded = false; // to wait for bg images to load
+  sideLength = 1; // helper variable for countdown positioning (so that number is in center, )
   firstSess = true;
   crashed = false;
 
+  // past coordinates for tail effect in draw function
   private tailsA: any[] = [];
   private tailsC: any[] = [];
   private tailsP: any[] = [];
@@ -126,11 +130,10 @@ export class Game implements OnInit{
   constructor(public gameService: GameService, private cdr: ChangeDetectorRef) { // cdr allows variables for html to be updated while canvas running, otherwise blocked
     document.title = "AI Pilots - Game";
     this.frameId = null;
-
     this.gServiceHelperHTML =  this.gameService.ownController;
 
+    // key events for game control
     document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) this.isCtrlHeld = true;
       if (e.key === 'ArrowLeft' || e.key === 'a') {
         this.lClick = true;
         if (!this.running) return;
@@ -149,7 +152,6 @@ export class Game implements OnInit{
     });
     // a, w, d / sounds on thrusts and checkpoints / thrust visualisation!
     document.addEventListener('keyup', (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta') this.isCtrlHeld = false;
       if (e.key === 'ArrowLeft' || e.key === 'a') this.lClick = false; this.audio0L.pause();
       if (e.key === 'ArrowRight' || e.key === 'd') this.rClick = false; this.audio0R.pause();
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') this.mClick = false; this.audio0M.pause();
@@ -164,9 +166,8 @@ export class Game implements OnInit{
   ngAfterViewInit() { // because constructor would attempt to draw before html starts to render
     this.bgImage.src = 'public/media/bg0.png';
     this.bgImage.onload = () => {
-      this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!;
+      this.bgPattern = this.context!.createPattern(this.bgImage, 'repeat')!; // canvas pattern for continuous background
     };
-
     let loaded = 0;
 
     this.bgPaths.forEach(pth => {
@@ -175,13 +176,11 @@ export class Game implements OnInit{
       this.bgImages.push(img);
     });
 
-    
-
     this.skin0.src = 'public/skins/camera-drone.png';
-    this.skin0.onload = () => {} //this.draw();
+    this.skin0.onload = () => {}
     this.skin1.src = 'public/skins/drone-skin0.png';
     this.skin1.onload = () => {}
-    this.skin2.src = this.gameService.skinPath; // 'public/skins/camera-drone2.png';
+    this.skin2.src = this.gameService.skinPath;
     this.skin2.onload = () => {}
 
     this.chp0.src = 'public/media/chp.png';
@@ -226,8 +225,9 @@ export class Game implements OnInit{
     canvas.height = sideLength * dpr;
     this.context.scale(dpr, dpr);
     this.sideLength = sideLength;
-        this.canvasWidth = canvas.width;
-        this.canvasHeight = canvas.height;
+    this.canvasWidth = canvas.width;
+    this.canvasHeight = canvas.height;
+    //explanation:
     //this.canvasWidth = sideLength;
     //this.canvasHeight = sideLength;
     // just found+fixed bug:
@@ -362,7 +362,7 @@ export class Game implements OnInit{
     this.mClick = false;
   }
 
-  // options:
+  // game options:
   toggleAi() {
     this.aiSelected = !this.aiSelected;
     if (!this.aiSelected) {
@@ -475,7 +475,7 @@ export class Game implements OnInit{
     this.loadNet0();
   }
 
-  loadNet0() {
+  loadNet0() { // loading selected AI model
     this.Net0.load(`public/models/drone_AI_weights-${this.level}.json`)
   }
 
@@ -531,7 +531,7 @@ export class Game implements OnInit{
     this.bg2Points = [];
   }
 
-  setMain(name: string) {
+  setMain(name: string) { // setting the main frame of reference, the drone which stays in center
     if (name === "player") {this.EnvMain = this.EnvP;} else {this.EnvMain = this.EnvC;}
   }
 
@@ -541,11 +541,11 @@ export class Game implements OnInit{
     const absoluteHeight = window.outerHeight * window.devicePixelRatio;
     this.sRat = absoluteWidth / 1900 * Math.max(1, absoluteHeight / absoluteWidth);
     console.log("ONRESIZE", window.outerWidth * window.devicePixelRatio);
-  }
+  } // for scaling
 
   // computing controls + rendering canvas
   lastTime = 0;
-  draw(time = 0) {
+  draw(time = 0) { // draws while game is playing
     if (this.crashed) return;
     this.cdr.detectChanges();
     const dt = (time - this.lastTime) / 1000;
@@ -553,7 +553,6 @@ export class Game implements OnInit{
 
     // console.log(this.canvasWidth, this.canvasHeight)
     this.winner = this.scores[-1 + this.scores.indexOf(Math.max(this.scores[1], this.scores[3], this.scores[5]))];
-
 
     // bg
     if (this.bgPattern) { // found this online
@@ -606,7 +605,6 @@ export class Game implements OnInit{
     } else {
       this.context!.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     }
-    
 
     // if countdown running
     if (this.countdown > 0) {
@@ -732,12 +730,6 @@ export class Game implements OnInit{
     
     this.context.drawImage(chp, relChPX-offset, relChPY-offset, 200*this.sRat, 200*this.sRat)
 
-
-    // if (Math.sqrt((chpX - this.EnvMain.x)**2 + (chpY - this.EnvMain.y)**2) > 4000) {this.crashMessage();} // not necessary anymore with line for checkpoint indication, and it brought about unexplained bugs
-
-    // bg
-    // note: make multiple space background, sonme with objects in them already, randomly select in background processing!
-
     const relX = this.canvasWidth / 2 + (x - this.EnvMain.x) * this.sRat; // again relative to mainframe (frame of reference)
     const relY = this.canvasHeight / 2 + (y - this.EnvMain.y) * this.sRat;
 
@@ -807,11 +799,6 @@ export class Game implements OnInit{
     this.context.lineTo(centerX + (75*this.sRat-20) * Math.cos(angle), centerY + Math.sin(angle)*(75*this.sRat-20) + thrustL * (10+15*(1-thrustM)) + thrustM*70);
     this.setStyle();
 
-    //this.context.beginPath();
-    //this.context.moveTo(centerX, centerY);
-    //this.context.lineTo(centerX, centerY + thrustM * 0);
-    //this.setStyle("blue");
-
     this.context.translate(relX, relY);
     this.context.rotate(angle);
     const factor = Math.max(this.sRat, this.sRat) // because if height >> width, then drone becomes too narrow for 
@@ -831,25 +818,6 @@ export class Game implements OnInit{
     this.context.stroke();
   } // 3 layers for glow effect (best I could find for glowing, shadowblur not so good)
   
-  crashMessage() {
-      this.running = false;
-      this.crashed = true;
-      // fiexd because before message would not stop to appear.
-      if (this.frameId !== null) {
-        cancelAnimationFrame(this.frameId);
-        this.frameId = null;
-      }
-      this.context.save();
-      this.context.fillStyle = 'red';
-      this.context.font = 'bold 50px sans-serif';
-      this.context.textAlign = 'center';
-      this.context.textBaseline = 'middle';
-      this.context.fillText("your drone lost navigation :/", this.canvasWidth / 2, this.canvasHeight * .75);
-      //this.context.fillText("if this was a technical error - sorry", this.canvasWidth / 2, this.canvasHeight * .825);
-      this.context.restore();
-      // this.frameId = requestAnimationFrame(t => this.draw(t));
-      this.quit();
-  }
 }
 
 

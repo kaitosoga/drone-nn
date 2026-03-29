@@ -15,7 +15,7 @@ export class Inspect {
   @Input() aiSelected: boolean = false;
   @Input() stateN0: any = null;
   
-  manualState = {
+  manualState = { // input state for AI as fallback
     opt: [0, 0],
     vel: [0, 0],
     acc: [0, 0],

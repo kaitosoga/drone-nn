@@ -20,7 +20,7 @@ export class Home {
 
   constructor(private auth: ApiService) {
     document.title = "AI Pilots - Home";
-    this.user = [ // this.userName = this.user[0].name
+    this.user = [ // this.userName = this.user[0].name // just testing, no use
       {
         name: "kaito",
         id: 238423,
@@ -30,7 +30,8 @@ export class Home {
     ]
   }
 
-  getLedInd() {
+  // old functions, not in use, (keeping for documentation)
+  getLedInd() { // only testing call, can be ignored
     this.auth.getLeaderboard("custom").subscribe(data => {
       console.log('leaderboard:', data);
       this.leaderboard = data;
